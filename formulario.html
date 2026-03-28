@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="FESTALI — Formulario de contratación de invitaciones digitales">
+  <meta name="theme-color" content="#4b4495">
+  <title>FESTALI — Formulario de Contratación</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="form-page">
+
+  <!-- Elementos decorativos -->
+  <div class="deco-flor"></div>
+  <div class="deco-estrella"></div>
+
+  <!-- Spinner de carga -->
+  <div class="spinner-overlay" id="spinnerOverlay">
+    <div class="spinner"></div>
+    <p class="spinner-texto">Enviando tu información...</p>
+  </div>
+
+  <!-- ==================== HEADER ==================== -->
+  <header class="site-header">
+    <img src="logotipo.png" alt="FESTALI" class="logo">
+    <p class="slogan">Conectando tus mejores momentos.</p>
+  </header>
+
+  <!-- Banda del paquete -->
+  <div class="paquete-banner" id="paqueteBanner">
+    Completando formulario para el paquete
+    <span class="paquete-nombre" id="paqueteNombre">—</span>
+  </div>
+
+  <!-- ==================== FORMULARIO ==================== -->
+  <div class="form-container" id="formWrapper">
+    <h2 class="form-titulo">Cuéntanos sobre tu evento</h2>
+    <p class="form-subtitulo">
+      Completa los datos para que nuestro equipo comience<br>
+      a trabajar en tu invitación digital
+    </p>
+
+    <div class="form-card">
+      <form id="festaliForm" novalidate>
+
+        <!-- ── Datos del pedido ── -->
+        <div class="form-section-title">Datos del pedido</div>
+
+        <div class="form-group">
+          <label>Fecha de solicitud</label>
+          <input type="text" class="form-control" id="fechaSolicitud" readonly>
+        </div>
+
+        <div class="form-group">
+          <label>Número de folio</label>
+          <input type="text" class="form-control" id="numeroFolio" readonly>
+        </div>
+
+        <!-- ── Contacto ── -->
+        <div class="form-section-title">Tus datos de contacto</div>
+
+        <div class="form-group">
+          <label for="nombreCompleto">Nombre completo <span class="req">*</span></label>
+          <input type="text" class="form-control" id="nombreCompleto" name="nombreCompleto"
+                 placeholder="Tu nombre completo" required>
+        </div>
+
+        <div class="form-group">
+          <label for="whatsapp">WhatsApp (con código de país) <span class="req">*</span></label>
+          <input type="tel" class="form-control" id="whatsapp" name="whatsapp"
+                 placeholder="+52 686 000 0000" required>
+        </div>
+
+        <div class="form-group">
+          <label for="correo">Correo electrónico <span class="req">*</span></label>
+          <input type="email" class="form-control" id="correo" name="correo"
+                 placeholder="ejemplo@correo.com" required>
+        </div>
+
+        <!-- ── Evento ── -->
+        <div class="form-section-title">Sobre el evento</div>
+
+        <div class="form-group">
+          <label for="tipoEvento">Tipo de evento <span class="req">*</span></label>
+          <select class="form-control" id="tipoEvento" name="tipoEvento" required>
+            <option value="">— Selecciona —</option>
+            <option value="Boda">Boda</option>
+            <option value="XV Años">XV Años</option>
+            <option value="Bautizo">Bautizo</option>
+            <option value="Cumpleaños">Cumpleaños</option>
+            <option value="Graduación">Graduación</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="fechaEvento">Fecha del evento <span class="req">*</span></label>
+          <input type="date" class="form-control" id="fechaEvento" name="fechaEvento" required>
+        </div>
+
+        <div class="form-group">
+          <label for="horaEvento">Hora del evento <span class="req">*</span></label>
+          <input type="time" class="form-control" id="horaEvento" name="horaEvento" required>
+        </div>
+
+        <div class="form-group">
+          <label for="nombresFestejados">Nombres de los festejados <span class="req">*</span></label>
+          <input type="text" class="form-control" id="nombresFestejados" name="nombresFestejados"
+                 placeholder="Ej: Ana y Luis" required>
+        </div>
+
+        <!-- ── Ubicaciones ── -->
+        <div class="form-section-title">Ubicaciones</div>
+
+        <div class="form-group">
+          <label for="lugarCeremonia">Lugar de la ceremonia <span class="req">*</span></label>
+          <input type="text" class="form-control" id="lugarCeremonia" name="lugarCeremonia"
+                 placeholder="Nombre del lugar" required>
+        </div>
+
+        <div class="form-group">
+          <label for="mapsCeremonia">Enlace Google Maps — Ceremonia</label>
+          <input type="url" class="form-control" id="mapsCeremonia" name="mapsCeremonia"
+                 placeholder="https://maps.google.com/...">
+        </div>
+
+        <div class="form-group">
+          <label for="wazeCeremonia">Enlace Waze — Ceremonia</label>
+          <input type="url" class="form-control" id="wazeCeremonia" name="wazeCeremonia"
+                 placeholder="https://waze.com/ul/...">
+        </div>
+
+        <div class="form-group">
+          <label for="lugarRecepcion">Lugar de la recepción</label>
+          <input type="text" class="form-control" id="lugarRecepcion" name="lugarRecepcion"
+                 placeholder="Nombre del lugar (si aplica)">
+        </div>
+
+        <div class="form-group">
+          <label for="mapsRecepcion">Enlace Google Maps — Recepción</label>
+          <input type="url" class="form-control" id="mapsRecepcion" name="mapsRecepcion"
+                 placeholder="https://maps.google.com/...">
+        </div>
+
+        <div class="form-group">
+          <label for="wazeRecepcion">Enlace Waze — Recepción</label>
+          <input type="url" class="form-control" id="wazeRecepcion" name="wazeRecepcion"
+                 placeholder="https://waze.com/ul/...">
+        </div>
+
+        <!-- ── Diseño ── -->
+        <div class="form-section-title">Detalles del diseño</div>
+
+        <div class="form-group">
+          <label for="whatsappConfirmaciones">
+            WhatsApp para confirmaciones de invitados <span class="req">*</span>
+          </label>
+          <input type="tel" class="form-control" id="whatsappConfirmaciones"
+                 name="whatsappConfirmaciones" placeholder="+52 686 000 0000" required>
+        </div>
+
+        <div class="form-group">
+          <label for="paletaColores">Paleta de colores deseada <span class="req">*</span></label>
+          <textarea class="form-control" id="paletaColores" name="paletaColores"
+                    placeholder="Describe los colores que deseas para tu invitación..." required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Subir fotos <span class="req">*</span></label>
+          <label class="file-label" for="fotos">
+            <span class="file-icon">📸</span>
+            <span class="file-texto">Haz clic para seleccionar tus fotos</span>
+            <span class="file-min" id="fotosHint">Mínimo 3 fotos</span>
+          </label>
+          <input type="file" id="fotos" name="fotos" multiple accept="image/*">
+          <p class="form-hint" id="fotosSeleccionadas">Ninguna foto seleccionada</p>
+        </div>
+
+        <!-- ── Campos Smart Interactive ── -->
+        <div id="camposSmart" class="extra-fields" style="display:none">
+          <div class="form-section-title">Smart Interactive — Detalles adicionales</div>
+
+          <div class="form-group">
+            <label for="dressCode">Dress Code</label>
+            <input type="text" class="form-control" id="dressCode" name="dressCode"
+                   placeholder="Ej: Formal, Semiformal, Casual, Blanco y dorado...">
+          </div>
+
+          <div class="form-group">
+            <label for="mensajeEspecial">Mensaje especial para invitados</label>
+            <textarea class="form-control" id="mensajeEspecial" name="mensajeEspecial"
+                      placeholder="Un mensaje que deseas compartir con tus invitados..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="datosAsistencia">Datos extra para formulario de asistencia</label>
+            <textarea class="form-control" id="datosAsistencia" name="datosAsistencia"
+                      placeholder="¿Qué información adicional necesitas de tus invitados? (alergias, número de acompañantes, menú, etc.)"></textarea>
+          </div>
+        </div>
+
+        <!-- ── Campos Premium Experience ── -->
+        <div id="camposPremium" class="extra-fields" style="display:none">
+          <div class="form-section-title">Premium Experience — Detalles adicionales</div>
+
+          <div class="form-group">
+            <label for="musica">Nombre de canción o enlace de música de fondo</label>
+            <input type="text" class="form-control" id="musica" name="musica"
+                   placeholder="Artista - Canción o enlace de YouTube / Spotify">
+          </div>
+
+          <div class="form-group">
+            <label for="agendaEvento">Agenda del evento</label>
+            <textarea class="form-control" id="agendaEvento" name="agendaEvento"
+                      placeholder="Describe el programa (ej: 5:00pm Ceremonia religiosa / 7:00pm Coctel / 8:00pm Cena y baile)..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="nombreEnlace">Nombre deseado para el enlace</label>
+            <input type="text" class="form-control" id="nombreEnlace" name="nombreEnlace"
+                   placeholder="boda-ana-y-luis">
+            <p class="form-hint">
+              Solo letras minúsculas, números y guiones.<br>
+              Tu sitio será: <strong>festali.com/<span id="previewEnlace">nombre-del-evento</span></strong>
+            </p>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-enviar">✨ Enviar mi solicitud</button>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== CONFIRMACIÓN ==================== -->
+  <div class="confirmacion" id="confirmacion">
+    <span class="confirmacion-icono">🎉</span>
+    <h2>¡Tu invitación está en proceso!</h2>
+    <p class="folio-label">Número de folio:</p>
+    <div class="folio-display" id="folioConfirmacion">FEST-000</div>
+    <p class="confirmacion-desc">
+      Nuestro equipo comenzará a trabajar en tu invitación.<br>
+      Te contactaremos pronto para continuar.
+    </p>
+    <div class="confirmacion-botones">
+      <a href="https://wa.me/526862301280" target="_blank" rel="noopener noreferrer" class="btn-wsp">
+        💬 Escribir por WhatsApp
+      </a>
+      <a href="mailto:festaliconecta@gmail.com" class="btn-email">
+        ✉ Enviar correo
+      </a>
+    </div>
+    <img src="logotipo.png" alt="FESTALI" class="confirmacion-logo">
+  </div>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="site-footer">
+    <img src="logotipo.png" alt="FESTALI" class="footer-logo">
+    <p class="footer-slogan">Conectando tus mejores momentos.</p>
+    <div class="footer-contacto">
+      <a href="mailto:festaliconecta@gmail.com">✉ festaliconecta@gmail.com</a>
+      <a href="https://wa.me/526862301280" target="_blank" rel="noopener noreferrer">📱 +52 686 230 1280</a>
+    </div>
+    <p class="footer-copy">© 2025 FESTALI · Invitaciones Digitales México</p>
+  </footer>
+
+  <script src="formulario.js"></script>
+</body>
+</html>
