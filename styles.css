@@ -719,7 +719,7 @@ input[type="file"] {
   display: inline-block;
   background: var(--gradiente);
   color: white;
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Montserrat', sans-serif !important;
   font-size: 1.7rem;
   padding: 10px 34px;
   border-radius: 50px;
