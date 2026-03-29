@@ -45,6 +45,10 @@ const ENCABEZADOS = [
   'Música',
   'Agenda',
   'Nombre Enlace',
+  'Tipo Diseño',
+  'Estilo Invitación',
+  'Ideas Extra',
+  'Refs (cantidad)',
   'Timestamp Servidor'
 ];
 
@@ -66,12 +70,13 @@ function doPost(e) {
     const subcarpeta = obtenerOCrearCarpeta(nombreSub, carpetaRaiz);
 
     // 3. Guardar fotos en Drive
-    const linksFotos = guardarFotos(datos.fotos || [], subcarpeta);
+    const linksFotos = guardarFotos(datos.fotos       || [], subcarpeta);
+    const linksRefs  = guardarFotos(datos.referencias || [], subcarpeta);
 
     // 4. Guardar fila en Sheets
     const ss   = SpreadsheetApp.openById(SPREADSHEET_ID);
     const hoja = prepararHoja(ss);
-    escribirFila(hoja, datos, linksFotos, subcarpeta.getUrl());
+    escribirFila(hoja, datos, linksFotos, subcarpeta.getUrl(), linksRefs);
 
     return respuestaOk({ folio: folio, carpeta: subcarpeta.getUrl() });
 
@@ -175,7 +180,7 @@ function aplicarEncabezados(hoja) {
 // SHEETS — escribir fila
 // ============================================================
 
-function escribirFila(hoja, d, linksFotos, urlCarpeta) {
+function escribirFila(hoja, d, linksFotos, urlCarpeta, linksRefs) {
   const ahora = new Date();
 
   const fila = [
@@ -206,6 +211,10 @@ function escribirFila(hoja, d, linksFotos, urlCarpeta) {
     d.musica                 || '',
     d.agendaEvento           || '',
     d.nombreEnlace           || '',
+    d.tipoDiseno             || '',
+    d.estiloInvitacion       || '',
+    d.ideasExtra             || '',
+    (linksRefs || []).length,
     Utilities.formatDate(ahora, Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm:ss')
   ];
 

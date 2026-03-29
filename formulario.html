@@ -176,7 +176,56 @@
                     placeholder="Describe los colores que deseas para tu invitación..." required></textarea>
         </div>
 
+        <!-- ── Tipo de diseño ── -->
         <div class="form-group">
+          <label>¿Cómo quieres las fotos de tu invitación? <span class="req">*</span></label>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" name="tipoDiseno" value="fotos" id="tipoDisenoFotos">
+              <span class="radio-label">📸 Mis fotos</span>
+              <small class="radio-desc">Sube fotos reales del evento</small>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="tipoDiseno" value="grafico" id="tipoDisenoGrafico">
+              <span class="radio-label">🎨 Diseño gráfico</span>
+              <small class="radio-desc">Ilustraciones creadas por Festali (sin fotos)</small>
+            </label>
+          </div>
+        </div>
+
+        <!-- ── Estilo de invitación ── -->
+        <div class="form-group">
+          <label for="estiloInvitacion">Estilo de invitación <span class="req">*</span></label>
+          <select class="form-control" id="estiloInvitacion" name="estiloInvitacion" required>
+            <option value="">— Selecciona un estilo —</option>
+            <option value="Elegante y Clásico">Elegante y Clásico</option>
+            <option value="Moderno / Minimalista">Moderno / Minimalista</option>
+            <option value="Floral / Romántico">Floral / Romántico</option>
+            <option value="Temático (Infantil/Fiesta)">Temático (Infantil/Fiesta)</option>
+          </select>
+        </div>
+
+        <!-- ── Ideas extra ── -->
+        <div class="form-group">
+          <label for="ideasExtra">¿Tienes algo específico en mente?</label>
+          <textarea class="form-control" id="ideasExtra" name="ideasExtra"
+                    placeholder="Describe detalles, colores, elementos que quieras incluir..."></textarea>
+        </div>
+
+        <!-- ── Referencia visual ── -->
+        <div class="form-group">
+          <label>Sube tus referencias (Pinterest, screenshots, ideas)</label>
+          <label class="file-label" for="referenciaVisual">
+            <span class="file-icon">🖼️</span>
+            <span class="file-texto">Haz clic para seleccionar referencias</span>
+            <span class="file-min">Máximo 3 imágenes</span>
+          </label>
+          <input type="file" id="referenciaVisual" name="referenciaVisual" multiple accept="image/*">
+          <p class="form-hint" id="refsSeleccionadas">Ninguna referencia seleccionada</p>
+        </div>
+
+        <!-- ── Fotos del evento ── -->
+        <div class="form-group" id="grupoFotos">
           <label>Subir fotos <span class="req">*</span></label>
           <label class="file-label" for="fotos">
             <span class="file-icon">📸</span>

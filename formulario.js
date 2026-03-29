@@ -37,6 +37,8 @@ document.addEventListener('DOMContentLoaded', () => {
   setFolio();
   configurarPaquete(paqueteKey);
   initFileInput(paqueteKey);
+  initTipoDiseño(paqueteKey);
+  initRefInput();
   initPreviewEnlace();
   initSubmit(paqueteKey);
 });
@@ -111,6 +113,40 @@ function initFileInput(paqueteKey) {
   });
 }
 
+// ==================== TIPO DE DISEÑO ====================
+
+function initTipoDiseño(paqueteKey) {
+  const radios     = document.querySelectorAll('input[name="tipoDiseno"]');
+  const grupoFotos = document.getElementById('grupoFotos');
+
+  radios.forEach(radio => {
+    radio.addEventListener('change', () => {
+      grupoFotos.style.display = radio.value === 'fotos' ? 'block' : 'none';
+    });
+  });
+}
+
+// ==================== REFERENCIAS ====================
+
+function initRefInput() {
+  const input         = document.getElementById('referenciaVisual');
+  const seleccionadas = document.getElementById('refsSeleccionadas');
+
+  input.addEventListener('change', () => {
+    const n = input.files.length;
+    if (n === 0) {
+      seleccionadas.textContent = 'Ninguna referencia seleccionada';
+      seleccionadas.style.color = '';
+    } else if (n > 3) {
+      seleccionadas.textContent = `${n} imágenes — máximo 3 permitidas`;
+      seleccionadas.style.color = '#e72268';
+    } else {
+      seleccionadas.textContent = `${n} imagen${n > 1 ? 'es' : ''} seleccionada${n > 1 ? 's' : ''}`;
+      seleccionadas.style.color = '#4b4495';
+    }
+  });
+}
+
 // ==================== PREVIEW ENLACE ====================
 
 function initPreviewEnlace() {
@@ -146,6 +182,7 @@ function validar(paqueteKey) {
     { id: 'lugarCeremonia',       label: 'Lugar de la ceremonia' },
     { id: 'whatsappConfirmaciones', label: 'WhatsApp para confirmaciones' },
     { id: 'paletaColores',        label: 'Paleta de colores' },
+    { id: 'estiloInvitacion',     label: 'Estilo de invitación' },
   ];
 
   // Limpiar errores previos
@@ -168,11 +205,25 @@ function validar(paqueteKey) {
     correoEl.classList.add('error');
   }
 
-  // Validar fotos
+  // Validar tipo de diseño (radio obligatorio)
+  const tipoDisenoChecked = document.querySelector('input[name="tipoDiseno"]:checked');
+  if (!tipoDisenoChecked) {
+    errores.push('Tipo de diseño (Mis fotos / Diseño gráfico)');
+  }
+
+  // Validar fotos solo si seleccionó "Mis fotos"
   const minFotos = PAQUETES[paqueteKey].minFotos;
   const fotosInput = document.getElementById('fotos');
-  if (fotosInput.files.length < minFotos) {
-    errores.push(`Fotos (mínimo ${minFotos})`);
+  if (!tipoDisenoChecked || tipoDisenoChecked.value === 'fotos') {
+    if (fotosInput.files.length < minFotos) {
+      errores.push(`Fotos (mínimo ${minFotos})`);
+    }
+  }
+
+  // Validar referencias máximo 3
+  const refsInput = document.getElementById('referenciaVisual');
+  if (refsInput.files.length > 3) {
+    errores.push('Referencias visuales (máximo 3 imágenes)');
   }
 
   return errores;
@@ -202,6 +253,9 @@ function recopilarDatos(paqueteKey) {
     wazeRecepcion:          val('wazeRecepcion'),
     whatsappConfirmaciones: val('whatsappConfirmaciones'),
     paletaColores:          val('paletaColores'),
+    tipoDiseno:             (document.querySelector('input[name="tipoDiseno"]:checked')?.value || ''),
+    estiloInvitacion:       val('estiloInvitacion'),
+    ideasExtra:             val('ideasExtra'),
   };
 
   const extras = PAQUETES[paqueteKey].extras;
@@ -238,10 +292,11 @@ function archivoABase64(archivo) {
 
 // ==================== ENVÍO ====================
 
-async function enviar(datos, archivos) {
-  // Convertir fotos a base64
+async function enviar(datos, archivos, referencias) {
+  // Convertir archivos a base64
   const fotosBase64 = await Promise.all(Array.from(archivos).map(archivoABase64));
-  const payload = Object.assign({}, datos, { fotos: fotosBase64 });
+  const refsBase64  = await Promise.all(Array.from(referencias || []).map(archivoABase64));
+  const payload = Object.assign({}, datos, { fotos: fotosBase64, referencias: refsBase64 });
 
   if (!SCRIPT_URL) {
     // ── MODO PRUEBA ──
@@ -249,7 +304,7 @@ async function enviar(datos, archivos) {
     console.log('  FESTALI — Modo prueba (SCRIPT_URL vacío)');
     console.log('═══════════════════════════════════════════');
     console.table(datos);
-    console.log(`Archivos adjuntos: ${fotosBase64.length} foto(s)`);
+    console.log(`Archivos adjuntos: ${fotosBase64.length} foto(s), ${refsBase64.length} referencia(s)`);
     fotosBase64.forEach((f, i) =>
       console.log(`  [${i + 1}] ${f.nombre} — ${f.mimeType}`)
     );
@@ -334,11 +389,12 @@ function initSubmit(paqueteKey) {
     spinner.classList.add('active');
 
     try {
-      const datos   = recopilarDatos(paqueteKey);
-      const archivos = document.getElementById('fotos').files;
-      const folio   = datos.folio;
+      const datos       = recopilarDatos(paqueteKey);
+      const archivos    = document.getElementById('fotos').files;
+      const referencias = document.getElementById('referenciaVisual').files;
+      const folio       = datos.folio;
 
-      await enviar(datos, archivos);
+      await enviar(datos, archivos, referencias);
 
       // Confirmar folio solo después de envío exitoso
       confirmarFolio();

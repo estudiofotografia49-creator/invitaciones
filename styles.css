@@ -605,6 +605,61 @@ input[type="file"] {
   display: none;
 }
 
+/* ==================== RADIO GROUP ==================== */
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1.5px solid #ddd9f0;
+  border-radius: 11px;
+  cursor: pointer;
+  background: #fdfcff;
+  transition: var(--transicion);
+}
+
+.radio-option:hover {
+  border-color: var(--morado);
+  background: #f4f2ff;
+}
+
+.radio-option input[type="radio"] {
+  display: block;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--morado);
+  margin-top: 2px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.radio-option:has(input:checked) {
+  border-color: var(--morado);
+  background: #f0eeff;
+}
+
+.radio-label {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  display: block;
+}
+
+.radio-desc {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.76rem;
+  color: #999;
+  display: block;
+  margin-top: 2px;
+}
+
 /* ==================== BOTÓN ENVIAR ==================== */
 .btn-enviar {
   width: 100%;
