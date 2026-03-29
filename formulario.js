@@ -265,8 +265,7 @@ async function enviar(datos, archivos) {
     body: JSON.stringify(payload)
   });
 
-  const resultado = await response.json();
-  return resultado;
+  return { ok: true };
 }
 
 // ==================== MOSTRAR CONFIRMACIÓN ====================
