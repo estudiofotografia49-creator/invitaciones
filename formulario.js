@@ -151,18 +151,19 @@ function initRefInput() {
 // ==================== MESA DE REGALOS ====================
 
 function initMesaRegalos() {
-  const radios     = document.querySelectorAll('input[name="tipoRegalos"]');
-  const grupoMesa  = document.getElementById('grupoMesaRegalos');
+  const radios      = document.querySelectorAll('input[name="tipoRegalos"]');
+  const grupoMesa   = document.getElementById('grupoMesaRegalos');
   const grupoTransf = document.getElementById('grupoTransferencia');
 
-  if (!radios.length) return; // no aplica a essence
+  if (!radios.length || !grupoMesa || !grupoTransf) return;
 
-  radios.forEach(radio => {
-    radio.addEventListener('change', () => {
-      grupoMesa.style.display   = radio.value === 'mesa'          ? 'block' : 'none';
-      grupoTransf.style.display = radio.value === 'transferencia' ? 'block' : 'none';
-    });
-  });
+  function actualizarVistaMesa() {
+    const val = document.querySelector('input[name="tipoRegalos"]:checked')?.value || 'ninguno';
+    grupoMesa.style.display   = val === 'mesa'          ? 'block' : 'none';
+    grupoTransf.style.display = val === 'transferencia' ? 'block' : 'none';
+  }
+
+  radios.forEach(radio => radio.addEventListener('change', actualizarVistaMesa));
 }
 
 // ==================== PREVIEW ENLACE ====================
