@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
   setFolio();
   configurarPaquete(paqueteKey);
   initUbicaciones();
+  initConfirmacionToggle();
   initFileInput(paqueteKey);
   initTipoDiseño(paqueteKey);
   initIdeasToggle();
@@ -96,6 +97,24 @@ function configurarPaquete(paqueteKey) {
   if (config.extras.includes('premium')) {
     document.getElementById('camposPremium').style.display = 'block';
   }
+}
+
+// ==================== CONFIRMACIÓN TOGGLE ====================
+
+function initConfirmacionToggle() {
+  const radios      = document.querySelectorAll('input[name="tipoConfirmacion"]');
+  const grupoWsp    = document.getElementById('grupoConfWsp');
+  const grupoCorreo = document.getElementById('grupoConfCorreo');
+
+  if (!radios.length || !grupoWsp || !grupoCorreo) return;
+
+  function actualizar() {
+    const val = document.querySelector('input[name="tipoConfirmacion"]:checked')?.value;
+    grupoWsp.style.display    = val === 'wsp'    ? 'block' : 'none';
+    grupoCorreo.style.display = val === 'correo' ? 'block' : 'none';
+  }
+
+  radios.forEach(r => r.addEventListener('change', actualizar));
 }
 
 // ==================== UBICACIONES ====================
@@ -302,7 +321,6 @@ function validar(paqueteKey) {
     { id: 'fechaEvento',          label: 'Fecha del evento' },
     { id: 'horaEvento',           label: 'Hora del evento' },
     { id: 'nombresFestejados',    label: 'Nombres de los festejados' },
-    { id: 'whatsappConfirmaciones', label: 'WhatsApp para confirmaciones' },
     { id: 'paletaColores',        label: 'Paleta de colores' },
     { id: 'estiloInvitacion',     label: 'Estilo de invitación' },
   ];
@@ -319,6 +337,18 @@ function validar(paqueteKey) {
       if (el) el.classList.add('error');
     }
   });
+
+  // Validar contacto para confirmaciones (obligatorio, uno de los dos)
+  const tipoConf = document.querySelector('input[name="tipoConfirmacion"]:checked')?.value;
+  if (!tipoConf) {
+    errores.push('Método de confirmación de asistencia (WhatsApp o Correo)');
+  } else if (tipoConf === 'wsp') {
+    const el = document.getElementById('whatsappConfirmaciones');
+    if (!el?.value.trim()) { errores.push('WhatsApp para confirmaciones'); el?.classList.add('error'); }
+  } else if (tipoConf === 'correo') {
+    const el = document.getElementById('correoConfirmaciones');
+    if (!el?.value.trim()) { errores.push('Correo para confirmaciones'); el?.classList.add('error'); }
+  }
 
   // Validar ubicaciones solo si el checkbox está marcado
   const cbCeremonia = document.getElementById('hayCeremonia');
@@ -384,7 +414,10 @@ function recopilarDatos(paqueteKey) {
     ubicacionCeremonia:     document.getElementById('hayCeremonia')?.checked ? val('ubicacionCeremonia') : '',
     lugarRecepcion:         document.getElementById('hayRecepcion')?.checked  ? val('lugarRecepcion')     : '',
     ubicacionRecepcion:     document.getElementById('hayRecepcion')?.checked  ? val('ubicacionRecepcion') : '',
-    whatsappConfirmaciones: val('whatsappConfirmaciones'),
+    whatsappConfirmaciones: document.querySelector('input[name="tipoConfirmacion"]:checked')?.value === 'wsp'
+                            ? val('whatsappConfirmaciones') : '',
+    correoConfirmaciones:   document.querySelector('input[name="tipoConfirmacion"]:checked')?.value === 'correo'
+                            ? val('correoConfirmaciones') : '',
     paletaColores:          val('paletaColores'),
     tipoDiseno:             (document.querySelector('input[name="tipoDiseno"]:checked')?.value || ''),
     estiloInvitacion:       val('estiloInvitacion'),

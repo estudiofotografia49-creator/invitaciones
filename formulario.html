@@ -169,11 +169,35 @@
         <div class="form-section-title">Detalles del diseño</div>
 
         <div class="form-group">
-          <label for="whatsappConfirmaciones">
-            WhatsApp para confirmaciones de invitados <span class="req">*</span>
-          </label>
-          <input type="tel" class="form-control" id="whatsappConfirmaciones"
-                 name="whatsappConfirmaciones" placeholder="+52 686 000 0000" required>
+          <label>Contacto para confirmación de asistencia <span class="req">*</span></label>
+          <div class="radio-group">
+            <div>
+              <label class="radio-option">
+                <input type="radio" name="tipoConfirmacion" value="wsp" id="confWsp">
+                <span class="radio-label">📱 WhatsApp</span>
+                <small class="radio-desc">Los invitados confirman por WhatsApp</small>
+              </label>
+              <div id="grupoConfWsp" style="display:none">
+                <div class="form-group" style="margin-top:10px">
+                  <input type="tel" class="form-control" id="whatsappConfirmaciones"
+                         name="whatsappConfirmaciones" placeholder="+52 686 000 0000">
+                </div>
+              </div>
+            </div>
+            <div>
+              <label class="radio-option">
+                <input type="radio" name="tipoConfirmacion" value="correo" id="confCorreo">
+                <span class="radio-label">✉️ Correo electrónico</span>
+                <small class="radio-desc">Los invitados confirman por email</small>
+              </label>
+              <div id="grupoConfCorreo" style="display:none">
+                <div class="form-group" style="margin-top:10px">
+                  <input type="email" class="form-control" id="correoConfirmaciones"
+                         name="correoConfirmaciones" placeholder="ejemplo@correo.com">
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="form-group">
