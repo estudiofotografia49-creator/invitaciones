@@ -351,35 +351,37 @@
           <div class="form-group">
             <label>Agenda del evento</label>
             <div class="radio-group">
-              <label class="radio-option">
-                <input type="radio" name="tipoAgenda" value="texto" id="agendaOpcionTexto">
-                <span class="radio-label">📝 Describir agenda</span>
-                <small class="radio-desc">Escribe el programa del evento</small>
-              </label>
-              <label class="radio-option">
-                <input type="radio" name="tipoAgenda" value="imagen" id="agendaOpcionImagen">
-                <span class="radio-label">🖼️ Subir imagen de agenda</span>
-                <small class="radio-desc">Sube una foto o captura del programa</small>
-              </label>
-            </div>
-          </div>
-
-          <div id="grupoAgendaTexto" style="display:none">
-            <div class="form-group">
-              <textarea class="form-control" id="agendaEvento" name="agendaEvento"
-                        placeholder="Describe el programa (ej: 5:00pm Ceremonia religiosa / 7:00pm Coctel / 8:00pm Cena y baile)..."></textarea>
-            </div>
-          </div>
-
-          <div id="grupoAgendaImagen" style="display:none">
-            <div class="form-group">
-              <label class="file-label" for="agendaImagenFile">
-                <span class="file-icon">📋</span>
-                <span class="file-texto">Haz clic para subir la imagen de agenda</span>
-                <span class="file-min">1 imagen — captura, diseño o foto del programa</span>
-              </label>
-              <input type="file" id="agendaImagenFile" name="agendaImagenFile" accept="image/*">
-              <p class="form-hint" id="agendaImgSeleccionada">Ninguna imagen seleccionada</p>
+              <div>
+                <label class="radio-option">
+                  <input type="radio" name="tipoAgenda" value="texto" id="agendaOpcionTexto">
+                  <span class="radio-label">📝 Describir agenda</span>
+                  <small class="radio-desc">Escribe el programa del evento</small>
+                </label>
+                <div id="grupoAgendaTexto" style="display:none">
+                  <div class="form-group" style="margin-top:10px">
+                    <textarea class="form-control" id="agendaEvento" name="agendaEvento"
+                              placeholder="Describe el programa (ej: 5:00pm Ceremonia religiosa / 7:00pm Coctel / 8:00pm Cena y baile)..."></textarea>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label class="radio-option">
+                  <input type="radio" name="tipoAgenda" value="imagen" id="agendaOpcionImagen">
+                  <span class="radio-label">🖼️ Subir imagen de agenda</span>
+                  <small class="radio-desc">Sube una foto o captura del programa</small>
+                </label>
+                <div id="grupoAgendaImagen" style="display:none">
+                  <div class="form-group" style="margin-top:10px">
+                    <label class="file-label" for="agendaImagenFile">
+                      <span class="file-icon">📋</span>
+                      <span class="file-texto">Haz clic para subir la imagen de agenda</span>
+                      <span class="file-min">1 imagen — captura, diseño o foto del programa</span>
+                    </label>
+                    <input type="file" id="agendaImagenFile" name="agendaImagenFile" accept="image/*">
+                    <p class="form-hint" id="agendaImgSeleccionada">Ninguna imagen seleccionada</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
