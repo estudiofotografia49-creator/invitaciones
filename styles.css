@@ -933,6 +933,11 @@ input[type="file"] {
   align-items: center;
   justify-content: center;
   padding: 12px 28px;
+  background: transparent;
+}
+
+/* Navbar con fondo blanco solo en la página de formulario */
+body.form-page .navbar {
   background: rgba(255,255,255,0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -945,7 +950,7 @@ input[type="file"] {
 }
 
 .nav-link {
-  color: #e72268;
+  color: #fff;
   text-decoration: none;
   font-family: 'Montserrat', sans-serif;
   font-size: 0.82rem;
@@ -955,13 +960,20 @@ input[type="file"] {
   transition: color 0.2s, opacity 0.2s;
 }
 
-.nav-link:hover { color: #c01755; opacity: 0.85; }
+.nav-link:hover { opacity: 0.75; }
+
+/* Links rosa solo en formulario */
+body.form-page .nav-link { color: #e72268; }
+body.form-page .nav-link:hover { color: #c01755; opacity: 0.85; }
 
 .hero-logo {
   height: 80px;
+  max-height: 120px;
   width: auto;
+  max-width: 200px;
   display: block;
   margin: 0 auto 22px;
+  filter: brightness(0) invert(1);
 }
 
 body.has-navbar {
