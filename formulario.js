@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initFileInput(paqueteKey);
   initTipoDiseño(paqueteKey);
   initIdeasToggle();
+  initAgendaToggle();
   initRefInput();
   initMesaRegalos();
   initPreviewEnlace();
@@ -144,6 +145,34 @@ function initTipoDiseño(paqueteKey) {
       grupoFotos.style.display = radio.value === 'fotos' ? 'block' : 'none';
     });
   });
+}
+
+// ==================== AGENDA TOGGLE ====================
+
+function initAgendaToggle() {
+  const radios          = document.querySelectorAll('input[name="tipoAgenda"]');
+  const grupoTexto      = document.getElementById('grupoAgendaTexto');
+  const grupoImagen     = document.getElementById('grupoAgendaImagen');
+  const agendaImgInput  = document.getElementById('agendaImagenFile');
+  const agendaImgHint   = document.getElementById('agendaImgSeleccionada');
+
+  if (!radios.length || !grupoTexto || !grupoImagen) return;
+
+  function actualizar() {
+    const val = document.querySelector('input[name="tipoAgenda"]:checked')?.value;
+    grupoTexto.style.display   = val === 'texto'  ? 'block' : 'none';
+    grupoImagen.style.display  = val === 'imagen' ? 'block' : 'none';
+  }
+
+  radios.forEach(r => r.addEventListener('change', actualizar));
+
+  if (agendaImgInput && agendaImgHint) {
+    agendaImgInput.addEventListener('change', () => {
+      agendaImgHint.textContent = agendaImgInput.files.length
+        ? agendaImgInput.files[0].name
+        : 'Ninguna imagen seleccionada';
+    });
+  }
 }
 
 // ==================== IDEAS TOGGLE ====================
@@ -336,7 +365,8 @@ function recopilarDatos(paqueteKey) {
 
   if (extras.includes('premium')) {
     datos.musica        = val('musica');
-    datos.agendaEvento  = val('agendaEvento');
+    datos.agendaEvento  = document.querySelector('input[name="tipoAgenda"]:checked')?.value === 'texto'
+                          ? val('agendaEvento') : '';
   }
 
   return datos;
@@ -359,11 +389,12 @@ function archivoABase64(archivo) {
 
 // ==================== ENVÍO ====================
 
-async function enviar(datos, archivos, referencias) {
+async function enviar(datos, archivos, referencias, agendaImg) {
   // Convertir archivos a base64
-  const fotosBase64 = await Promise.all(Array.from(archivos).map(archivoABase64));
-  const refsBase64  = await Promise.all(Array.from(referencias || []).map(archivoABase64));
-  const payload = Object.assign({}, datos, { fotos: fotosBase64, referencias: refsBase64 });
+  const fotosBase64   = await Promise.all(Array.from(archivos).map(archivoABase64));
+  const refsBase64    = await Promise.all(Array.from(referencias || []).map(archivoABase64));
+  const agendaBase64  = await Promise.all(Array.from(agendaImg  || []).map(archivoABase64));
+  const payload = Object.assign({}, datos, { fotos: fotosBase64, referencias: refsBase64, agendaImagenes: agendaBase64 });
 
   if (!SCRIPT_URL) {
     // ── MODO PRUEBA ──
@@ -458,11 +489,13 @@ function initSubmit(paqueteKey) {
     try {
       const datos       = recopilarDatos(paqueteKey);
       const archivos    = document.getElementById('fotos').files;
-      const usaIdeas    = document.querySelector('input[name="tieneIdeas"]:checked')?.value === 'tengoIdea';
-      const referencias = usaIdeas ? document.getElementById('referenciaVisual').files : [];
+      const usaIdeas      = document.querySelector('input[name="tieneIdeas"]:checked')?.value === 'tengoIdea';
+      const referencias   = usaIdeas ? document.getElementById('referenciaVisual').files : [];
+      const usaImgAgenda  = document.querySelector('input[name="tipoAgenda"]:checked')?.value === 'imagen';
+      const agendaImg     = usaImgAgenda ? document.getElementById('agendaImagenFile').files : [];
       const folio       = datos.folio;
 
-      await enviar(datos, archivos, referencias);
+      await enviar(datos, archivos, referencias, agendaImg);
 
       // Confirmar folio solo después de envío exitoso
       confirmarFolio();
