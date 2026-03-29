@@ -221,23 +221,39 @@
           </select>
         </div>
 
-        <!-- ── Ideas extra ── -->
+        <!-- ── Ideas y referencias ── -->
         <div class="form-group">
-          <label for="ideasExtra">¿Tienes algo específico en mente?</label>
-          <textarea class="form-control" id="ideasExtra" name="ideasExtra"
-                    placeholder="Describe detalles, colores, elementos que quieras incluir..."></textarea>
+          <label>¿Tienes una idea de diseño en mente?</label>
+          <div class="radio-group">
+            <label class="radio-option">
+              <input type="radio" name="tieneIdeas" value="festali" id="ideasFestali" checked>
+              <span class="radio-label">✨ Se lo dejo al buen gusto de Festali</span>
+              <small class="radio-desc">Nuestro equipo creará algo especial para ti</small>
+            </label>
+            <label class="radio-option">
+              <input type="radio" name="tieneIdeas" value="tengoIdea" id="ideasPropia">
+              <span class="radio-label">💡 Tengo una idea</span>
+              <small class="radio-desc">Cuéntanos o sube referencias de inspiración</small>
+            </label>
+          </div>
         </div>
 
-        <!-- ── Referencia visual ── -->
-        <div class="form-group">
-          <label>Sube tus referencias (Pinterest, screenshots, ideas)</label>
-          <label class="file-label" for="referenciaVisual">
-            <span class="file-icon">🖼️</span>
-            <span class="file-texto">Haz clic para seleccionar referencias</span>
-            <span class="file-min">Máximo 3 imágenes</span>
-          </label>
-          <input type="file" id="referenciaVisual" name="referenciaVisual" multiple accept="image/*">
-          <p class="form-hint" id="refsSeleccionadas">Ninguna referencia seleccionada</p>
+        <div id="grupoIdeas" style="display:none">
+          <div class="form-group">
+            <label for="ideasExtra">¿Tienes algo específico en mente?</label>
+            <textarea class="form-control" id="ideasExtra" name="ideasExtra"
+                      placeholder="Describe detalles, colores, elementos que quieras incluir..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Sube tus referencias (Pinterest, screenshots, ideas)</label>
+            <label class="file-label" for="referenciaVisual">
+              <span class="file-icon">🖼️</span>
+              <span class="file-texto">Haz clic para seleccionar referencias</span>
+              <span class="file-min">Máximo 3 imágenes</span>
+            </label>
+            <input type="file" id="referenciaVisual" name="referenciaVisual" multiple accept="image/*">
+            <p class="form-hint" id="refsSeleccionadas">Ninguna referencia seleccionada</p>
+          </div>
         </div>
 
         <!-- ── Fotos del evento ── -->

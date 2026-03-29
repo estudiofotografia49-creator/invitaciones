@@ -39,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initUbicaciones();
   initFileInput(paqueteKey);
   initTipoDiseño(paqueteKey);
+  initIdeasToggle();
   initRefInput();
   initMesaRegalos();
   initPreviewEnlace();
@@ -143,6 +144,20 @@ function initTipoDiseño(paqueteKey) {
       grupoFotos.style.display = radio.value === 'fotos' ? 'block' : 'none';
     });
   });
+}
+
+// ==================== IDEAS TOGGLE ====================
+
+function initIdeasToggle() {
+  const radios     = document.querySelectorAll('input[name="tieneIdeas"]');
+  const grupoIdeas = document.getElementById('grupoIdeas');
+
+  function actualizar() {
+    const val = document.querySelector('input[name="tieneIdeas"]:checked')?.value;
+    grupoIdeas.style.display = val === 'tengoIdea' ? 'block' : 'none';
+  }
+
+  radios.forEach(r => r.addEventListener('change', actualizar));
 }
 
 // ==================== REFERENCIAS ====================
@@ -268,9 +283,10 @@ function validar(paqueteKey) {
     }
   }
 
-  // Validar referencias máximo 3
+  // Validar referencias máximo 3 (solo si eligió "Tengo una idea")
+  const tieneIdeasVal = document.querySelector('input[name="tieneIdeas"]:checked')?.value;
   const refsInput = document.getElementById('referenciaVisual');
-  if (refsInput.files.length > 3) {
+  if (tieneIdeasVal === 'tengoIdea' && refsInput.files.length > 3) {
     errores.push('Referencias visuales (máximo 3 imágenes)');
   }
 
@@ -301,7 +317,7 @@ function recopilarDatos(paqueteKey) {
     paletaColores:          val('paletaColores'),
     tipoDiseno:             (document.querySelector('input[name="tipoDiseno"]:checked')?.value || ''),
     estiloInvitacion:       val('estiloInvitacion'),
-    ideasExtra:             val('ideasExtra'),
+    ideasExtra:             document.querySelector('input[name="tieneIdeas"]:checked')?.value === 'tengoIdea' ? val('ideasExtra') : '',
     nombreEnlace:           val('nombreEnlace'),
   };
 
@@ -442,7 +458,8 @@ function initSubmit(paqueteKey) {
     try {
       const datos       = recopilarDatos(paqueteKey);
       const archivos    = document.getElementById('fotos').files;
-      const referencias = document.getElementById('referenciaVisual').files;
+      const usaIdeas    = document.querySelector('input[name="tieneIdeas"]:checked')?.value === 'tengoIdea';
+      const referencias = usaIdeas ? document.getElementById('referenciaVisual').files : [];
       const folio       = datos.folio;
 
       await enviar(datos, archivos, referencias);
