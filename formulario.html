@@ -267,6 +267,53 @@
             <textarea class="form-control" id="datosAsistencia" name="datosAsistencia"
                       placeholder="¿Qué información adicional necesitas de tus invitados? (alergias, número de acompañantes, menú, etc.)"></textarea>
           </div>
+
+          <!-- ── Mesa de regalos ── -->
+          <div class="form-section-title">Mesa de regalos (opcional)</div>
+
+          <div class="form-group">
+            <label>¿Deseas incluir mesa de regalos o datos bancarios?</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="tipoRegalos" value="ninguno" id="regalosNinguno" checked>
+                <span class="radio-label">No incluir</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="tipoRegalos" value="mesa" id="regalosMesa">
+                <span class="radio-label">Mesa de regalos</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="tipoRegalos" value="transferencia" id="regalosTransferencia">
+                <span class="radio-label">Transferencia bancaria</span>
+              </label>
+            </div>
+          </div>
+
+          <div id="grupoMesaRegalos" style="display:none">
+            <div class="form-group">
+              <label for="mesaRegalosLink">Tienda y número de mesa o link</label>
+              <input type="text" class="form-control" id="mesaRegalosLink" name="mesaRegalosLink"
+                     placeholder="Ej: Liverpool mesa #12345 o https://mesaderegalos...">
+            </div>
+          </div>
+
+          <div id="grupoTransferencia" style="display:none">
+            <div class="form-group">
+              <label for="bancoCuenta">Banco</label>
+              <input type="text" class="form-control" id="bancoCuenta" name="bancoCuenta"
+                     placeholder="Ej: BBVA, Banamex, Santander...">
+            </div>
+            <div class="form-group">
+              <label for="titularCuenta">Nombre del titular</label>
+              <input type="text" class="form-control" id="titularCuenta" name="titularCuenta"
+                     placeholder="Nombre completo del titular">
+            </div>
+            <div class="form-group">
+              <label for="clabeCuenta">CLABE interbancaria</label>
+              <input type="text" class="form-control" id="clabeCuenta" name="clabeCuenta"
+                     placeholder="18 dígitos">
+            </div>
+          </div>
         </div>
 
         <!-- ── Campos Premium Experience ── -->

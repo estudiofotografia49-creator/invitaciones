@@ -39,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initFileInput(paqueteKey);
   initTipoDiseño(paqueteKey);
   initRefInput();
+  initMesaRegalos();
   initPreviewEnlace();
   initSubmit(paqueteKey);
 });
@@ -144,6 +145,23 @@ function initRefInput() {
       seleccionadas.textContent = `${n} imagen${n > 1 ? 'es' : ''} seleccionada${n > 1 ? 's' : ''}`;
       seleccionadas.style.color = '#4b4495';
     }
+  });
+}
+
+// ==================== MESA DE REGALOS ====================
+
+function initMesaRegalos() {
+  const radios     = document.querySelectorAll('input[name="tipoRegalos"]');
+  const grupoMesa  = document.getElementById('grupoMesaRegalos');
+  const grupoTransf = document.getElementById('grupoTransferencia');
+
+  if (!radios.length) return; // no aplica a essence
+
+  radios.forEach(radio => {
+    radio.addEventListener('change', () => {
+      grupoMesa.style.display   = radio.value === 'mesa'          ? 'block' : 'none';
+      grupoTransf.style.display = radio.value === 'transferencia' ? 'block' : 'none';
+    });
   });
 }
 
@@ -265,6 +283,11 @@ function recopilarDatos(paqueteKey) {
     datos.dressCode       = val('dressCode');
     datos.mensajeEspecial = val('mensajeEspecial');
     datos.datosAsistencia = val('datosAsistencia');
+    datos.tipoRegalos     = (document.querySelector('input[name="tipoRegalos"]:checked')?.value || '');
+    datos.mesaRegalosLink = val('mesaRegalosLink');
+    datos.bancoCuenta     = val('bancoCuenta');
+    datos.titularCuenta   = val('titularCuenta');
+    datos.clabeCuenta     = val('clabeCuenta');
   }
 
   if (extras.includes('premium')) {

@@ -49,6 +49,11 @@ const ENCABEZADOS = [
   'Estilo Invitación',
   'Ideas Extra',
   'Refs (cantidad)',
+  'Mesa Regalos Tipo',
+  'Mesa Regalos / Link',
+  'Banco',
+  'Titular Cuenta',
+  'CLABE',
   'Timestamp Servidor'
 ];
 
@@ -215,6 +220,11 @@ function escribirFila(hoja, d, linksFotos, urlCarpeta, linksRefs) {
     d.estiloInvitacion       || '',
     d.ideasExtra             || '',
     (linksRefs || []).length,
+    d.tipoRegalos            || '',
+    d.mesaRegalosLink        || '',
+    d.bancoCuenta            || '',
+    d.titularCuenta          || '',
+    d.clabeCuenta            || '',
     Utilities.formatDate(ahora, Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm:ss')
   ];
 
