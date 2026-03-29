@@ -495,8 +495,8 @@ async function enviar(datos, archivos, referencias, agendaImg, dressCodeImgs) {
 
   // ── MODO PRODUCCIÓN ── Enviar JSON a Google Apps Script
   // Content-Type: text/plain evita el preflight CORS que bloquea Apps Script.
-  console.log('📤 FESTALI — Iniciando fetch a:', SCRIPT_URL);
-  console.log('📦 Payload (sin archivos):', JSON.stringify(datos, null, 2));
+  console.log('datos a enviar:', JSON.stringify(datos));
+  console.log('📤 FESTALI — fetch a:', SCRIPT_URL);
   console.log(`📎 Archivos: ${fotosBase64.length} foto(s), ${refsBase64.length} ref(s), ${agendaBase64.length} agenda, ${dressCodeBase64.length} dressCode`);
 
   try {
@@ -623,6 +623,7 @@ function initSubmit(paqueteKey) {
       const dressCodeImgs   = usaDressCodeImg ? document.getElementById('dressCodeImgFile').files : [];
       const folio       = datos.folio;
 
+      console.log('🚀 Llamando a enviar()...');
       await enviar(datos, archivos, referencias, agendaImg, dressCodeImgs);
 
       // Confirmar folio solo después de envío exitoso
