@@ -260,6 +260,7 @@ async function enviar(datos, archivos) {
   // Content-Type: text/plain evita el preflight CORS que bloquea Apps Script.
   const response = await fetch(SCRIPT_URL, {
     method: 'POST',
+    mode: 'no-cors',
     headers: { 'Content-Type': 'text/plain' },
     body: JSON.stringify(payload)
   });
