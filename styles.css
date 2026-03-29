@@ -931,37 +931,38 @@ input[type="file"] {
   z-index: 1000;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 10px 28px;
-  background: rgba(22, 14, 55, 0.88);
+  justify-content: center;
+  padding: 12px 28px;
+  background: rgba(255,255,255,0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255,255,255,0.07);
-}
-
-.nav-logo {
-  height: 32px;
-  width: auto;
-  display: block;
+  border-bottom: 1px solid rgba(231,34,104,0.1);
 }
 
 .nav-links {
   display: flex;
-  gap: 28px;
+  gap: 36px;
 }
 
 .nav-link {
-  color: rgba(255,255,255,0.8);
+  color: #e72268;
   text-decoration: none;
   font-family: 'Montserrat', sans-serif;
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  transition: color 0.2s;
+  transition: color 0.2s, opacity 0.2s;
 }
 
-.nav-link:hover { color: #e72268; }
+.nav-link:hover { color: #c01755; opacity: 0.85; }
+
+.hero-logo {
+  height: 80px;
+  width: auto;
+  display: block;
+  margin: 0 auto 22px;
+}
 
 body.has-navbar {
   padding-top: 58px;

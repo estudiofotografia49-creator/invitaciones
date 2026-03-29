@@ -13,7 +13,7 @@
 //  5. Pégala en formulario.js → const SCRIPT_URL = 'TU_URL_AQUÍ'
 // ============================================================
 
-const SPREADSHEET_ID  = '1EE3Gbfegu_6VQtEJFy02fPn6DLhlpe7DE0IDZwiIESg';
+const SPREADSHEET_ID  = '13w2V3jfN4iDrIIm6AvVdCrTgoJaQA7kxhgXnFMAUsP0';
 const CARPETA_RAIZ    = 'FESTALI — Fotos de Eventos';
 const NOMBRE_HOJA     = 'Solicitudes';
 
@@ -253,4 +253,14 @@ function respuestaError(mensaje) {
   return ContentService
     .createTextOutput(JSON.stringify({ ok: false, error: mensaje }))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ============================================================
+// TEST — verificar conexión con Sheets
+// ============================================================
+
+function testConexion() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const hoja = prepararHoja(ss);
+  Logger.log('✅ Conexión exitosa: ' + hoja.getName());
 }
