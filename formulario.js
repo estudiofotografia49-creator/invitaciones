@@ -399,6 +399,7 @@ function recopilarDatos(paqueteKey) {
     datos.mensajeEspecial = document.querySelector('input[name="tipoMensaje"]:checked')?.value === 'propio'
                             ? val('mensajeEspecial') : '';
     datos.datosAsistencia = val('datosAsistencia');
+    datos.soloAdultos     = document.getElementById('soloAdultos')?.checked ? 'Sí' : 'No';
     datos.tipoRegalos     = (document.querySelector('input[name="tipoRegalos"]:checked')?.value || '');
     datos.mesaRegalosLink = val('mesaRegalosLink');
     datos.bancoCuenta     = val('bancoCuenta');

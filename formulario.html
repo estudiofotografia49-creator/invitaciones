@@ -318,9 +318,15 @@
           </div>
 
           <div class="form-group">
-            <label for="datosAsistencia">Datos extra para formulario de asistencia</label>
+            <label for="datosAsistencia">¿Qué quieres saber de tus invitados?</label>
             <textarea class="form-control" id="datosAsistencia" name="datosAsistencia"
-                      placeholder="¿Qué información adicional necesitas de tus invitados? (alergias, número de acompañantes, menú, etc.)"></textarea>
+                      placeholder="Ej: ¿Vas con acompañante? / ¿Tienes alguna alergia? / ¿Prefieres menú de carne o vegetariano? / ¿Cuántos niños llevas? / ¿Necesitas transporte?"></textarea>
+            <div style="margin-top:10px">
+              <label class="checkbox-option">
+                <input type="checkbox" id="soloAdultos" name="soloAdultos">
+                <span>Evento solo para adultos (no se permiten niños)</span>
+              </label>
+            </div>
           </div>
 
           <!-- ── Mesa de regalos ── -->
