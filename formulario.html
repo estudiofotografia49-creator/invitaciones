@@ -123,28 +123,46 @@
         <!-- ── Ubicaciones ── -->
         <div class="form-section-title">Ubicaciones</div>
 
+        <!-- Ceremonia -->
         <div class="form-group">
-          <label for="lugarCeremonia">Lugar de la ceremonia <span class="req">*</span></label>
-          <input type="text" class="form-control" id="lugarCeremonia" name="lugarCeremonia"
-                 placeholder="Nombre del lugar" required>
+          <label class="checkbox-option">
+            <input type="checkbox" id="hayCeremonia" name="hayCeremonia" checked>
+            <span>¿Hay ceremonia?</span>
+          </label>
         </div>
 
-        <div class="form-group">
-          <label for="ubicacionCeremonia">Enlace de ubicación — Ceremonia</label>
-          <input type="url" class="form-control" id="ubicacionCeremonia" name="ubicacionCeremonia"
-                 placeholder="https://maps.google.com/... o https://waze.com/ul/...">
+        <div id="grupoCeremonia">
+          <div class="form-group">
+            <label for="lugarCeremonia">Lugar de la ceremonia <span class="req">*</span></label>
+            <input type="text" class="form-control" id="lugarCeremonia" name="lugarCeremonia"
+                   placeholder="Nombre del lugar">
+          </div>
+          <div class="form-group">
+            <label for="ubicacionCeremonia">Enlace de ubicación — Ceremonia</label>
+            <input type="url" class="form-control" id="ubicacionCeremonia" name="ubicacionCeremonia"
+                   placeholder="https://maps.google.com/... o https://waze.com/ul/...">
+          </div>
         </div>
 
+        <!-- Recepción -->
         <div class="form-group">
-          <label for="lugarRecepcion">Lugar de la recepción</label>
-          <input type="text" class="form-control" id="lugarRecepcion" name="lugarRecepcion"
-                 placeholder="Nombre del lugar (si aplica)">
+          <label class="checkbox-option">
+            <input type="checkbox" id="hayRecepcion" name="hayRecepcion">
+            <span>¿Hay recepción?</span>
+          </label>
         </div>
 
-        <div class="form-group">
-          <label for="ubicacionRecepcion">Enlace de ubicación — Recepción</label>
-          <input type="url" class="form-control" id="ubicacionRecepcion" name="ubicacionRecepcion"
-                 placeholder="https://maps.google.com/... o https://waze.com/ul/...">
+        <div id="grupoRecepcion" style="display:none">
+          <div class="form-group">
+            <label for="lugarRecepcion">Lugar de la recepción <span class="req">*</span></label>
+            <input type="text" class="form-control" id="lugarRecepcion" name="lugarRecepcion"
+                   placeholder="Nombre del lugar">
+          </div>
+          <div class="form-group">
+            <label for="ubicacionRecepcion">Enlace de ubicación — Recepción</label>
+            <input type="url" class="form-control" id="ubicacionRecepcion" name="ubicacionRecepcion"
+                   placeholder="https://maps.google.com/... o https://waze.com/ul/...">
+          </div>
         </div>
 
         <!-- ── Diseño ── -->

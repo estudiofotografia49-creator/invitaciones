@@ -660,6 +660,43 @@ input[type="file"] {
   margin-top: 2px;
 }
 
+/* ==================== CHECKBOX TOGGLE ==================== */
+.checkbox-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border: 1.5px solid #ddd9f0;
+  border-radius: 11px;
+  cursor: pointer;
+  background: #fdfcff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  transition: var(--transicion);
+  user-select: none;
+}
+
+.checkbox-option:hover {
+  border-color: var(--morado);
+  background: #f4f2ff;
+}
+
+.checkbox-option input[type="checkbox"] {
+  display: block;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--morado);
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.checkbox-option:has(input:checked) {
+  border-color: var(--morado);
+  background: #f0eeff;
+}
+
 /* ==================== BOTÓN ENVIAR ==================== */
 .btn-enviar {
   width: 100%;
