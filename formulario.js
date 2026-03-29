@@ -280,6 +280,22 @@ function mostrarConfirmacion(folio) {
   // Mostrar pantalla de éxito
   const confirmacion = document.getElementById('confirmacion');
   document.getElementById('folioConfirmacion').textContent = folio;
+
+  // Botón de pago MP según paquete
+  const linksPago = {
+    essence: 'https://mpago.la/2keQv3Z',
+    smart:   'https://mpago.la/2TiAHyW',
+    premium: 'https://mpago.la/2TLTp3t',
+  };
+  const params  = new URLSearchParams(window.location.search);
+  const paquete = (params.get('paquete') || '').toLowerCase();
+  const btnMP   = document.getElementById('btnPagoMP');
+  if (btnMP) btnMP.href = linksPago[paquete] || linksPago.essence;
+
+  // Actualizar folio en la nota de pago
+  const folioNota = document.getElementById('folioNotaPago');
+  if (folioNota) folioNota.textContent = folio;
+
   confirmacion.classList.add('active');
 
   window.scrollTo({ top: 0, behavior: 'smooth' });

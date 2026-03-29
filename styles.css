@@ -728,6 +728,45 @@ input[type="file"] {
   box-shadow: 0 6px 24px rgba(231, 34, 104, 0.3);
 }
 
+.confirmacion-pago-instruccion {
+  font-size: 1rem;
+  color: var(--gris-texto);
+  margin: 18px auto 20px;
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+.btn-pago-mp {
+  display: inline-block;
+  background-color: #009ee3;
+  color: #fff;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  padding: 14px 36px;
+  border-radius: 50px;
+  text-decoration: none;
+  letter-spacing: 0.03em;
+  box-shadow: 0 4px 18px rgba(0,158,227,0.35);
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  margin-bottom: 14px;
+}
+
+.btn-pago-mp:hover {
+  background-color: #007ab8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(0,158,227,0.45);
+}
+
+.confirmacion-pago-nota {
+  font-size: 0.8rem;
+  color: var(--gris-texto);
+  max-width: 380px;
+  margin: 0 auto 28px;
+  line-height: 1.55;
+  opacity: 0.85;
+}
+
 .confirmacion .confirmacion-desc {
   color: var(--gris-texto);
   font-size: 0.94rem;
