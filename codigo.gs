@@ -18,44 +18,48 @@ const CARPETA_RAIZ    = 'FESTALI — Fotos de Eventos';
 const NOMBRE_HOJA     = 'Solicitudes';
 
 const ENCABEZADOS = [
-  'Folio',
-  'Fecha Solicitud',
-  'Paquete',
-  'Estado',
-  'Nombre',
-  'WhatsApp',
-  'Correo',
-  'Tipo Evento',
-  'Fecha Evento',
-  'Hora Evento',
-  'Festejados',
-  'Lugar Ceremonia',
-  'Ubic. Ceremonia',
-  'Lugar Recepción',
-  'Ubic. Recepción',
-  'WA Confirmaciones',
-  'Correo Confirmaciones',
-  'Paleta Colores',
-  'Fotos (cantidad)',
-  'Carpeta Fotos',
-  'Dress Code',
-  'Mensaje Especial',
-  'Datos Asistencia',
-  'Solo Adultos',
-  'Música',
-  'Agenda (texto)',
-  'Agenda (img cant.)',
-  'Nombre Enlace',
-  'Tipo Diseño',
-  'Estilo Invitación',
-  'Ideas Extra',
-  'Refs (cantidad)',
-  'Mesa Regalos Tipo',
-  'Mesa Regalos / Link',
-  'Banco',
-  'Titular Cuenta',
-  'CLABE',
-  'Timestamp Servidor'
+  'Folio',                   // 1
+  'Fecha Solicitud',         // 2
+  'Paquete',                 // 3
+  'Estado',                  // 4
+  'Nombre',                  // 5
+  'WhatsApp',                // 6
+  'Correo',                  // 7
+  'Tipo Evento',             // 8
+  'Fecha Evento',            // 9
+  'Hora Evento',             // 10
+  'Festejados',              // 11
+  'Hay Ceremonia',           // 12
+  'Lugar Ceremonia',         // 13
+  'Enlace Ceremonia',        // 14
+  'Hay Recepción',           // 15
+  'Lugar Recepción',         // 16
+  'Enlace Recepción',        // 17
+  'Medio Confirmaciones',    // 18
+  'Contacto Confirmaciones', // 19
+  'Paleta Colores',          // 20
+  'Fotos (cantidad)',        // 21
+  'Carpeta Fotos',           // 22
+  'Dress Code',              // 23
+  'Dress Code Imágenes',     // 24
+  'Mensaje Especial',        // 25
+  'Mensaje Festali',         // 26
+  'Datos Asistencia',        // 27
+  'Solo Adultos',            // 28
+  'Música',                  // 29
+  'Agenda (texto)',          // 30
+  'Agenda (img cant.)',      // 31
+  'Tipo Diseño',             // 32
+  'Estilo Invitación',       // 33
+  'Ideas',                   // 34
+  'Referencias',             // 35
+  'Nombre Enlace',           // 36
+  'Mesa Regalos Tipo',       // 37
+  'Mesa Regalos / Link',     // 38
+  'Banco',                   // 39
+  'Titular Cuenta',          // 40
+  'CLABE',                   // 41
+  'Timestamp Servidor'       // 42
 ];
 
 // ============================================================
@@ -75,15 +79,16 @@ function doPost(e) {
     const nombreSub = folio + ' — ' + nombre;
     const subcarpeta = obtenerOCrearCarpeta(nombreSub, carpetaRaiz);
 
-    // 3. Guardar fotos en Drive
-    const linksFotos    = guardarFotos(datos.fotos          || [], subcarpeta);
-    const linksRefs     = guardarFotos(datos.referencias    || [], subcarpeta);
-    const linksAgenda   = guardarFotos(datos.agendaImagenes || [], subcarpeta);
+    // 3. Guardar archivos en Drive
+    const linksFotos     = guardarFotos(datos.fotos             || [], subcarpeta);
+    const linksRefs      = guardarFotos(datos.referencias       || [], subcarpeta);
+    const linksAgenda    = guardarFotos(datos.agendaImagenes    || [], subcarpeta);
+    const linksDressCode = guardarFotos(datos.dressCodeImagenes || [], subcarpeta);
 
     // 4. Guardar fila en Sheets
     const ss   = SpreadsheetApp.openById(SPREADSHEET_ID);
     const hoja = prepararHoja(ss);
-    escribirFila(hoja, datos, linksFotos, subcarpeta.getUrl(), linksRefs, linksAgenda);
+    escribirFila(hoja, datos, linksFotos, subcarpeta.getUrl(), linksRefs, linksAgenda, linksDressCode);
 
     return respuestaOk({ folio: folio, carpeta: subcarpeta.getUrl() });
 
@@ -172,63 +177,94 @@ function aplicarEncabezados(hoja) {
   hoja.setFrozenRows(1);
 
   // Ancho de columnas
-  hoja.setColumnWidth(1, 100);   // Folio
-  hoja.setColumnWidth(2, 130);   // Fecha solicitud
-  hoja.setColumnWidth(3, 160);   // Paquete
-  hoja.setColumnWidth(4, 100);   // Estado
-  hoja.setColumnWidth(5, 180);   // Nombre
-  hoja.setColumnWidth(6, 140);   // WhatsApp
-  hoja.setColumnWidth(7, 180);   // Correo
+  hoja.setColumnWidth(1,  100);  // Folio
+  hoja.setColumnWidth(2,  130);  // Fecha Solicitud
+  hoja.setColumnWidth(3,  160);  // Paquete
+  hoja.setColumnWidth(4,  100);  // Estado
+  hoja.setColumnWidth(5,  180);  // Nombre
+  hoja.setColumnWidth(6,  140);  // WhatsApp
+  hoja.setColumnWidth(7,  180);  // Correo
   hoja.setColumnWidth(11, 180);  // Festejados
-  hoja.setColumnWidth(19, 200);  // Carpeta fotos
+  hoja.setColumnWidth(14, 200);  // Enlace Ceremonia
+  hoja.setColumnWidth(17, 200);  // Enlace Recepción
+  hoja.setColumnWidth(19, 180);  // Contacto Confirmaciones
+  hoja.setColumnWidth(22, 200);  // Carpeta Fotos
+  hoja.setColumnWidth(36, 160);  // Nombre Enlace
 }
 
 // ============================================================
 // SHEETS — escribir fila
 // ============================================================
 
-function escribirFila(hoja, d, linksFotos, urlCarpeta, linksRefs, linksAgenda) {
+function escribirFila(hoja, d, linksFotos, urlCarpeta, linksRefs, linksAgenda, linksDressCode) {
   const ahora = new Date();
 
+  // ── Derivar campos compuestos ──
+
+  // Hay ceremonia / recepción: campo explícito si viene del payload, si no se infiere
+  const hayCeremonia = d.hayCeremonia || (d.lugarCeremonia ? 'Sí' : 'No');
+  const hayRecepcion = d.hayRecepcion || (d.lugarRecepcion ? 'Sí' : 'No');
+
+  // Enlace (URL) de ubicación — soporta nombre antiguo y nuevo
+  const enlaceCeremonia = d.enlaceCeremonia || d.ubicacionCeremonia || '';
+  const enlaceRecepcion = d.enlaceRecepcion || d.ubicacionRecepcion || '';
+
+  // Medio y contacto de confirmaciones — consolida los dos campos originales
+  const medioConf = d.medioConfirmaciones ||
+                    (d.whatsappConfirmaciones ? 'WhatsApp' :
+                     d.correoConfirmaciones   ? 'Correo'   : '');
+  const contactoConf = d.contactoConfirmaciones ||
+                       d.whatsappConfirmaciones ||
+                       d.correoConfirmaciones   || '';
+
+  // Mensaje Festali: Sí cuando es smart/premium y el usuario no escribió mensaje propio
+  const paqueteKey   = (d.paquete || '').toLowerCase();
+  const esSmartOPlus = paqueteKey.includes('smart') || paqueteKey.includes('premium');
+  const mensajeFestali = d.mensajeFestali || (esSmartOPlus && !d.mensajeEspecial ? 'Sí' : '');
+
   const fila = [
-    d.folio                  || '',
-    d.fechaSolicitud         || '',
-    d.paquete                || '',
-    'Pendiente',                          // Estado — editar manualmente
-    d.nombreCompleto         || '',
-    d.whatsapp               || '',
-    d.correo                 || '',
-    d.tipoEvento             || '',
-    d.fechaEvento            || '',
-    d.horaEvento             || '',
-    d.nombresFestejados      || '',
-    d.lugarCeremonia         || '',
-    d.ubicacionCeremonia     || '',
-    d.lugarRecepcion         || '',
-    d.ubicacionRecepcion     || '',
-    d.whatsappConfirmaciones || '',
-    d.correoConfirmaciones   || '',
-    d.paletaColores          || '',
-    linksFotos.length,
-    urlCarpeta               || '',
-    d.dressCode              || '',
-    d.mensajeEspecial        || '',
-    d.datosAsistencia        || '',
-    d.soloAdultos            || '',
-    d.musica                 || '',
-    d.agendaEvento           || '',
-    (linksAgenda || []).length,
-    d.nombreEnlace           || '',
-    d.tipoDiseno             || '',
-    d.estiloInvitacion       || '',
-    d.ideasExtra             || '',
-    (linksRefs || []).length,
-    d.tipoRegalos            || '',
-    d.mesaRegalosLink        || '',
-    d.bancoCuenta            || '',
-    d.titularCuenta          || '',
-    d.clabeCuenta            || '',
-    Utilities.formatDate(ahora, Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm:ss')
+    d.folio                  || '',          // 1  Folio
+    d.fechaSolicitud         || '',          // 2  Fecha Solicitud
+    d.paquete                || '',          // 3  Paquete
+    'Pendiente',                             // 4  Estado — editar manualmente
+    d.nombreCompleto         || '',          // 5  Nombre
+    d.whatsapp               || '',          // 6  WhatsApp
+    d.correo                 || '',          // 7  Correo
+    d.tipoEvento             || '',          // 8  Tipo Evento
+    d.fechaEvento            || '',          // 9  Fecha Evento
+    d.horaEvento             || '',          // 10 Hora Evento
+    d.nombresFestejados      || '',          // 11 Festejados
+    hayCeremonia,                            // 12 Hay Ceremonia
+    d.lugarCeremonia         || '',          // 13 Lugar Ceremonia
+    enlaceCeremonia,                         // 14 Enlace Ceremonia
+    hayRecepcion,                            // 15 Hay Recepción
+    d.lugarRecepcion         || '',          // 16 Lugar Recepción
+    enlaceRecepcion,                         // 17 Enlace Recepción
+    medioConf,                               // 18 Medio Confirmaciones
+    contactoConf,                            // 19 Contacto Confirmaciones
+    d.paletaColores          || '',          // 20 Paleta Colores
+    linksFotos.length,                       // 21 Fotos (cantidad)
+    urlCarpeta               || '',          // 22 Carpeta Fotos
+    d.dressCode              || '',          // 23 Dress Code
+    (linksDressCode || []).length,           // 24 Dress Code Imágenes
+    d.mensajeEspecial        || '',          // 25 Mensaje Especial
+    mensajeFestali,                          // 26 Mensaje Festali
+    d.datosAsistencia        || '',          // 27 Datos Asistencia
+    d.soloAdultos            || '',          // 28 Solo Adultos
+    d.musica                 || '',          // 29 Música
+    d.agendaEvento           || '',          // 30 Agenda (texto)
+    (linksAgenda || []).length,              // 31 Agenda (img cant.)
+    d.tipoDiseno             || '',          // 32 Tipo Diseño
+    d.estiloInvitacion       || '',          // 33 Estilo Invitación
+    d.ideasExtra             || '',          // 34 Ideas
+    (linksRefs || []).length,               // 35 Referencias
+    d.nombreEnlace           || '',          // 36 Nombre Enlace
+    d.tipoRegalos            || '',          // 37 Mesa Regalos Tipo
+    d.mesaRegalosLink        || '',          // 38 Mesa Regalos / Link
+    d.bancoCuenta            || '',          // 39 Banco
+    d.titularCuenta          || '',          // 40 Titular Cuenta
+    d.clabeCuenta            || '',          // 41 CLABE
+    Utilities.formatDate(ahora, Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm:ss')  // 42
   ];
 
   hoja.appendRow(fila);
@@ -243,7 +279,6 @@ function escribirFila(hoja, d, linksFotos, urlCarpeta, linksRefs, linksAgenda) {
     'premium': '#fffbeb'
   };
 
-  const paqueteKey = (d.paquete || '').toLowerCase();
   let color = '#ffffff';
   if (paqueteKey.includes('essence')) color = colores.essence;
   if (paqueteKey.includes('smart'))   color = colores.smart;
