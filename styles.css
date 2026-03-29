@@ -758,6 +758,13 @@ input[type="file"] {
   box-shadow: 0 6px 22px rgba(0,158,227,0.45);
 }
 
+.confirmacion-metodos-pago {
+  font-size: 0.78rem;
+  color: var(--gris-texto);
+  margin: 6px auto 18px;
+  opacity: 0.75;
+}
+
 .confirmacion-pago-nota {
   font-size: 0.8rem;
   color: var(--gris-texto);
