@@ -11,7 +11,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="form-page">
+<body id="top" class="form-page has-navbar">
+
+  <!-- ==================== NAVBAR ==================== -->
+  <nav class="navbar">
+    <a href="index.html"><img src="logotipo.png" alt="FESTALI" class="nav-logo"></a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Inicio</a>
+      <a href="paquetes.html" class="nav-link">Invitaciones</a>
+    </div>
+  </nav>
 
   <!-- Elementos decorativos -->
   <div class="deco-flor"></div>
@@ -237,6 +246,10 @@
 
   <!-- ==================== CONFIRMACIÓN ==================== -->
   <div class="confirmacion" id="confirmacion">
+    <div class="cooking-anim">
+      <span class="pan-emoji">🍳</span>
+      <p class="cooking-texto">Cocinando tu invitación...</p>
+    </div>
     <span class="confirmacion-icono">🎉</span>
     <h2>¡Tu invitación está en proceso!</h2>
     <p class="folio-label">Número de folio:</p>
@@ -273,6 +286,9 @@
     <img src="logotipo.png" alt="FESTALI" class="confirmacion-logo">
   </div>
 
+  <!-- Volver a inicio (solo móvil) -->
+  <a href="index.html" class="btn-volver-inicio">← Volver a inicio</a>
+
   <!-- ==================== FOOTER ==================== -->
   <footer class="site-footer">
     <img src="logotipo.png" alt="FESTALI" class="footer-logo">
@@ -283,6 +299,13 @@
     </div>
     <p class="footer-copy">© 2025 FESTALI · Invitaciones Digitales México</p>
   </footer>
+
+  <!-- Botones flotantes -->
+  <div class="fab-stack">
+    <a href="#top" class="fab fab-top" title="Volver arriba">↑</a>
+    <a href="https://wa.me/526862301280" target="_blank" rel="noopener noreferrer" class="fab fab-wsp" title="WhatsApp">💬</a>
+    <a href="mailto:festaliconecta@gmail.com" class="fab fab-email" title="Email">✉</a>
+  </div>
 
   <script src="formulario.js"></script>
 </body>

@@ -108,14 +108,84 @@
       .home-slogan { margin-bottom: 36px; }
       .btn-home { padding: 14px 36px; font-size: 0.95rem; }
     }
+
+    /* Navbar */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 28px;
+      background: rgba(22, 14, 55, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+    .nav-logo { height: 32px; width: auto; display: block; }
+    .nav-links { display: flex; gap: 28px; }
+    .nav-link {
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-link:hover { color: #e72268; }
+
+    /* FAB stack */
+    .fab-stack {
+      position: fixed;
+      right: 16px;
+      bottom: 28px;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+    .fab {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none;
+      font-size: 1.1rem;
+      box-shadow: 0 3px 14px rgba(0,0,0,0.28);
+      transition: transform 0.2s, opacity 0.2s;
+      opacity: 0.78;
+    }
+    .fab:hover { transform: scale(1.13); opacity: 1; }
+    .fab-top { background: rgba(75,68,149,0.92); color: #fff; font-weight: 700; font-size: 1.25rem; }
+    .fab-wsp { background: #25d366; color: #fff; }
+    .fab-email { background: #4b4495; color: #fff; font-size: 0.95rem; }
   </style>
 </head>
-<body>
+<body id="top">
+
+  <!-- ==================== NAVBAR ==================== -->
+  <nav class="navbar">
+    <a href="index.html"><img src="logotipo.png" alt="FESTALI" class="nav-logo"></a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Inicio</a>
+      <a href="paquetes.html" class="nav-link">Invitaciones</a>
+    </div>
+  </nav>
 
   <div class="home-container">
     <img src="logotipo.png" alt="FESTALI" class="home-logo">
     <p class="home-slogan">Conecta tus mejores momentos</p>
     <a href="paquetes.html" class="btn-home">Invitaciones Digitales</a>
+  </div>
+
+  <!-- Botones flotantes -->
+  <div class="fab-stack">
+    <a href="#top" class="fab fab-top" title="Volver arriba">↑</a>
+    <a href="https://wa.me/526862301280" target="_blank" rel="noopener noreferrer" class="fab fab-wsp" title="WhatsApp">💬</a>
+    <a href="mailto:festaliconecta@gmail.com" class="fab fab-email" title="Email">✉</a>
   </div>
 
 </body>

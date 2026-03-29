@@ -11,7 +11,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body id="top" class="has-navbar">
+
+  <!-- ==================== NAVBAR ==================== -->
+  <nav class="navbar">
+    <a href="index.html"><img src="logotipo.png" alt="FESTALI" class="nav-logo"></a>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link">Inicio</a>
+      <a href="paquetes.html" class="nav-link">Invitaciones</a>
+    </div>
+  </nav>
 
   <!-- Elementos decorativos de fondo -->
   <div class="deco-flor"></div>
@@ -20,13 +29,23 @@
   <!-- ==================== HEADER ==================== -->
   <header class="site-header">
     <img src="logotipo.png" alt="FESTALI" class="logo">
-    <p class="slogan">Conectando tus mejores momentos.</p>
   </header>
 
   <!-- ==================== HERO ==================== -->
   <section class="hero">
-    <h1>Tu invitación digital,<br>lista en un clic</h1>
-    <p>Sitios web interactivos diseñados a medida,<br>optimizados para cualquier dispositivo</p>
+    <h1>Diseñar tu invitación no debería<br>ser un segundo trabajo.<br>Festali lo hace por ti.</h1>
+    <p>Tú solo sube la info, nosotros diseñamos</p>
+  </section>
+
+  <!-- ==================== EJEMPLOS ==================== -->
+  <section class="ejemplos" id="ejemplos">
+    <h2 class="ejemplos-titulo">Ejemplos de invitaciones</h2>
+    <p class="ejemplos-subtitulo">Mira cómo quedará la tuya</p>
+    <div class="ejemplos-grid">
+      <div class="ejemplo-card"><span class="ejemplo-icon">🎨</span><p>Próximamente</p></div>
+      <div class="ejemplo-card"><span class="ejemplo-icon">💍</span><p>Próximamente</p></div>
+      <div class="ejemplo-card"><span class="ejemplo-icon">🎉</span><p>Próximamente</p></div>
+    </div>
   </section>
 
   <!-- ==================== PAQUETES ==================== -->
@@ -52,7 +71,7 @@
           <li>Galería de 3 fotografías</li>
         </ul>
         <a href="formulario.html?paquete=essence" class="btn-contratar">
-          Contratar ahora
+          ¡Haz mi invitación por mí!
         </a>
       </div>
 
@@ -72,7 +91,7 @@
           <li>Dress code con iconos visuales</li>
         </ul>
         <a href="formulario.html?paquete=smart" class="btn-contratar">
-          Contratar ahora
+          ¡Haz mi invitación por mí!
         </a>
       </div>
 
@@ -91,12 +110,15 @@
           <li>Sitio activo 3 meses post-evento</li>
         </ul>
         <a href="formulario.html?paquete=premium" class="btn-contratar">
-          Contratar ahora
+          ¡Haz mi invitación por mí!
         </a>
       </div>
 
     </div>
   </section>
+
+  <!-- Volver a inicio (solo móvil) -->
+  <a href="index.html" class="btn-volver-inicio">← Volver a inicio</a>
 
   <!-- ==================== FOOTER ==================== -->
   <footer class="site-footer">
@@ -108,6 +130,13 @@
     </div>
     <p class="footer-copy">© 2025 FESTALI · Invitaciones Digitales México</p>
   </footer>
+
+  <!-- Botones flotantes -->
+  <div class="fab-stack">
+    <a href="#top" class="fab fab-top" title="Volver arriba">↑</a>
+    <a href="https://wa.me/526862301280" target="_blank" rel="noopener noreferrer" class="fab fab-wsp" title="WhatsApp">💬</a>
+    <a href="mailto:festaliconecta@gmail.com" class="fab fab-email" title="Email">✉</a>
+  </div>
 
   <script src="landing.js"></script>
 </body>
