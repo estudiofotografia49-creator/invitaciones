@@ -74,11 +74,11 @@ function doPost(e) {
     const nombreSub  = folio + ' — ' + nombre;
     const subcarpeta = obtenerOCrearCarpeta(nombreSub, carpetaRaiz);
 
-    // 3. Guardar todas las imágenes en la misma subcarpeta
-    const linksFotos     = guardarFotos(datos.fotos             || [], subcarpeta);
-    const linksRefs      = guardarFotos(datos.referencias       || [], subcarpeta);
-    const linksAgenda    = guardarFotos(datos.agendaImagenes    || [], subcarpeta);
-    const linksDressCode = guardarFotos(datos.dressCodeImagenes || [], subcarpeta);
+    // 3. Guardar imágenes en subcarpetas por tipo (solo se crean si hay archivos)
+    const linksFotos     = guardarFotosEnSub(datos.fotos             || [], subcarpeta, 'Fotos del evento');
+    const linksRefs      = guardarFotosEnSub(datos.referencias       || [], subcarpeta, 'Referencias visuales');
+    const linksDressCode = guardarFotosEnSub(datos.dressCodeImagenes || [], subcarpeta, 'Ejemplos vestimenta');
+    const linksAgenda    = guardarFotosEnSub(datos.agendaImagenes    || [], subcarpeta, 'Agenda');
 
     // 4. Guardar fila en Sheets
     const ss   = SpreadsheetApp.openById(SPREADSHEET_ID);
@@ -122,6 +122,15 @@ function obtenerOCrearCarpeta(nombre, padre) {
 // ============================================================
 // DRIVE — guardar imágenes (base64 → Drive)
 // ============================================================
+
+// Guarda archivos en una subcarpeta con nombre específico.
+// La subcarpeta solo se crea si hay al menos un archivo que guardar.
+function guardarFotosEnSub(fotos, carpetaPadre, nombreSub) {
+  if (!fotos || fotos.length === 0) return [];
+
+  const sub = obtenerOCrearCarpeta(nombreSub, carpetaPadre);
+  return guardarFotos(fotos, sub);
+}
 
 function guardarFotos(fotos, carpeta) {
   const links = [];
