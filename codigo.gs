@@ -30,11 +30,9 @@ const ENCABEZADOS = [
   'Hora Evento',
   'Festejados',
   'Lugar Ceremonia',
-  'Maps Ceremonia',
-  'Waze Ceremonia',
+  'Ubic. Ceremonia',
   'Lugar Recepción',
-  'Maps Recepción',
-  'Waze Recepción',
+  'Ubic. Recepción',
   'WA Confirmaciones',
   'Paleta Colores',
   'Fotos (cantidad)',
@@ -178,7 +176,7 @@ function aplicarEncabezados(hoja) {
   hoja.setColumnWidth(6, 140);   // WhatsApp
   hoja.setColumnWidth(7, 180);   // Correo
   hoja.setColumnWidth(11, 180);  // Festejados
-  hoja.setColumnWidth(21, 200);  // Carpeta fotos
+  hoja.setColumnWidth(19, 200);  // Carpeta fotos
 }
 
 // ============================================================
@@ -201,11 +199,9 @@ function escribirFila(hoja, d, linksFotos, urlCarpeta, linksRefs) {
     d.horaEvento             || '',
     d.nombresFestejados      || '',
     d.lugarCeremonia         || '',
-    d.mapsCeremonia          || '',
-    d.wazeCeremonia          || '',
+    d.ubicacionCeremonia     || '',
     d.lugarRecepcion         || '',
-    d.mapsRecepcion          || '',
-    d.wazeRecepcion          || '',
+    d.ubicacionRecepcion     || '',
     d.whatsappConfirmaciones || '',
     d.paletaColores          || '',
     linksFotos.length,
