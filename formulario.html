@@ -176,6 +176,16 @@
                     placeholder="Describe los colores que deseas para tu invitación..." required></textarea>
         </div>
 
+        <div class="form-group">
+          <label for="nombreEnlace">Nombre deseado para el enlace</label>
+          <input type="text" class="form-control" id="nombreEnlace" name="nombreEnlace"
+                 placeholder="boda-ana-y-luis">
+          <p class="form-hint">
+            Solo letras minúsculas, números y guiones.<br>
+            Tu sitio será: <strong>festali.com/<span id="previewEnlace">nombre-del-evento</span></strong>
+          </p>
+        </div>
+
         <!-- ── Tipo de diseño ── -->
         <div class="form-group">
           <label>¿Cómo quieres las fotos de tu invitación? <span class="req">*</span></label>
@@ -275,15 +285,6 @@
                       placeholder="Describe el programa (ej: 5:00pm Ceremonia religiosa / 7:00pm Coctel / 8:00pm Cena y baile)..."></textarea>
           </div>
 
-          <div class="form-group">
-            <label for="nombreEnlace">Nombre deseado para el enlace</label>
-            <input type="text" class="form-control" id="nombreEnlace" name="nombreEnlace"
-                   placeholder="boda-ana-y-luis">
-            <p class="form-hint">
-              Solo letras minúsculas, números y guiones.<br>
-              Tu sitio será: <strong>festali.com/<span id="previewEnlace">nombre-del-evento</span></strong>
-            </p>
-          </div>
         </div>
 
         <button type="submit" class="btn-enviar">✨ Enviar mi solicitud</button>

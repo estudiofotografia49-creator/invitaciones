@@ -256,6 +256,7 @@ function recopilarDatos(paqueteKey) {
     tipoDiseno:             (document.querySelector('input[name="tipoDiseno"]:checked')?.value || ''),
     estiloInvitacion:       val('estiloInvitacion'),
     ideasExtra:             val('ideasExtra'),
+    nombreEnlace:           val('nombreEnlace'),
   };
 
   const extras = PAQUETES[paqueteKey].extras;
@@ -269,7 +270,6 @@ function recopilarDatos(paqueteKey) {
   if (extras.includes('premium')) {
     datos.musica        = val('musica');
     datos.agendaEvento  = val('agendaEvento');
-    datos.nombreEnlace  = val('nombreEnlace');
   }
 
   return datos;
