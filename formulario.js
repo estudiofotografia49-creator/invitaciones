@@ -1,3 +1,4 @@
+// v2.1 - botón MP confirmación
 // ============================================================
 // FESTALI — formulario.js
 // Lógica del formulario de contratación
