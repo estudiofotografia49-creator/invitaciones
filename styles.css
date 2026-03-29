@@ -967,10 +967,9 @@ body.form-page .nav-link { color: #e72268; }
 body.form-page .nav-link:hover { color: #c01755; opacity: 0.85; }
 
 .hero-logo {
-  height: 80px;
-  max-height: 120px;
+  height: 70px;
   width: auto;
-  max-width: 200px;
+  max-width: 150px;
   display: block;
   margin: 0 auto 22px;
   filter: brightness(0) invert(1);
