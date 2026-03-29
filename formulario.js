@@ -495,12 +495,22 @@ async function enviar(datos, archivos, referencias, agendaImg, dressCodeImgs) {
 
   // ── MODO PRODUCCIÓN ── Enviar JSON a Google Apps Script
   // Content-Type: text/plain evita el preflight CORS que bloquea Apps Script.
-  const response = await fetch(SCRIPT_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify(payload)
-  });
+  console.log('📤 FESTALI — Iniciando fetch a:', SCRIPT_URL);
+  console.log('📦 Payload (sin archivos):', JSON.stringify(datos, null, 2));
+  console.log(`📎 Archivos: ${fotosBase64.length} foto(s), ${refsBase64.length} ref(s), ${agendaBase64.length} agenda, ${dressCodeBase64.length} dressCode`);
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload)
+    });
+    console.log('✅ Fetch completado (no-cors — respuesta opaca, revisar GAS Ejecuciones para confirmar)');
+  } catch (fetchErr) {
+    console.error('❌ Fetch falló antes de llegar al servidor:', fetchErr);
+    throw fetchErr;
+  }
 
   return { ok: true };
 }
