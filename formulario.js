@@ -43,6 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initAgendaToggle();
   initRefInput();
   initMesaRegalos();
+  initDressCodeImg();
+  initMensajeToggle();
   initPreviewEnlace();
   initSubmit(paqueteKey);
 });
@@ -145,6 +147,46 @@ function initTipoDiseño(paqueteKey) {
       grupoFotos.style.display = radio.value === 'fotos' ? 'block' : 'none';
     });
   });
+}
+
+// ==================== DRESS CODE IMÁGENES ====================
+
+function initDressCodeImg() {
+  const cb    = document.getElementById('cbDressCodeImg');
+  const grupo = document.getElementById('grupoDressCodeImg');
+  const input = document.getElementById('dressCodeImgFile');
+  const hint  = document.getElementById('dressCodeImgHint');
+
+  if (!cb || !grupo) return;
+
+  cb.addEventListener('change', () => {
+    grupo.style.display = cb.checked ? 'block' : 'none';
+  });
+
+  if (input && hint) {
+    input.addEventListener('change', () => {
+      const n = input.files.length;
+      hint.textContent = n
+        ? `${n} imagen${n > 1 ? 'es' : ''} seleccionada${n > 1 ? 's' : ''}`
+        : 'Ninguna imagen seleccionada';
+    });
+  }
+}
+
+// ==================== MENSAJE TOGGLE ====================
+
+function initMensajeToggle() {
+  const radios       = document.querySelectorAll('input[name="tipoMensaje"]');
+  const grupoMensaje = document.getElementById('grupoMensajeTexto');
+
+  if (!radios.length || !grupoMensaje) return;
+
+  function actualizar() {
+    const val = document.querySelector('input[name="tipoMensaje"]:checked')?.value;
+    grupoMensaje.style.display = val === 'propio' ? 'block' : 'none';
+  }
+
+  radios.forEach(r => r.addEventListener('change', actualizar));
 }
 
 // ==================== AGENDA TOGGLE ====================
@@ -354,7 +396,8 @@ function recopilarDatos(paqueteKey) {
 
   if (extras.includes('smart')) {
     datos.dressCode       = val('dressCode');
-    datos.mensajeEspecial = val('mensajeEspecial');
+    datos.mensajeEspecial = document.querySelector('input[name="tipoMensaje"]:checked')?.value === 'propio'
+                            ? val('mensajeEspecial') : '';
     datos.datosAsistencia = val('datosAsistencia');
     datos.tipoRegalos     = (document.querySelector('input[name="tipoRegalos"]:checked')?.value || '');
     datos.mesaRegalosLink = val('mesaRegalosLink');
@@ -389,12 +432,18 @@ function archivoABase64(archivo) {
 
 // ==================== ENVÍO ====================
 
-async function enviar(datos, archivos, referencias, agendaImg) {
+async function enviar(datos, archivos, referencias, agendaImg, dressCodeImgs) {
   // Convertir archivos a base64
-  const fotosBase64   = await Promise.all(Array.from(archivos).map(archivoABase64));
-  const refsBase64    = await Promise.all(Array.from(referencias || []).map(archivoABase64));
-  const agendaBase64  = await Promise.all(Array.from(agendaImg  || []).map(archivoABase64));
-  const payload = Object.assign({}, datos, { fotos: fotosBase64, referencias: refsBase64, agendaImagenes: agendaBase64 });
+  const fotosBase64      = await Promise.all(Array.from(archivos).map(archivoABase64));
+  const refsBase64       = await Promise.all(Array.from(referencias    || []).map(archivoABase64));
+  const agendaBase64     = await Promise.all(Array.from(agendaImg      || []).map(archivoABase64));
+  const dressCodeBase64  = await Promise.all(Array.from(dressCodeImgs  || []).map(archivoABase64));
+  const payload = Object.assign({}, datos, {
+    fotos: fotosBase64,
+    referencias: refsBase64,
+    agendaImagenes: agendaBase64,
+    dressCodeImagenes: dressCodeBase64,
+  });
 
   if (!SCRIPT_URL) {
     // ── MODO PRUEBA ──
@@ -491,11 +540,13 @@ function initSubmit(paqueteKey) {
       const archivos    = document.getElementById('fotos').files;
       const usaIdeas      = document.querySelector('input[name="tieneIdeas"]:checked')?.value === 'tengoIdea';
       const referencias   = usaIdeas ? document.getElementById('referenciaVisual').files : [];
-      const usaImgAgenda  = document.querySelector('input[name="tipoAgenda"]:checked')?.value === 'imagen';
-      const agendaImg     = usaImgAgenda ? document.getElementById('agendaImagenFile').files : [];
+      const usaImgAgenda    = document.querySelector('input[name="tipoAgenda"]:checked')?.value === 'imagen';
+      const agendaImg       = usaImgAgenda ? document.getElementById('agendaImagenFile').files : [];
+      const usaDressCodeImg = document.getElementById('cbDressCodeImg')?.checked;
+      const dressCodeImgs   = usaDressCodeImg ? document.getElementById('dressCodeImgFile').files : [];
       const folio       = datos.folio;
 
-      await enviar(datos, archivos, referencias, agendaImg);
+      await enviar(datos, archivos, referencias, agendaImg, dressCodeImgs);
 
       // Confirmar folio solo después de envío exitoso
       confirmarFolio();
