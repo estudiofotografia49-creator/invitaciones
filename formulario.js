@@ -552,6 +552,38 @@ function mostrarErrores(errores) {
   alert(`Por favor completa los siguientes campos obligatorios:\n\n${lista}`);
 }
 
+// ==================== SPINNER — ROTACIÓN DE MENSAJES ====================
+
+const SPINNER_MENSAJES = [
+  'Enviando tu información...',
+  'Creando tu invitación... ✨',
+  'No cierres ni actualices la página 🙏',
+  'Ya casi... 💫',
+  'Un poquitito más... 🎉'
+];
+
+let _spinnerInterval = null;
+
+function iniciarMensajesSpinner() {
+  const texto = document.querySelector('.spinner-texto');
+  if (!texto) return;
+
+  let i = 0;
+  texto.textContent = SPINNER_MENSAJES[0];
+
+  _spinnerInterval = setInterval(() => {
+    i = (i + 1) % SPINNER_MENSAJES.length;
+    texto.textContent = SPINNER_MENSAJES[i];
+  }, 3000);
+}
+
+function detenerMensajesSpinner() {
+  if (_spinnerInterval) {
+    clearInterval(_spinnerInterval);
+    _spinnerInterval = null;
+  }
+}
+
 // ==================== INICIALIZAR SUBMIT ====================
 
 function initSubmit(paqueteKey) {
@@ -568,6 +600,7 @@ function initSubmit(paqueteKey) {
     }
 
     spinner.classList.add('active');
+    iniciarMensajesSpinner();
 
     try {
       const datos       = recopilarDatos(paqueteKey);
@@ -585,10 +618,12 @@ function initSubmit(paqueteKey) {
       // Confirmar folio solo después de envío exitoso
       confirmarFolio();
 
+      detenerMensajesSpinner();
       spinner.classList.remove('active');
       mostrarConfirmacion(folio);
 
     } catch (err) {
+      detenerMensajesSpinner();
       spinner.classList.remove('active');
       console.error('Error al enviar formulario FESTALI:', err);
       alert(
