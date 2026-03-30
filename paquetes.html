@@ -8,8 +8,481 @@
   <title>FESTALI — Paquetes de Invitaciones</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+
+  <style>
+    /* ── Cocogoose Pro ── */
+    @font-face {
+      font-family: 'Cocogoose Pro';
+      src: url('Cocogoose-Pro-Bold-trial.ttf') format('truetype');
+      font-weight: 700;
+    }
+    @font-face {
+      font-family: 'Cocogoose Pro';
+      src: url('Cocogoose-Pro-Light-trial.ttf') format('truetype');
+      font-weight: 300;
+    }
+    @font-face {
+      font-family: 'Cocogoose Pro';
+      src: url('Cocogoose-Pro-Regular-trial.ttf') format('truetype');
+      font-weight: 400;
+    }
+
+    /* ── Layout columnas ── */
+    .cards-container {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      align-items: flex-start;
+      flex-wrap: nowrap;
+    }
+    .card-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    /* ══════════════════════════════════════
+       MOCKUP BASE
+    ══════════════════════════════════════ */
+    .phone-mockup {
+      width: 218px;
+      height: 440px;
+      background: #111;
+      border-radius: 34px;
+      border: 7px solid #1e1e1e;
+      position: relative;
+      box-shadow:
+        0 12px 50px rgba(0,0,0,0.55),
+        inset 0 0 0 1px rgba(255,255,255,0.06);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    /* Notch */
+    .phone-mockup::before {
+      content: '';
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 56px;
+      height: 16px;
+      background: #0a0a0a;
+      border-radius: 8px;
+      z-index: 20;
+    }
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      position: relative;
+    }
+    .scroll-inner {
+      width: 100%;
+      will-change: transform;
+    }
+
+    /* ── Animaciones scroll ── */
+    @keyframes ps1 {
+      0%   { transform: translateY(0); }
+      73%  { transform: translateY(-700px); }
+      84%  { transform: translateY(-700px); }
+      100% { transform: translateY(0); }
+    }
+    @keyframes ps2 {
+      0%   { transform: translateY(0); }
+      73%  { transform: translateY(-820px); }
+      84%  { transform: translateY(-820px); }
+      100% { transform: translateY(0); }
+    }
+    @keyframes ps3 {
+      0%   { transform: translateY(0); }
+      73%  { transform: translateY(-940px); }
+      84%  { transform: translateY(-940px); }
+      100% { transform: translateY(0); }
+    }
+    .phone-1 .scroll-inner { animation: ps1 19s cubic-bezier(.45,.05,.55,.95) infinite; }
+    .phone-2 .scroll-inner { animation: ps2 23s cubic-bezier(.45,.05,.55,.95) infinite; }
+    .phone-3 .scroll-inner { animation: ps3 27s cubic-bezier(.45,.05,.55,.95) infinite; }
+
+    /* ══════════════════════════════════════
+       PHONE 1 — Digital Essence
+       Fondo #0d0d1a · Montserrat · Cocogoose Pro Bold números
+    ══════════════════════════════════════ */
+    .p1 { background: #0d0d1a; font-family: 'Montserrat', sans-serif; color: #fff; }
+
+    .p1-hero {
+      display: flex;
+      height: 190px;
+      overflow: hidden;
+    }
+    .p1-hero-img {
+      width: 50%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+    }
+    .p1-hero-right {
+      width: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      padding: 0.5rem;
+    }
+    .p1-num {
+      font-family: 'Cocogoose Pro', sans-serif;
+      font-weight: 700;
+      font-size: 3.8rem;
+      color: #fff;
+      line-height: 1;
+    }
+    .p1-anios {
+      font-size: 0.6rem;
+      color: #c9a84c;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+    }
+    .p1-linea { width: 38px; height: 1px; background: #c9a84c; }
+    .p1-nhero {
+      font-style: italic;
+      font-size: 0.55rem;
+      color: #ccc;
+      text-align: center;
+    }
+
+    .p1-body { padding: 0.9rem 0.75rem; display: flex; flex-direction: column; gap: 0.65rem; }
+    .p1-etiqueta {
+      font-size: 0.48rem;
+      color: #c9a84c;
+      text-transform: uppercase;
+      letter-spacing: 0.22em;
+      text-align: center;
+    }
+    .p1-nombre { font-size: 0.82rem; font-weight: 600; text-align: center; }
+    .p1-divider { width: 100%; height: 1px; background: rgba(201,168,76,0.25); }
+    .p1-dato {
+      font-size: 0.52rem;
+      color: #bbb;
+      text-align: center;
+      line-height: 1.65;
+    }
+    .p1-dato strong {
+      color: #c9a84c;
+      display: block;
+      font-size: 0.44rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .p1-fotos { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+    .p1-fotos img { width: 100%; height: 78px; object-fit: cover; border-radius: 6px; }
+    .p1-mensaje {
+      background: rgba(201,168,76,0.07);
+      border-left: 2px solid #c9a84c;
+      padding: 0.45rem 0.5rem;
+      font-size: 0.48rem;
+      color: #ddd;
+      font-style: italic;
+      line-height: 1.55;
+    }
+    .p1-ubicacion {
+      font-size: 0.48rem;
+      color: #c9a84c;
+      text-align: center;
+      text-decoration: underline;
+    }
+    .p1-btn {
+      display: block;
+      background: linear-gradient(135deg, #c9a84c, #e0c068);
+      color: #0d0d1a;
+      text-align: center;
+      padding: 0.48rem;
+      border-radius: 20px;
+      font-size: 0.52rem;
+      font-weight: 700;
+    }
+
+    /* ══════════════════════════════════════
+       PHONE 2 — Smart Interactive
+       Fondo #fff9f5 · Playfair Display nombre/verso · Montserrat detalles
+    ══════════════════════════════════════ */
+    .p2 { background: #fff9f5; font-family: 'Montserrat', sans-serif; color: #4a2535; }
+
+    .p2-hero { position: relative; height: 190px; overflow: hidden; }
+    .p2-hero img { width: 100%; height: 100%; object-fit: cover; }
+    .p2-overlay {
+      position: absolute; inset: 0;
+      background: rgba(255,182,193,0.32);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .p2-xv {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 4rem;
+      color: #c0607a;
+      text-shadow: 0 2px 14px rgba(0,0,0,0.12);
+    }
+
+    .p2-body { padding: 0.9rem 0.75rem; display: flex; flex-direction: column; gap: 0.6rem; align-items: center; }
+    .p2-nombre {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1rem;
+      color: #7d2b4a;
+      text-align: center;
+    }
+    .p2-floral { font-size: 0.7rem; color: #c0607a; letter-spacing: 0.18em; }
+    .p2-verso {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 0.48rem;
+      color: #7d2b4a;
+      text-align: center;
+      line-height: 1.65;
+    }
+    .p2-dato {
+      font-size: 0.5rem;
+      color: #6b3a50;
+      text-align: center;
+      line-height: 1.65;
+    }
+    .p2-dato strong {
+      color: #c0607a;
+      display: block;
+      font-size: 0.44rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .p2-divider { width: 75%; height: 1px; background: rgba(192,96,122,0.18); }
+    .p2-fotos { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; width: 100%; }
+    .p2-fotos img { width: 100%; height: 78px; object-fit: cover; border-radius: 6px; }
+
+    .p2-musica-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .p2-barras { display: flex; align-items: flex-end; gap: 2px; height: 22px; }
+    .p2-b {
+      width: 3px; background: #c0607a; border-radius: 2px;
+      animation: bar-bounce 0.85s ease-in-out infinite alternate;
+    }
+    .p2-b:nth-child(1){height:7px;  animation-delay:0s;}
+    .p2-b:nth-child(2){height:15px; animation-delay:.1s;}
+    .p2-b:nth-child(3){height:11px; animation-delay:.2s;}
+    .p2-b:nth-child(4){height:19px; animation-delay:.05s;}
+    .p2-b:nth-child(5){height:9px;  animation-delay:.28s;}
+    .p2-b:nth-child(6){height:17px; animation-delay:.15s;}
+    .p2-b:nth-child(7){height:13px; animation-delay:.22s;}
+    @keyframes bar-bounce { from{transform:scaleY(.35)} to{transform:scaleY(1)} }
+
+    .p2-cancion { font-size: 0.4rem; color: #b89aaa; font-style: italic; }
+    .p2-mensaje {
+      background: #fdeef3;
+      border-left: 2px solid #c0607a;
+      padding: 0.45rem 0.5rem;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 0.46rem;
+      color: #7d2b4a;
+      line-height: 1.55;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .p2-caja {
+      background: #fff0f4;
+      border: 1px solid rgba(192,96,122,0.2);
+      border-radius: 8px;
+      padding: 0.45rem 0.5rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .p2-caja-titulo { font-size: 0.44rem; color: #c0607a; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+    .p2-caja-info { font-size: 0.44rem; color: #7d2b4a; line-height: 1.5; }
+    .p2-btn {
+      display: block;
+      background: linear-gradient(135deg, #c0607a, #e08098);
+      color: #fff;
+      text-align: center;
+      padding: 0.48rem;
+      border-radius: 20px;
+      font-size: 0.5rem;
+      font-weight: 700;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* ══════════════════════════════════════
+       PHONE 3 — Premium Experience
+       Fondo #1a1005 · Playfair Display nombres/versos
+       Cocogoose Pro Light etiquetas · Montserrat detalles
+    ══════════════════════════════════════ */
+    .p3 { background: #1a1005; font-family: 'Montserrat', sans-serif; color: #f5e6c8; }
+
+    .p3-hero { position: relative; height: 210px; overflow: hidden; }
+    .p3-hero img { width: 100%; height: 100%; object-fit: cover; }
+    .p3-overlay {
+      position: absolute; inset: 0;
+      background: rgba(26,16,5,0.58);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .p3-mono-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
+    .p3-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 1px solid rgba(212,175,55,0.45);
+      animation: ring-exp 2.6s ease-out infinite;
+    }
+    .p3-ring:nth-child(1){width:58px; height:58px; animation-delay:0s;}
+    .p3-ring:nth-child(2){width:80px; height:80px; animation-delay:.85s;}
+    .p3-ring:nth-child(3){width:102px;height:102px;animation-delay:1.7s;}
+    @keyframes ring-exp {
+      0%  {transform:scale(.5); opacity:.8;}
+      100%{transform:scale(1.6); opacity:0;}
+    }
+    .p3-monograma {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.45rem;
+      color: #d4af37;
+      text-shadow: 0 0 22px rgba(212,175,55,0.45);
+      position: relative; z-index: 1;
+    }
+
+    .p3-body { padding: 0.9rem 0.75rem; display: flex; flex-direction: column; gap: 0.62rem; align-items: center; }
+    .p3-etiqueta {
+      font-family: 'Cocogoose Pro', sans-serif;
+      font-weight: 300;
+      font-size: 0.36rem;
+      color: #d4af37;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      text-align: center;
+    }
+    .p3-nombres {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.1rem;
+      color: #f5e6c8;
+      text-align: center;
+    }
+    .p3-verso {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 0.46rem;
+      color: #c9a57a;
+      text-align: center;
+      line-height: 1.65;
+    }
+    .p3-sep { width: 55px; height: 1px; background: linear-gradient(90deg, transparent, #d4af37, transparent); }
+    .p3-dato {
+      font-size: 0.48rem;
+      color: #c9a57a;
+      text-align: center;
+      line-height: 1.7;
+    }
+    .p3-dato strong {
+      color: #d4af37;
+      display: block;
+      font-size: 0.4rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .p3-fotos { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3px; width: 100%; }
+    .p3-fotos img { width: 100%; height: 62px; object-fit: cover; border-radius: 4px; }
+
+    .p3-agenda { width: 100%; }
+    .p3-agenda-tit {
+      font-family: 'Cocogoose Pro', sans-serif;
+      font-weight: 300;
+      font-size: 0.38rem;
+      color: #d4af37;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .p3-ait {
+      display: flex; gap: 7px;
+      font-size: 0.45rem;
+      color: #c9a57a;
+      padding: 3px 0;
+      border-bottom: 1px solid rgba(212,175,55,0.1);
+    }
+    .p3-hora { color: #d4af37; font-weight: 600; white-space: nowrap; }
+
+    .p3-musica-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .p3-barras { display: flex; align-items: flex-end; gap: 2px; height: 22px; }
+    .p3-b {
+      width: 3px; background: #d4af37; border-radius: 2px;
+      animation: bar-bounce .92s ease-in-out infinite alternate;
+    }
+    .p3-b:nth-child(1){height:7px;  animation-delay:0s;}
+    .p3-b:nth-child(2){height:17px; animation-delay:.12s;}
+    .p3-b:nth-child(3){height:11px; animation-delay:.23s;}
+    .p3-b:nth-child(4){height:21px; animation-delay:.07s;}
+    .p3-b:nth-child(5){height:13px; animation-delay:.31s;}
+    .p3-b:nth-child(6){height:19px; animation-delay:.18s;}
+    .p3-b:nth-child(7){height:9px;  animation-delay:.26s;}
+
+    .p3-cancion { font-size: 0.38rem; color: #7a6540; font-style: italic; }
+    .p3-mensaje {
+      background: rgba(212,175,55,0.05);
+      border-left: 2px solid #d4af37;
+      padding: 0.45rem 0.5rem;
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 0.46rem;
+      color: #c9a57a;
+      line-height: 1.55;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .p3-caja {
+      background: rgba(212,175,55,0.05);
+      border: 1px solid rgba(212,175,55,0.15);
+      border-radius: 8px;
+      padding: 0.45rem 0.5rem;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .p3-caja-titulo {
+      font-family: 'Cocogoose Pro', sans-serif;
+      font-weight: 300;
+      font-size: 0.36rem;
+      color: #d4af37;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 4px;
+    }
+    .p3-caja-info { font-size: 0.43rem; color: #c9a57a; line-height: 1.55; }
+    .p3-nota { font-size: 0.38rem; color: #6a5530; text-align: center; font-style: italic; }
+    .p3-btn {
+      display: block;
+      background: linear-gradient(135deg, #d4af37, #f0cc60);
+      color: #1a1005;
+      text-align: center;
+      padding: 0.48rem;
+      border-radius: 20px;
+      font-size: 0.48rem;
+      font-weight: 700;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* ── Responsive ── */
+    .movil-mobile-premium { display: none; }
+
+    @media (max-width: 900px) {
+      .cards-container { flex-wrap: wrap; gap: 1.5rem; }
+      .card-col { width: 100%; max-width: 380px; }
+      .movil-desktop-only { display: none !important; }
+      .movil-mobile-premium {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 2rem;
+      }
+    }
+  </style>
 </head>
 <body id="top">
 
@@ -32,81 +505,359 @@
     <p>Tú solo sube la info, nosotros diseñamos</p>
   </section>
 
-  <!-- ==================== EJEMPLOS ==================== -->
-  <section class="ejemplos" id="ejemplos">
-    <h2 class="ejemplos-titulo">Ejemplos de invitaciones</h2>
-    <p class="ejemplos-subtitulo">Mira cómo quedará la tuya</p>
-    <div class="ejemplos-grid">
-      <div class="ejemplo-card"><span class="ejemplo-icon">🎨</span><p>Próximamente</p></div>
-      <div class="ejemplo-card"><span class="ejemplo-icon">💍</span><p>Próximamente</p></div>
-      <div class="ejemplo-card"><span class="ejemplo-icon">🎉</span><p>Próximamente</p></div>
-    </div>
-  </section>
-
   <!-- ==================== PAQUETES ==================== -->
   <section class="paquetes" id="paquetes">
     <h2 class="paquetes-titulo">Elige tu paquete</h2>
     <p class="paquetes-subtitulo">Tres opciones pensadas para cada tipo de celebración</p>
 
+    <!-- ── Móvil: solo Premium, arriba de todo ── -->
+    <div class="movil-mobile-premium">
+      <div class="phone-mockup phone-3">
+        <div class="phone-screen">
+          <div class="scroll-inner p3">
+
+            <div class="p3-hero">
+              <img src="img/movil31.png" alt="Boda">
+              <div class="p3-overlay">
+                <div class="p3-mono-wrap">
+                  <div class="p3-ring"></div>
+                  <div class="p3-ring"></div>
+                  <div class="p3-ring"></div>
+                  <div class="p3-monograma">S &amp; R</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="p3-body">
+              <div class="p3-etiqueta">Con alegría los invitamos</div>
+              <div class="p3-nombres">Sofía &amp; Rodrigo</div>
+              <div class="p3-verso">Dos almas que se encontraron,<br>dos vidas que hoy se unen<br>para siempre.</div>
+              <div class="p3-sep"></div>
+              <div class="p3-dato">
+                <strong>Fecha</strong>
+                Sábado 14 de junio de 2025
+              </div>
+              <div class="p3-dato">
+                <strong>Lugar</strong>
+                Hacienda San Miguel<br>Hermosillo, Sonora
+              </div>
+              <div class="p3-dato">
+                <strong>Dress Code</strong>
+                Formal · Tonos tierra
+              </div>
+              <div class="p3-sep"></div>
+              <div class="p3-fotos">
+                <img src="img/movil32.png" alt="">
+                <img src="img/movil33.png" alt="">
+                <img src="img/movil34.png" alt="">
+              </div>
+              <div class="p3-agenda">
+                <div class="p3-agenda-tit">Agenda del día</div>
+                <div class="p3-ait"><span class="p3-hora">16:00</span> Ceremonia religiosa</div>
+                <div class="p3-ait"><span class="p3-hora">17:30</span> Coctel de bienvenida</div>
+                <div class="p3-ait"><span class="p3-hora">19:00</span> Cena y baile</div>
+                <div class="p3-ait"><span class="p3-hora">23:00</span> Pastel y brindis</div>
+              </div>
+              <div class="p3-musica-wrap">
+                <div class="p3-barras">
+                  <div class="p3-b"></div><div class="p3-b"></div><div class="p3-b"></div>
+                  <div class="p3-b"></div><div class="p3-b"></div><div class="p3-b"></div>
+                  <div class="p3-b"></div>
+                </div>
+                <div class="p3-cancion">♪ Perfect — Ed Sheeran</div>
+              </div>
+              <div class="p3-mensaje">
+                "Hoy no solo celebramos un amor,<br>celebramos el inicio de una<br>historia que durará para siempre."
+              </div>
+              <div class="p3-caja">
+                <div class="p3-caja-titulo">Mesa de regalos</div>
+                <div class="p3-caja-info">
+                  Liverpool · # 1234567<br>
+                  Transferencia: CLABE<br>
+                  012 345 6789 0123 45
+                </div>
+              </div>
+              <div class="p3-caja">
+                <div class="p3-caja-titulo">Confirmación de asistencia</div>
+                <div class="p3-caja-info">
+                  Adultos únicamente<br>
+                  Confirmar antes del 1° de junio
+                </div>
+              </div>
+              <div class="p3-nota">Sitio activo 3 meses post-evento</div>
+              <div class="p3-btn">Confirmar · Mapa · Regalos</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="cards-container">
 
-      <!-- ── Card 1: Digital Essence ── -->
-      <div class="card" data-aos-delay="0">
-        <div class="card-nombre">Digital Essence</div>
-        <div class="card-subtitulo">Lo esencial con elegancia y estilo</div>
-        <div class="card-precio">$850 <span>MXN</span></div>
-        <div class="card-divider"></div>
-        <ul class="features-list">
-          <li>Enlace personalizado festali.com/evento</li>
-          <li>Diseño adaptado a tu paleta de colores</li>
-          <li>Cuenta regresiva en tiempo real</li>
-          <li>Botones GPS: Maps y Waze</li>
-          <li>Confirmación vía WhatsApp</li>
-          <li>Galería de 3 fotografías</li>
-        </ul>
-        <a href="formulario.html?paquete=essence" class="btn-contratar">
-          ¡Haz mi invitación por mí!
-        </a>
+      <!-- ══ COLUMNA 1: Digital Essence ══ -->
+      <div class="card-col">
+
+        <div class="phone-mockup phone-1 movil-desktop-only">
+          <div class="phone-screen">
+            <div class="scroll-inner p1">
+
+              <div class="p1-hero">
+                <img class="p1-hero-img" src="img/movil1.png" alt="Cumpleaños">
+                <div class="p1-hero-right">
+                  <div class="p1-num">30</div>
+                  <div class="p1-anios">años</div>
+                  <div class="p1-linea"></div>
+                  <div class="p1-nhero">Andrea Martínez</div>
+                </div>
+              </div>
+
+              <div class="p1-body">
+                <div class="p1-etiqueta">Cumpleaños</div>
+                <div class="p1-nombre">Andrea Martínez Ruiz</div>
+                <div class="p1-divider"></div>
+                <div class="p1-dato">
+                  <strong>Fecha</strong>
+                  Viernes 20 de septiembre de 2025
+                </div>
+                <div class="p1-dato">
+                  <strong>Hora</strong>
+                  8:00 PM
+                </div>
+                <div class="p1-dato">
+                  <strong>Lugar</strong>
+                  Salón Cibeles · Mexicali, BC
+                </div>
+                <div class="p1-fotos">
+                  <img src="img/movil1a.png" alt="">
+                  <img src="img/movil1a.png" alt="">
+                </div>
+                <div class="p1-mensaje">
+                  "Treinta años de risas, de sueños<br>cumplidos y de los que están<br>por llegar. ¡Ven a celebrar!"
+                </div>
+                <div class="p1-ubicacion">📍 Ver en Maps / Waze</div>
+                <div class="p1-btn">Confirmar asistencia</div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 1 -->
+        <div class="card" data-aos-delay="0">
+          <div class="card-nombre">Digital Essence</div>
+          <div class="card-subtitulo">Lo esencial con elegancia y estilo</div>
+          <div class="card-precio">$850 <span>MXN</span></div>
+          <div class="card-divider"></div>
+          <ul class="features-list">
+            <li>Enlace personalizado festali.com/evento</li>
+            <li>Diseño adaptado a tu paleta de colores</li>
+            <li>Cuenta regresiva en tiempo real</li>
+            <li>Botones GPS: Maps y Waze</li>
+            <li>Confirmación vía WhatsApp</li>
+            <li>Galería de 3 fotografías</li>
+          </ul>
+          <a href="formulario.html?paquete=essence" class="btn-contratar">
+            ¡Haz mi invitación por mí!
+          </a>
+        </div>
+
       </div>
 
-      <!-- ── Card 2: Smart Interactive (destacado) ── -->
-      <div class="card destacado" data-aos-delay="120">
-        <div class="badge">⭐ Recomendado</div>
-        <div class="card-nombre">Smart Interactive</div>
-        <div class="card-subtitulo">Gestión inteligente y diseño premium</div>
-        <div class="card-precio">$1,450 <span>MXN</span></div>
-        <div class="card-divider"></div>
-        <ul class="features-list">
-          <li>Todo lo de Digital Essence +</li>
-          <li>Formulario de asistencia web</li>
-          <li>Link para mensajes o videos especiales</li>
-          <li>Base de datos automática</li>
-          <li>Dress code con iconos visuales</li>
-          <li>Mesa de regalos o transferencia bancaria</li>
-          <li>Estilo de diseño personalizado</li>
-        </ul>
-        <a href="formulario.html?paquete=smart" class="btn-contratar">
-          ¡Haz mi invitación por mí!
-        </a>
+      <!-- ══ COLUMNA 2: Smart Interactive ══ -->
+      <div class="card-col">
+
+        <div class="phone-mockup phone-2 movil-desktop-only">
+          <div class="phone-screen">
+            <div class="scroll-inner p2">
+
+              <div class="p2-hero">
+                <img src="img/movil2a.png" alt="XV Años">
+                <div class="p2-overlay">
+                  <div class="p2-xv">XV</div>
+                </div>
+              </div>
+
+              <div class="p2-body">
+                <div class="p2-nombre">Valeria Salinas</div>
+                <div class="p2-floral">✿ · · · ✿</div>
+                <div class="p2-verso">
+                  Hoy mis sueños se hacen realidad,<br>
+                  mis quince años llegan con alegría<br>
+                  y quiero vivirlos contigo.
+                </div>
+                <div class="p2-divider"></div>
+                <div class="p2-dato">
+                  <strong>Fecha</strong>
+                  Sábado 5 de julio de 2025
+                </div>
+                <div class="p2-dato">
+                  <strong>Lugar</strong>
+                  Jardín El Rosal · Obregón, Son.
+                </div>
+                <div class="p2-dato">
+                  <strong>Dress Code</strong>
+                  Formal · Colores pastel
+                </div>
+                <div class="p2-divider"></div>
+                <div class="p2-fotos">
+                  <img src="img/movil2b.png" alt="">
+                  <img src="img/movil2c.png" alt="">
+                </div>
+                <div class="p2-musica-wrap">
+                  <div class="p2-barras">
+                    <div class="p2-b"></div><div class="p2-b"></div><div class="p2-b"></div>
+                    <div class="p2-b"></div><div class="p2-b"></div><div class="p2-b"></div>
+                    <div class="p2-b"></div>
+                  </div>
+                  <div class="p2-cancion">♪ A Thousand Years — Christina Perri</div>
+                </div>
+                <div class="p2-mensaje">
+                  "Cada momento de esta noche<br>lo quiero compartir con las<br>personas que más quiero."
+                </div>
+                <div class="p2-caja">
+                  <div class="p2-caja-titulo">Mesa de regalos</div>
+                  <div class="p2-caja-info">
+                    Amazon · lista #VAS2025<br>
+                    o transferencia bancaria
+                  </div>
+                </div>
+                <div class="p2-caja">
+                  <div class="p2-caja-titulo">Confirmación</div>
+                  <div class="p2-caja-info">Antes del 25 de junio · +52 644 000 0000</div>
+                </div>
+                <div class="p2-btn">Confirmar asistencia</div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="card destacado" data-aos-delay="120">
+          <div class="badge">⭐ Recomendado</div>
+          <div class="card-nombre">Smart Interactive</div>
+          <div class="card-subtitulo">Gestión inteligente y diseño premium</div>
+          <div class="card-precio">$1,450 <span>MXN</span></div>
+          <div class="card-divider"></div>
+          <ul class="features-list">
+            <li>Todo lo de Digital Essence +</li>
+            <li>Formulario de asistencia web</li>
+            <li>Link para mensajes o videos especiales</li>
+            <li>Base de datos automática</li>
+            <li>Dress code con iconos visuales</li>
+            <li>Mesa de regalos o transferencia bancaria</li>
+            <li>Estilo de diseño personalizado</li>
+          </ul>
+          <a href="formulario.html?paquete=smart" class="btn-contratar">
+            ¡Haz mi invitación por mí!
+          </a>
+        </div>
+
       </div>
 
-      <!-- ── Card 3: Premium Experience ── -->
-      <div class="card" data-aos-delay="240">
-        <div class="card-nombre">Premium Experience</div>
-        <div class="card-subtitulo">La experiencia digital de lujo</div>
-        <div class="card-precio">$2,100 <span>MXN</span></div>
-        <div class="card-divider"></div>
-        <ul class="features-list">
-          <li>Todo lo de Smart Interactive +</li>
-          <li>Música de fondo automática</li>
-          <li>Agenda detallada del evento</li>
-          <li>Galería de hasta 15 fotos editadas</li>
-          <li>Sitio activo 3 meses post-evento</li>
-          <li>Estilo de diseño personalizado</li>
-        </ul>
-        <a href="formulario.html?paquete=premium" class="btn-contratar">
-          ¡Haz mi invitación por mí!
-        </a>
+      <!-- ══ COLUMNA 3: Premium Experience ══ -->
+      <div class="card-col">
+
+        <div class="phone-mockup phone-3 movil-desktop-only">
+          <div class="phone-screen">
+            <div class="scroll-inner p3">
+
+              <div class="p3-hero">
+                <img src="img/movil31.png" alt="Boda">
+                <div class="p3-overlay">
+                  <div class="p3-mono-wrap">
+                    <div class="p3-ring"></div>
+                    <div class="p3-ring"></div>
+                    <div class="p3-ring"></div>
+                    <div class="p3-monograma">S &amp; R</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p3-body">
+                <div class="p3-etiqueta">Con alegría los invitamos</div>
+                <div class="p3-nombres">Sofía &amp; Rodrigo</div>
+                <div class="p3-verso">Dos almas que se encontraron,<br>dos vidas que hoy se unen<br>para siempre.</div>
+                <div class="p3-sep"></div>
+                <div class="p3-dato">
+                  <strong>Fecha</strong>
+                  Sábado 14 de junio de 2025
+                </div>
+                <div class="p3-dato">
+                  <strong>Lugar</strong>
+                  Hacienda San Miguel<br>Hermosillo, Sonora
+                </div>
+                <div class="p3-dato">
+                  <strong>Dress Code</strong>
+                  Formal · Tonos tierra
+                </div>
+                <div class="p3-sep"></div>
+                <div class="p3-fotos">
+                  <img src="img/movil32.png" alt="">
+                  <img src="img/movil33.png" alt="">
+                  <img src="img/movil34.png" alt="">
+                </div>
+                <div class="p3-agenda">
+                  <div class="p3-agenda-tit">Agenda del día</div>
+                  <div class="p3-ait"><span class="p3-hora">16:00</span> Ceremonia religiosa</div>
+                  <div class="p3-ait"><span class="p3-hora">17:30</span> Coctel de bienvenida</div>
+                  <div class="p3-ait"><span class="p3-hora">19:00</span> Cena y baile</div>
+                  <div class="p3-ait"><span class="p3-hora">23:00</span> Pastel y brindis</div>
+                </div>
+                <div class="p3-musica-wrap">
+                  <div class="p3-barras">
+                    <div class="p3-b"></div><div class="p3-b"></div><div class="p3-b"></div>
+                    <div class="p3-b"></div><div class="p3-b"></div><div class="p3-b"></div>
+                    <div class="p3-b"></div>
+                  </div>
+                  <div class="p3-cancion">♪ Perfect — Ed Sheeran</div>
+                </div>
+                <div class="p3-mensaje">
+                  "Hoy no solo celebramos un amor,<br>celebramos el inicio de una<br>historia que durará para siempre."
+                </div>
+                <div class="p3-caja">
+                  <div class="p3-caja-titulo">Mesa de regalos</div>
+                  <div class="p3-caja-info">
+                    Liverpool · # 1234567<br>
+                    Transferencia: CLABE<br>
+                    012 345 6789 0123 45
+                  </div>
+                </div>
+                <div class="p3-caja">
+                  <div class="p3-caja-titulo">Confirmación de asistencia</div>
+                  <div class="p3-caja-info">
+                    Adultos únicamente<br>
+                    Confirmar antes del 1° de junio
+                  </div>
+                </div>
+                <div class="p3-nota">Sitio activo 3 meses post-evento</div>
+                <div class="p3-btn">Confirmar · Mapa · Regalos</div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="card" data-aos-delay="240">
+          <div class="card-nombre">Premium Experience</div>
+          <div class="card-subtitulo">La experiencia digital de lujo</div>
+          <div class="card-precio">$2,100 <span>MXN</span></div>
+          <div class="card-divider"></div>
+          <ul class="features-list">
+            <li>Todo lo de Smart Interactive +</li>
+            <li>Música de fondo automática</li>
+            <li>Agenda detallada del evento</li>
+            <li>Galería de hasta 15 fotos editadas</li>
+            <li>Sitio activo 3 meses post-evento</li>
+            <li>Estilo de diseño personalizado</li>
+          </ul>
+          <a href="formulario.html?paquete=premium" class="btn-contratar">
+            ¡Haz mi invitación por mí!
+          </a>
+        </div>
+
       </div>
 
     </div>
