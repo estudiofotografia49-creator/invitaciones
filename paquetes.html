@@ -84,28 +84,7 @@
       will-change: transform;
     }
 
-    /* ── Animaciones scroll ── */
-    @keyframes ps1 {
-      0%   { transform: translateY(0); }
-      73%  { transform: translateY(-700px); }
-      84%  { transform: translateY(-700px); }
-      100% { transform: translateY(0); }
-    }
-    @keyframes ps2 {
-      0%   { transform: translateY(0); }
-      73%  { transform: translateY(-820px); }
-      84%  { transform: translateY(-820px); }
-      100% { transform: translateY(0); }
-    }
-    @keyframes ps3 {
-      0%   { transform: translateY(0); }
-      73%  { transform: translateY(-940px); }
-      84%  { transform: translateY(-940px); }
-      100% { transform: translateY(0); }
-    }
-    .phone-1 .scroll-inner { animation: ps1 19s cubic-bezier(.45,.05,.55,.95) infinite; }
-    .phone-2 .scroll-inner { animation: ps2 23s cubic-bezier(.45,.05,.55,.95) infinite; }
-    .phone-3 .scroll-inner { animation: ps3 27s cubic-bezier(.45,.05,.55,.95) infinite; }
+    /* ── Animaciones scroll: gestionadas por JS (loop continuo sin saltos) ── */
 
     /* ══════════════════════════════════════
        PHONE 1 — Digital Essence
@@ -177,8 +156,12 @@
       letter-spacing: 0.1em;
       text-transform: uppercase;
     }
-    .p1-fotos { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
-    .p1-fotos img { width: 100%; height: 78px; object-fit: cover; border-radius: 6px; }
+    .p1-fotos { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3px; }
+    .p1-fotos img { width: 100%; height: 68px; object-fit: cover; border-radius: 5px; }
+
+    /* ── Dress code visual (compartido) ── */
+    .dc-imgs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; width: 100%; }
+    .dc-imgs img { width: 100%; height: 88px; object-fit: cover; border-radius: 6px; }
     .p1-mensaje {
       background: rgba(201,168,76,0.07);
       border-left: 2px solid #c9a84c;
@@ -545,6 +528,10 @@
                 <strong>Dress Code</strong>
                 Formal · Tonos tierra
               </div>
+              <div class="dc-imgs">
+                <img src="https://images.unsplash.com/photo-1529634597503-139d3726fed5?w=92&h=105&fit=crop&auto=format&q=80" alt="Traje formal">
+                <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=92&h=105&fit=crop&auto=format&q=80" alt="Vestido noche">
+              </div>
               <div class="p3-sep"></div>
               <div class="p3-fotos">
                 <img src="img/movil32.png" alt="">
@@ -629,8 +616,14 @@
                   Salón Cibeles · Mexicali, BC
                 </div>
                 <div class="p1-fotos">
+                  <img src="img/movil1.png" alt="">
                   <img src="img/movil1a.png" alt="">
-                  <img src="img/movil1a.png" alt="">
+                  <img src="img/movil1c.png" alt="">
+                </div>
+                <div class="p1-etiqueta" style="margin-top:4px">Dress Code · Casual Elegante</div>
+                <div class="dc-imgs">
+                  <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=92&h=105&fit=crop&auto=format&q=80" alt="Outfit elegante">
+                  <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=92&h=105&fit=crop&auto=format&q=80" alt="Look moderno">
                 </div>
                 <div class="p1-mensaje">
                   "Treinta años de risas, de sueños<br>cumplidos y de los que están<br>por llegar. ¡Ven a celebrar!"
@@ -698,6 +691,10 @@
                 <div class="p2-dato">
                   <strong>Dress Code</strong>
                   Formal · Colores pastel
+                </div>
+                <div class="dc-imgs">
+                  <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=92&h=105&fit=crop&auto=format&q=80" alt="Vestido fiesta">
+                  <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=92&h=105&fit=crop&auto=format&q=80" alt="Gala rosa">
                 </div>
                 <div class="p2-divider"></div>
                 <div class="p2-fotos">
@@ -792,6 +789,10 @@
                   <strong>Dress Code</strong>
                   Formal · Tonos tierra
                 </div>
+                <div class="dc-imgs">
+                  <img src="https://images.unsplash.com/photo-1529634597503-139d3726fed5?w=92&h=105&fit=crop&auto=format&q=80" alt="Traje formal">
+                  <img src="https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=92&h=105&fit=crop&auto=format&q=80" alt="Vestido noche">
+                </div>
                 <div class="p3-sep"></div>
                 <div class="p3-fotos">
                   <img src="img/movil32.png" alt="">
@@ -885,5 +886,32 @@
   </div>
 
   <script src="landing.js"></script>
+
+  <script>
+    /* ── Scroll continuo sin saltos (duplica contenido y anima al 50%) ── */
+    window.addEventListener('load', function () {
+      var cfgs = [
+        { cls: 'phone-1', dur: 19 },
+        { cls: 'phone-2', dur: 23 },
+        { cls: 'phone-3', dur: 27 }
+      ];
+      cfgs.forEach(function (cfg, ci) {
+        document.querySelectorAll('.' + cfg.cls).forEach(function (phone, pi) {
+          var inner = phone.querySelector('.scroll-inner');
+          if (!inner) return;
+          inner.style.animation = 'none';           /* cancela animación CSS previa */
+          inner.innerHTML += inner.innerHTML;        /* duplica el contenido */
+          var halfH = inner.scrollHeight / 2;       /* altura de una copia */
+          var name = 'pl' + ci + '_' + pi;
+          var s = document.createElement('style');
+          s.textContent =
+            '@keyframes ' + name +
+            '{ from{transform:translateY(0)} to{transform:translateY(-' + halfH + 'px)} }';
+          document.head.appendChild(s);
+          inner.style.animation = name + ' ' + cfg.dur + 's linear infinite';
+        });
+      });
+    });
+  </script>
 </body>
 </html>
