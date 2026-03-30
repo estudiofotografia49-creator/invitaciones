@@ -565,11 +565,17 @@ function mostrarErrores(errores) {
 // ==================== SPINNER — ROTACIÓN DE MENSAJES ====================
 
 const SPINNER_MENSAJES = [
-  'Enviando tu información...',
-  'Creando tu invitación... ✨',
+  'Enviando tu información... 📤',
   'No cierres ni actualices la página 🙏',
   'Ya casi... 💫',
-  'Un poquitito más... 🎉'
+  'Un poquitito más... 🎉',
+  'La magia tarda un momento... 🪄',
+  'Casi lista, prometemos que vale la pena ⭐',
+  'Guardando tus fotos con cuidado... 📸',
+  'Un segundo, estamos trabajando en ello 🛠️',
+  '¡Gracias por tu paciencia, ya mero! 🙌',
+  'Un diseñador profesional recibirá tu pedido en breve 🖌️',
+  'Esto es más rápido que la fila del banco, te lo prometemos 😂'
 ];
 
 let _spinnerInterval = null;
