@@ -13,7 +13,11 @@
 //  5. Pégala en formulario.js → const SCRIPT_URL = 'TU_URL_AQUÍ'
 // ============================================================
 
-const SPREADSHEET_ID = '1UntGGT4Nt3YiSU9V_esnH_8jc9eFpHMwebCpf6Bm2UQ';
+// SPREADSHEET_ID se lee desde Propiedades del script (Apps Script → Configuración → Propiedades).
+// Para configurar: PropertiesService.getScriptProperties().setProperty('SPREADSHEET_ID', 'TU_ID')
+// El fallback permite seguir funcionando en instancias ya desplegadas.
+const SPREADSHEET_ID = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID')
+                       || '1UntGGT4Nt3YiSU9V_esnH_8jc9eFpHMwebCpf6Bm2UQ';
 const CARPETA_RAIZ   = 'Festali Clientes';
 const NOMBRE_HOJA    = 'Solicitudes';
 
@@ -64,6 +68,14 @@ const ENCABEZADOS = [
 function doPost(e) {
   try {
     const datos  = JSON.parse(e.postData.contents);
+
+    // Validación server-side — rechaza payloads incompletos o malformados
+    const errValidacion = validarPayload(datos);
+    if (errValidacion) {
+      Logger.log('FESTALI doPost — payload rechazado: ' + errValidacion);
+      return respuestaError('Solicitud inválida: ' + errValidacion);
+    }
+
     const folio  = datos.folio || 'FEST-???';
     const nombre = datos.nombresFestejados || datos.nombreCompleto || 'Sin nombre';
 
@@ -88,7 +100,13 @@ function doPost(e) {
     return respuestaOk({ folio: folio, carpeta: subcarpeta.getUrl() });
 
   } catch (err) {
-    Logger.log('Error FESTALI doPost: ' + err.message);
+    Logger.log('Error FESTALI doPost: ' + err.message + '\n' + err.stack);
+    try {
+      const adminEmail = PropertiesService.getScriptProperties().getProperty('ADMIN_EMAIL');
+      if (adminEmail) {
+        MailApp.sendEmail(adminEmail, '⚠️ Error en FESTALI — doPost', err.message + '\n\n' + err.stack);
+      }
+    } catch (_) {}
     return respuestaError(err.message);
   }
 }
@@ -101,6 +119,53 @@ function doGet() {
   return ContentService
     .createTextOutput(JSON.stringify({ status: 'FESTALI API activa ✓' }))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ============================================================
+// SEGURIDAD — validación y sanitización
+// ============================================================
+
+// Valida que el payload tenga los campos mínimos requeridos.
+// Retorna string con el error, o null si es válido.
+function validarPayload(d) {
+  if (!d || typeof d !== 'object') return 'Payload no es un objeto JSON';
+
+  const requeridos = ['folio', 'nombreCompleto', 'whatsapp', 'correo', 'tipoEvento', 'fechaEvento', 'paquete'];
+  for (const campo of requeridos) {
+    if (!d[campo] || String(d[campo]).trim() === '') return 'Campo requerido faltante: ' + campo;
+  }
+
+  // Formato básico de correo
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.correo)) return 'Correo con formato inválido';
+
+  // Paquete debe ser uno de los tres permitidos
+  const paquetesValidos = ['digital essence', 'smart interactive', 'premium experience',
+                           'essence', 'smart', 'premium'];
+  const paqueteLower = String(d.paquete).toLowerCase();
+  if (!paquetesValidos.some(p => paqueteLower.includes(p.split(' ')[0]))) {
+    return 'Paquete no reconocido: ' + d.paquete;
+  }
+
+  // Límites de tamaño por campo de texto
+  const limites = {
+    nombreCompleto: 200, whatsapp: 50, correo: 254,
+    nombresFestejados: 300, paletaColores: 500, mensajeEspecial: 2000,
+    datosAsistencia: 1000, ideasExtra: 2000, nombreEnlace: 100
+  };
+  for (const [campo, max] of Object.entries(limites)) {
+    if (d[campo] && String(d[campo]).length > max) {
+      return 'Campo "' + campo + '" excede ' + max + ' caracteres';
+    }
+  }
+
+  return null;
+}
+
+// Previene formula injection en Google Sheets.
+// Prefija con comilla simple los valores que Sheets podría interpretar como fórmulas.
+function sanitizar(valor) {
+  if (typeof valor !== 'string') return valor;
+  return /^[=+\-@|`]/.test(valor.trim()) ? "'" + valor : valor;
 }
 
 // ============================================================
@@ -260,43 +325,45 @@ function escribirFila(hoja, d, linksFotos, urlCarpeta, linksRefs, linksAgenda, l
     agenda = linksAgenda.length + ' imagen' + (linksAgenda.length > 1 ? 'es' : '') + ' (ver carpeta)';
   }
 
+  const s = sanitizar; // alias corto
+
   const fila = [
-    d.folio                  || '',  // 1  Folio
-    d.fechaSolicitud         || '',  // 2  Fecha Solicitud
-    d.paquete                || '',  // 3  Paquete
-    'Pendiente',                     // 4  Estado — editar manualmente
-    d.nombreCompleto         || '',  // 5  Nombre
-    d.whatsapp               || '',  // 6  WhatsApp
-    d.correo                 || '',  // 7  Correo
-    d.tipoEvento             || '',  // 8  Tipo Evento
-    d.fechaEvento            || '',  // 9  Fecha Evento
-    d.horaEvento             || '',  // 10 Hora Evento
-    d.nombresFestejados      || '',  // 11 Festejados
-    hayCeremonia,                    // 12 ¿Hay Ceremonia?
-    d.lugarCeremonia         || '',  // 13 Lugar Ceremonia
-    enlaceCeremonia,                 // 14 Enlace Ubicación Ceremonia
-    hayRecepcion,                    // 15 ¿Hay Recepción?
-    d.lugarRecepcion         || '',  // 16 Lugar Recepción
-    enlaceRecepcion,                 // 17 Enlace Ubicación Recepción
-    medioConf,                       // 18 Medio Confirmaciones
-    contactoConf,                    // 19 Contacto Confirmaciones
-    d.paletaColores          || '',  // 20 Paleta Colores
-    d.estiloInvitacion       || '',  // 21 Estilo Invitación
-    d.tipoDiseno             || '',  // 22 Tipo Diseño
-    linksFotos.length,               // 23 Fotos (cantidad)
-    urlCarpeta               || '',  // 24 Carpeta Fotos
-    d.dressCode              || '',  // 25 Dress Code
-    (linksDressCode || []).length,   // 26 Ejemplos Vestimenta
-    d.mensajeEspecial        || '',  // 27 Mensaje Especial
-    mensajeFestali,                  // 28 ¿Festali escribe el mensaje?
-    d.datosAsistencia        || '',  // 29 Datos Asistencia
-    d.soloAdultos            || '',  // 30 Solo Adultos
-    mesaRegalos,                     // 31 Mesa de Regalos
-    d.musica                 || '',  // 32 Música
-    agenda,                          // 33 Agenda
-    d.ideasExtra             || '',  // 34 Ideas
-    (linksRefs || []).length,        // 35 Referencias
-    d.nombreEnlace           || '',  // 36 Nombre Enlace
+    s(d.folio                  || ''),  // 1  Folio
+    s(d.fechaSolicitud         || ''),  // 2  Fecha Solicitud
+    s(d.paquete                || ''),  // 3  Paquete
+    'Pendiente',                        // 4  Estado — editar manualmente
+    s(d.nombreCompleto         || ''),  // 5  Nombre
+    s(d.whatsapp               || ''),  // 6  WhatsApp
+    s(d.correo                 || ''),  // 7  Correo
+    s(d.tipoEvento             || ''),  // 8  Tipo Evento
+    s(d.fechaEvento            || ''),  // 9  Fecha Evento
+    s(d.horaEvento             || ''),  // 10 Hora Evento
+    s(d.nombresFestejados      || ''),  // 11 Festejados
+    hayCeremonia,                       // 12 ¿Hay Ceremonia? (Sí/No)
+    s(d.lugarCeremonia         || ''),  // 13 Lugar Ceremonia
+    s(enlaceCeremonia),                 // 14 Enlace Ubicación Ceremonia
+    hayRecepcion,                       // 15 ¿Hay Recepción? (Sí/No)
+    s(d.lugarRecepcion         || ''),  // 16 Lugar Recepción
+    s(enlaceRecepcion),                 // 17 Enlace Ubicación Recepción
+    medioConf,                          // 18 Medio Confirmaciones (WhatsApp/Correo)
+    s(contactoConf),                    // 19 Contacto Confirmaciones
+    s(d.paletaColores          || ''),  // 20 Paleta Colores
+    s(d.estiloInvitacion       || ''),  // 21 Estilo Invitación
+    s(d.tipoDiseno             || ''),  // 22 Tipo Diseño
+    linksFotos.length,                  // 23 Fotos (cantidad) — número
+    urlCarpeta               || '',     // 24 Carpeta Fotos — URL generada por Drive
+    s(d.dressCode              || ''),  // 25 Dress Code
+    (linksDressCode || []).length,      // 26 Ejemplos Vestimenta — número
+    s(d.mensajeEspecial        || ''),  // 27 Mensaje Especial
+    mensajeFestali,                     // 28 ¿Festali escribe el mensaje? (Sí/No)
+    s(d.datosAsistencia        || ''),  // 29 Datos Asistencia
+    s(d.soloAdultos            || ''),  // 30 Solo Adultos
+    s(mesaRegalos),                     // 31 Mesa de Regalos
+    s(d.musica                 || ''),  // 32 Música
+    s(agenda),                          // 33 Agenda
+    s(d.ideasExtra             || ''),  // 34 Ideas
+    (linksRefs || []).length,           // 35 Referencias — número
+    s(d.nombreEnlace           || ''),  // 36 Nombre Enlace
     Utilities.formatDate(ahora, Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm:ss')  // 37
   ];
 
