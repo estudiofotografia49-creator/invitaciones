@@ -160,7 +160,7 @@ function validarPayload(d) {
   // Paquete debe ser uno de los tres permitidos
   const paquetesValidos = ['digital essence', 'smart interactive', 'premium experience',
                            'essence', 'smart', 'premium'];
-  const paqueteLower = String(d.paquete).toLowerCase();
+  const paqueteLower = (d.paquete || '').replace(/[^\w\s]/g, '').toLowerCase().trim();
   if (!paquetesValidos.some(p => paqueteLower.includes(p.split(' ')[0]))) {
     return 'Paquete no reconocido: ' + d.paquete;
   }
@@ -319,7 +319,7 @@ function escribirFila(hoja, d, linksFotos, urlCarpeta, linksRefs, linksAgenda, l
                        d.correoConfirmaciones   || '';
 
   // ¿Festali escribe el mensaje? — Sí si es smart/premium y no vino texto propio
-  const paqueteKey   = (d.paquete || '').toLowerCase();
+  const paqueteKey   = (d.paquete || '').replace(/[^\w\s]/g, '').toLowerCase().trim();
   const esSmartOPlus = paqueteKey.includes('smart') || paqueteKey.includes('premium');
   const mensajeFestali = d.mensajeFestali ||
                          (esSmartOPlus && !d.mensajeEspecial ? 'Sí' : 'No');
@@ -452,7 +452,7 @@ function crearPreferenciaMercadoPago(folio, paquete) {
   }
 
   const precios = { essence: 850, smart: 1450, premium: 2100 };
-  const paqueteLower = (paquete || '').toLowerCase();
+  const paqueteLower = (paquete || '').replace(/[^\w\s]/g, '').toLowerCase().trim();
   let precio       = precios.essence;
   let nombrePaq    = 'Digital Essence';
   if (paqueteLower.includes('smart'))   { precio = precios.smart;   nombrePaq = 'Smart Interactive';   }
