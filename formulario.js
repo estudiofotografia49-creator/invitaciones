@@ -160,16 +160,31 @@ function initUbicaciones() {
 
 // ==================== FILE INPUT ====================
 
+// Hace que un input acumule archivos en lugar de reemplazarlos.
+// onUpdate(n) se llama cada vez que cambia la cantidad total.
+function initAcumulador(input, onUpdate) {
+  const dt = new DataTransfer();
+  input.addEventListener('change', () => {
+    Array.from(input.files).forEach(f => {
+      // Evitar duplicados por nombre
+      if (!Array.from(dt.files).some(e => e.name === f.name && e.size === f.size)) {
+        dt.items.add(f);
+      }
+    });
+    input.files = dt.files;
+    onUpdate(dt.files.length);
+  });
+}
+
 function initFileInput(paqueteKey) {
-  const config = PAQUETES[paqueteKey];
-  const input = document.getElementById('fotos');
-  const hint = document.getElementById('fotosHint');
+  const config      = PAQUETES[paqueteKey];
+  const input       = document.getElementById('fotos');
+  const hint        = document.getElementById('fotosHint');
   const seleccionadas = document.getElementById('fotosSeleccionadas');
 
   hint.textContent = `Mínimo ${config.minFotos} foto${config.minFotos > 1 ? 's' : ''}`;
 
-  input.addEventListener('change', () => {
-    const n = input.files.length;
+  initAcumulador(input, n => {
     if (n === 0) {
       seleccionadas.textContent = 'Ninguna foto seleccionada';
     } else {
@@ -207,8 +222,7 @@ function initDressCodeImg() {
   });
 
   if (input && hint) {
-    input.addEventListener('change', () => {
-      const n = input.files.length;
+    initAcumulador(input, n => {
       hint.textContent = n
         ? `${n} imagen${n > 1 ? 'es' : ''} seleccionada${n > 1 ? 's' : ''}`
         : 'Ninguna imagen seleccionada';
@@ -252,9 +266,9 @@ function initAgendaToggle() {
   radios.forEach(r => r.addEventListener('change', actualizar));
 
   if (agendaImgInput && agendaImgHint) {
-    agendaImgInput.addEventListener('change', () => {
-      agendaImgHint.textContent = agendaImgInput.files.length
-        ? agendaImgInput.files[0].name
+    initAcumulador(agendaImgInput, n => {
+      agendaImgHint.textContent = n
+        ? `${n} imagen${n > 1 ? 'es' : ''} seleccionada${n > 1 ? 's' : ''}`
         : 'Ninguna imagen seleccionada';
     });
   }
@@ -280,8 +294,7 @@ function initRefInput() {
   const input         = document.getElementById('referenciaVisual');
   const seleccionadas = document.getElementById('refsSeleccionadas');
 
-  input.addEventListener('change', () => {
-    const n = input.files.length;
+  initAcumulador(input, n => {
     if (n === 0) {
       seleccionadas.textContent = 'Ninguna referencia seleccionada';
       seleccionadas.style.color = '';
