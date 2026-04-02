@@ -375,16 +375,18 @@ function validar(paqueteKey) {
     }
   });
 
-  // Validar contacto para confirmaciones (obligatorio, uno de los dos)
-  const tipoConf = document.querySelector('input[name="tipoConfirmacion"]:checked')?.value;
-  if (!tipoConf) {
-    errores.push('Método de confirmación de asistencia (WhatsApp o Correo)');
-  } else if (tipoConf === 'wsp') {
-    const el = document.getElementById('whatsappConfirmaciones');
-    if (!el?.value.trim()) { errores.push('WhatsApp para confirmaciones'); el?.classList.add('error'); }
-  } else if (tipoConf === 'correo') {
-    const el = document.getElementById('correoConfirmaciones');
-    if (!el?.value.trim()) { errores.push('Correo para confirmaciones'); el?.classList.add('error'); }
+  // Validar contacto para confirmaciones — solo Smart y Premium
+  if (paqueteKey !== 'essence') {
+    const tipoConf = document.querySelector('input[name="tipoConfirmacion"]:checked')?.value;
+    if (!tipoConf) {
+      errores.push('Método de confirmación de asistencia (WhatsApp o Correo)');
+    } else if (tipoConf === 'wsp') {
+      const el = document.getElementById('whatsappConfirmaciones');
+      if (!el?.value.trim()) { errores.push('WhatsApp para confirmaciones'); el?.classList.add('error'); }
+    } else if (tipoConf === 'correo') {
+      const el = document.getElementById('correoConfirmaciones');
+      if (!el?.value.trim()) { errores.push('Correo para confirmaciones'); el?.classList.add('error'); }
+    }
   }
 
   // Validar ubicaciones solo si el checkbox está marcado
@@ -490,6 +492,8 @@ function recopilarDatos(paqueteKey) {
     estiloInvitacion:       val('estiloInvitacion'),
     ideasExtra:             document.querySelector('input[name="tieneIdeas"]:checked')?.value === 'tengoIdea' ? val('ideasExtra') : '',
     nombreEnlace:           val('nombreEnlace'),
+    mensajeEspecial:        document.querySelector('input[name="tipoMensaje"]:checked')?.value === 'propio'
+                            ? val('mensajeEspecial') : '',
     token:                  FESTALI_TOKEN,
   };
 
@@ -497,8 +501,6 @@ function recopilarDatos(paqueteKey) {
 
   if (extras.includes('smart')) {
     datos.dressCode       = val('dressCode');
-    datos.mensajeEspecial = document.querySelector('input[name="tipoMensaje"]:checked')?.value === 'propio'
-                            ? val('mensajeEspecial') : '';
     datos.datosAsistencia = val('datosAsistencia');
     datos.soloAdultos     = document.getElementById('soloAdultos')?.checked ? 'Sí' : 'No';
     datos.tipoRegalos     = (document.querySelector('input[name="tipoRegalos"]:checked')?.value || '');

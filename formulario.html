@@ -154,38 +154,6 @@
         <div class="form-section-title">Detalles del diseño</div>
 
         <div class="form-group">
-          <label>Contacto para confirmación de asistencia <span class="req">*</span></label>
-          <div class="radio-group">
-            <div>
-              <label class="radio-option">
-                <input type="radio" name="tipoConfirmacion" value="wsp" id="confWsp">
-                <span class="radio-label">📱 WhatsApp</span>
-                <small class="radio-desc">Los invitados confirman por WhatsApp</small>
-              </label>
-              <div id="grupoConfWsp" style="display:none">
-                <div class="form-group" style="margin-top:10px">
-                  <input type="tel" class="form-control" id="whatsappConfirmaciones"
-                         name="whatsappConfirmaciones" placeholder="+52 686 000 0000">
-                </div>
-              </div>
-            </div>
-            <div>
-              <label class="radio-option">
-                <input type="radio" name="tipoConfirmacion" value="correo" id="confCorreo">
-                <span class="radio-label">✉️ Correo electrónico</span>
-                <small class="radio-desc">Los invitados confirman por email</small>
-              </label>
-              <div id="grupoConfCorreo" style="display:none">
-                <div class="form-group" style="margin-top:10px">
-                  <input type="email" class="form-control" id="correoConfirmaciones"
-                         name="correoConfirmaciones" placeholder="ejemplo@correo.com">
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-group">
           <label for="paletaColores">Paleta de colores deseada <span class="req">*</span></label>
           <textarea class="form-control" id="paletaColores" name="paletaColores"
                     placeholder="Describe los colores que deseas para tu invitación..." required></textarea>
@@ -277,6 +245,31 @@
           <p class="form-hint" id="fotosSeleccionadas">Ninguna foto seleccionada</p>
         </div>
 
+        <!-- ── Mensaje especial (todos los paquetes) ── -->
+        <div class="form-group">
+          <label>Mensaje especial para invitados</label>
+          <div class="radio-group">
+            <div>
+              <label class="radio-option">
+                <input type="radio" name="tipoMensaje" value="propio" id="mensajePropio">
+                <span class="radio-label">✍️ ¡Yo escribo el mensaje!</span>
+                <small class="radio-desc">Redacta el mensaje para tus invitados</small>
+              </label>
+              <div id="grupoMensajeTexto" style="display:none">
+                <div class="form-group" style="margin-top:10px">
+                  <textarea class="form-control" id="mensajeEspecial" name="mensajeEspecial"
+                            placeholder="Un mensaje que deseas compartir con tus invitados..."></textarea>
+                </div>
+              </div>
+            </div>
+            <label class="radio-option">
+              <input type="radio" name="tipoMensaje" value="festali" id="mensajeFestali">
+              <span class="radio-label">✨ ¡Que Festali me escriba algo bonito!</span>
+              <small class="radio-desc">Nuestro equipo redactará algo especial</small>
+            </label>
+          </div>
+        </div>
+
         <!-- ── Campos Smart Interactive ── -->
         <div id="camposSmart" class="extra-fields" style="display:none">
           <div class="form-section-title">Smart Interactive — Detalles adicionales</div>
@@ -303,26 +296,34 @@
           </div>
 
           <div class="form-group">
-            <label>Mensaje especial para invitados</label>
+            <label>Contacto para confirmación de asistencia <span class="req">*</span></label>
             <div class="radio-group">
               <div>
                 <label class="radio-option">
-                  <input type="radio" name="tipoMensaje" value="propio" id="mensajePropio">
-                  <span class="radio-label">✍️ ¡Yo escribo el mensaje!</span>
-                  <small class="radio-desc">Redacta el mensaje para tus invitados</small>
+                  <input type="radio" name="tipoConfirmacion" value="wsp" id="confWsp">
+                  <span class="radio-label">📱 WhatsApp</span>
+                  <small class="radio-desc">Los invitados confirman por WhatsApp</small>
                 </label>
-                <div id="grupoMensajeTexto" style="display:none">
+                <div id="grupoConfWsp" style="display:none">
                   <div class="form-group" style="margin-top:10px">
-                    <textarea class="form-control" id="mensajeEspecial" name="mensajeEspecial"
-                              placeholder="Un mensaje que deseas compartir con tus invitados..."></textarea>
+                    <input type="tel" class="form-control" id="whatsappConfirmaciones"
+                           name="whatsappConfirmaciones" placeholder="+52 686 000 0000">
                   </div>
                 </div>
               </div>
-              <label class="radio-option">
-                <input type="radio" name="tipoMensaje" value="festali" id="mensajeFestali">
-                <span class="radio-label">✨ ¡Que Festali me escriba algo bonito!</span>
-                <small class="radio-desc">Nuestro equipo redactará algo especial</small>
-              </label>
+              <div>
+                <label class="radio-option">
+                  <input type="radio" name="tipoConfirmacion" value="correo" id="confCorreo">
+                  <span class="radio-label">✉️ Correo electrónico</span>
+                  <small class="radio-desc">Los invitados confirman por email</small>
+                </label>
+                <div id="grupoConfCorreo" style="display:none">
+                  <div class="form-group" style="margin-top:10px">
+                    <input type="email" class="form-control" id="correoConfirmaciones"
+                           name="correoConfirmaciones" placeholder="ejemplo@correo.com">
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
