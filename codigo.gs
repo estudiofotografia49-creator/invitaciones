@@ -487,6 +487,7 @@ function crearPreferenciaMercadoPago(folio, paquete) {
   } catch (err) {
     Logger.log('❌ Error creando preferencia MP: ' + err.message);
     Logger.log('❌ Respuesta HTTP: ' + (err.response ? err.response.getContentText() : 'sin respuesta'));
+    PropertiesService.getScriptProperties().setProperty('ULTIMO_ERROR_MP', err.message);
     return null;
   }
 }
@@ -582,6 +583,11 @@ function testMP() {
   } else {
     Logger.log('❌ MercadoPago devolvió null — revisa los logs anteriores');
   }
+}
+
+function verErrorMP() {
+  const error = PropertiesService.getScriptProperties().getProperty('ULTIMO_ERROR_MP');
+  Logger.log('Último error MP: ' + error);
 }
 
 // ============================================================
