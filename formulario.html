@@ -40,240 +40,222 @@
   <!-- ==================== FORMULARIO ==================== -->
   <div class="form-container" id="formWrapper">
     <h2 class="form-titulo">Cuéntanos sobre tu evento</h2>
-    <p class="form-subtitulo">
-      Completa los datos para que nuestro equipo comience<br>
-      a trabajar en tu invitación digital
-    </p>
+
+    <!-- Progreso -->
+    <div class="wizard-progress" id="wizardProgress"></div>
+    <div class="wizard-step-title" id="wizardStepTitle"></div>
 
     <div class="form-card">
       <form id="festaliForm" novalidate>
 
-        <!-- Campos internos — ocultos al cliente, usados por el servidor -->
+        <!-- Campos internos -->
         <input type="hidden" id="fechaSolicitud">
         <input type="hidden" id="numeroFolio">
 
-        <!-- ── Contacto ── -->
-        <div class="form-section-title">Tus datos de contacto</div>
-
-        <div class="form-group">
-          <label for="nombreCompleto">Nombre completo <span class="req">*</span></label>
-          <input type="text" class="form-control" id="nombreCompleto" name="nombreCompleto"
-                 placeholder="Tu nombre completo" required>
-        </div>
-
-        <div class="form-group">
-          <label for="whatsapp">WhatsApp (con código de país) <span class="req">*</span></label>
-          <input type="tel" class="form-control" id="whatsapp" name="whatsapp"
-                 placeholder="+52 686 000 0000" maxlength="15" required>
-        </div>
-
-        <div class="form-group">
-          <label for="correo">Correo electrónico <span class="req">*</span></label>
-          <input type="email" class="form-control" id="correo" name="correo"
-                 placeholder="ejemplo@correo.com" required>
-        </div>
-
-        <!-- ── Evento ── -->
-        <div class="form-section-title">Sobre el evento</div>
-
-        <div class="form-group">
-          <label for="tipoEvento">Tipo de evento <span class="req">*</span></label>
-          <select class="form-control" id="tipoEvento" name="tipoEvento" required>
-            <option value="">— Selecciona —</option>
-            <option value="Boda">Boda</option>
-            <option value="XV Años">XV Años</option>
-            <option value="Bautizo">Bautizo</option>
-            <option value="Cumpleaños">Cumpleaños</option>
-            <option value="Graduación">Graduación</option>
-            <option value="Otro">Otro</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="fechaEvento">Fecha del evento <span class="req">*</span></label>
-          <input type="date" class="form-control" id="fechaEvento" name="fechaEvento" required>
-        </div>
-
-        <div class="form-group">
-          <label for="horaEvento">Hora del evento <span class="req">*</span></label>
-          <input type="time" class="form-control" id="horaEvento" name="horaEvento" required>
-        </div>
-
-        <div class="form-group">
-          <label for="nombresFestejados">Nombres de los festejados <span class="req">*</span></label>
-          <input type="text" class="form-control" id="nombresFestejados" name="nombresFestejados"
-                 placeholder="Ej: Ana y Luis" required>
-        </div>
-
-        <!-- ── Ubicaciones ── -->
-        <div class="form-section-title">Ubicaciones</div>
-
-        <!-- Ceremonia -->
-        <div class="form-group">
-          <label class="checkbox-option">
-            <input type="checkbox" id="hayCeremonia" name="hayCeremonia">
-            <span>¿Hay ceremonia?</span>
-          </label>
-        </div>
-
-        <div id="grupoCeremonia" style="display:none">
+        <!-- ── Paso 1: Contacto ── -->
+        <div class="form-step" id="step-1">
           <div class="form-group">
-            <label for="lugarCeremonia">Lugar de la ceremonia <span class="req">*</span></label>
-            <input type="text" class="form-control" id="lugarCeremonia" name="lugarCeremonia"
-                   placeholder="Nombre del lugar">
+            <label for="nombreCompleto">Nombre completo <span class="req">*</span></label>
+            <input type="text" class="form-control" id="nombreCompleto" name="nombreCompleto"
+                   placeholder="Tu nombre completo" required>
           </div>
           <div class="form-group">
-            <label for="ubicacionCeremonia">Enlace de ubicación — Ceremonia</label>
-            <input type="url" class="form-control" id="ubicacionCeremonia" name="ubicacionCeremonia"
-                   placeholder="https://maps.google.com/... o https://waze.com/ul/...">
+            <label for="whatsapp">WhatsApp (con código de país) <span class="req">*</span></label>
+            <input type="tel" class="form-control" id="whatsapp" name="whatsapp"
+                   placeholder="+52 686 000 0000" maxlength="15" required>
+          </div>
+          <div class="form-group">
+            <label for="correo">Correo electrónico <span class="req">*</span></label>
+            <input type="email" class="form-control" id="correo" name="correo"
+                   placeholder="ejemplo@correo.com" required>
           </div>
         </div>
 
-        <!-- Recepción -->
-        <div class="form-group">
-          <label class="checkbox-option">
-            <input type="checkbox" id="hayRecepcion" name="hayRecepcion">
-            <span>¿Hay recepción?</span>
-          </label>
-        </div>
-
-        <div id="grupoRecepcion" style="display:none">
+        <!-- ── Paso 2: Evento ── -->
+        <div class="form-step" id="step-2">
           <div class="form-group">
-            <label for="lugarRecepcion">Lugar de la recepción <span class="req">*</span></label>
-            <input type="text" class="form-control" id="lugarRecepcion" name="lugarRecepcion"
-                   placeholder="Nombre del lugar">
+            <label for="tipoEvento">Tipo de evento <span class="req">*</span></label>
+            <select class="form-control" id="tipoEvento" name="tipoEvento" required>
+              <option value="">— Selecciona —</option>
+              <option value="Boda">Boda</option>
+              <option value="XV Años">XV Años</option>
+              <option value="Bautizo">Bautizo</option>
+              <option value="Cumpleaños">Cumpleaños</option>
+              <option value="Graduación">Graduación</option>
+              <option value="Otro">Otro</option>
+            </select>
           </div>
           <div class="form-group">
-            <label for="ubicacionRecepcion">Enlace de ubicación — Recepción</label>
-            <input type="url" class="form-control" id="ubicacionRecepcion" name="ubicacionRecepcion"
-                   placeholder="https://maps.google.com/... o https://waze.com/ul/...">
+            <label for="fechaEvento">Fecha del evento <span class="req">*</span></label>
+            <input type="date" class="form-control" id="fechaEvento" name="fechaEvento" required>
+          </div>
+          <div class="form-group">
+            <label for="horaEvento">Hora del evento <span class="req">*</span></label>
+            <input type="time" class="form-control" id="horaEvento" name="horaEvento" required>
+          </div>
+          <div class="form-group">
+            <label for="nombresFestejados">Nombres de los festejados <span class="req">*</span></label>
+            <input type="text" class="form-control" id="nombresFestejados" name="nombresFestejados"
+                   placeholder="Ej: Ana y Luis" required>
           </div>
         </div>
 
-        <!-- ── Diseño ── -->
-        <div class="form-section-title">Detalles del diseño</div>
-
-        <div class="form-group">
-          <label for="paletaColores">Paleta de colores deseada <span class="req">*</span></label>
-          <textarea class="form-control" id="paletaColores" name="paletaColores"
-                    placeholder="Describe los colores que deseas para tu invitación..." required></textarea>
-        </div>
-
-        <div class="form-group">
-          <label for="nombreEnlace">Nombre deseado para el enlace</label>
-          <input type="text" class="form-control" id="nombreEnlace" name="nombreEnlace"
-                 placeholder="boda-ana-y-luis">
-          <p class="form-hint">
-            Solo letras minúsculas, números y guiones.
-          </p>
-          <span id="previewEnlace" style="display:none"></span>
-        </div>
-
-        <!-- ── Tipo de diseño ── -->
-        <div class="form-group">
-          <label>¿Cómo quieres las fotos de tu invitación? <span class="req">*</span></label>
-          <div class="radio-group">
-            <label class="radio-option">
-              <input type="radio" name="tipoDiseno" value="fotos" id="tipoDisenoFotos">
-              <span class="radio-label">📸 Mis fotos</span>
-              <small class="radio-desc">Subir mis fotos para que sean parte del diseño</small>
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="tipoDiseno" value="grafico" id="tipoDisenoGrafico">
-              <span class="radio-label">🎨 Diseño gráfico</span>
-              <small class="radio-desc">Ilustraciones creadas por Festali (sin fotos)</small>
+        <!-- ── Paso 3: Ubicaciones ── -->
+        <div class="form-step" id="step-3">
+          <div class="form-group">
+            <label class="checkbox-option">
+              <input type="checkbox" id="hayCeremonia" name="hayCeremonia">
+              <span>¿Hay ceremonia?</span>
             </label>
           </div>
-        </div>
-
-        <!-- ── Estilo de invitación ── -->
-        <div class="form-group">
-          <label for="estiloInvitacion">Estilo de invitación <span class="req">*</span></label>
-          <select class="form-control" id="estiloInvitacion" name="estiloInvitacion" required>
-            <option value="">— Selecciona un estilo —</option>
-            <option value="Elegante y Clásico">Elegante y Clásico</option>
-            <option value="Moderno / Minimalista">Moderno / Minimalista</option>
-            <option value="Floral / Romántico">Floral / Romántico</option>
-            <option value="Temático (Infantil/Fiesta)">Temático (Infantil/Fiesta)</option>
-          </select>
-        </div>
-
-        <!-- ── Ideas y referencias ── -->
-        <div class="form-group">
-          <label>¿Tienes una idea de diseño en mente?</label>
-          <div class="radio-group">
-            <label class="radio-option">
-              <input type="radio" name="tieneIdeas" value="festali" id="ideasFestali" checked>
-              <span class="radio-label">✨ Se lo dejo al buen gusto de Festali</span>
-              <small class="radio-desc">Nuestro equipo creará algo especial para ti</small>
-            </label>
-            <label class="radio-option">
-              <input type="radio" name="tieneIdeas" value="tengoIdea" id="ideasPropia">
-              <span class="radio-label">💡 Tengo una idea</span>
-              <small class="radio-desc">Cuéntanos o sube referencias de inspiración</small>
-            </label>
-          </div>
-        </div>
-
-        <div id="grupoIdeas" style="display:none">
-          <div class="form-group">
-            <label for="ideasExtra">¿Tienes algo específico en mente?</label>
-            <textarea class="form-control" id="ideasExtra" name="ideasExtra"
-                      placeholder="Describe detalles, colores, elementos que quieras incluir..."></textarea>
+          <div id="grupoCeremonia" style="display:none">
+            <div class="form-group">
+              <label for="lugarCeremonia">Lugar de la ceremonia <span class="req">*</span></label>
+              <input type="text" class="form-control" id="lugarCeremonia" name="lugarCeremonia"
+                     placeholder="Nombre del lugar">
+            </div>
+            <div class="form-group">
+              <label for="ubicacionCeremonia">Enlace de ubicación — Ceremonia</label>
+              <input type="url" class="form-control" id="ubicacionCeremonia" name="ubicacionCeremonia"
+                     placeholder="https://maps.google.com/...">
+            </div>
           </div>
           <div class="form-group">
-            <label>Sube tus referencias (Pinterest, screenshots, ideas)</label>
-            <label class="file-label" for="referenciaVisual">
-              <span class="file-icon">🖼️</span>
-              <span class="file-texto">Haz clic para seleccionar referencias</span>
-              <span class="file-min">Máximo 3 imágenes</span>
+            <label class="checkbox-option">
+              <input type="checkbox" id="hayRecepcion" name="hayRecepcion">
+              <span>¿Hay recepción?</span>
             </label>
-            <input type="file" id="referenciaVisual" name="referenciaVisual" multiple accept="image/*">
-            <p class="form-hint" id="refsSeleccionadas">Ninguna referencia seleccionada</p>
+          </div>
+          <div id="grupoRecepcion" style="display:none">
+            <div class="form-group">
+              <label for="lugarRecepcion">Lugar de la recepción <span class="req">*</span></label>
+              <input type="text" class="form-control" id="lugarRecepcion" name="lugarRecepcion"
+                     placeholder="Nombre del lugar">
+            </div>
+            <div class="form-group">
+              <label for="ubicacionRecepcion">Enlace de ubicación — Recepción</label>
+              <input type="url" class="form-control" id="ubicacionRecepcion" name="ubicacionRecepcion"
+                     placeholder="https://maps.google.com/...">
+            </div>
           </div>
         </div>
 
-        <!-- ── Fotos del evento ── -->
-        <div class="form-group" id="grupoFotos">
-          <label>Subir fotos <span class="req">*</span></label>
-          <label class="file-label" for="fotos">
-            <span class="file-icon">📸</span>
-            <span class="file-texto">Haz clic para seleccionar tus fotos</span>
-            <span class="file-min" id="fotosHint">Mínimo 3 fotos</span>
-          </label>
-          <input type="file" id="fotos" name="fotos" multiple accept="image/*">
-          <p class="form-hint" id="fotosSeleccionadas">Ninguna foto seleccionada</p>
-        </div>
-
-        <!-- ── Mensaje especial (todos los paquetes) ── -->
-        <div class="form-group">
-          <label>Mensaje especial para invitados</label>
-          <div class="radio-group">
-            <div>
+        <!-- ── Paso 4: Diseño ── -->
+        <div class="form-step" id="step-4">
+          <div class="form-group">
+            <label for="paletaColores">Paleta de colores deseada <span class="req">*</span></label>
+            <textarea class="form-control" id="paletaColores" name="paletaColores"
+                      placeholder="Describe los colores que deseas para tu invitación..." required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="estiloInvitacion">Estilo de invitación <span class="req">*</span></label>
+            <select class="form-control" id="estiloInvitacion" name="estiloInvitacion" required>
+              <option value="">— Selecciona un estilo —</option>
+              <option value="Elegante y Clásico">Elegante y Clásico</option>
+              <option value="Moderno / Minimalista">Moderno / Minimalista</option>
+              <option value="Floral / Romántico">Floral / Romántico</option>
+              <option value="Temático (Infantil/Fiesta)">Temático (Infantil/Fiesta)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>¿Cómo quieres las fotos de tu invitación? <span class="req">*</span></label>
+            <div class="radio-group">
               <label class="radio-option">
-                <input type="radio" name="tipoMensaje" value="propio" id="mensajePropio">
-                <span class="radio-label">✍️ ¡Yo escribo el mensaje!</span>
-                <small class="radio-desc">Redacta el mensaje para tus invitados</small>
+                <input type="radio" name="tipoDiseno" value="fotos" id="tipoDisenoFotos">
+                <span class="radio-label">📸 Mis fotos</span>
+                <small class="radio-desc">Subir mis fotos para que sean parte del diseño</small>
               </label>
-              <div id="grupoMensajeTexto" style="display:none">
-                <div class="form-group" style="margin-top:10px">
-                  <textarea class="form-control" id="mensajeEspecial" name="mensajeEspecial"
-                            placeholder="Un mensaje que deseas compartir con tus invitados..."></textarea>
+              <label class="radio-option">
+                <input type="radio" name="tipoDiseno" value="grafico" id="tipoDisenoGrafico">
+                <span class="radio-label">🎨 Diseño gráfico</span>
+                <small class="radio-desc">Ilustraciones creadas por Festali (sin fotos)</small>
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="nombreEnlace">Nombre deseado para el enlace</label>
+            <input type="text" class="form-control" id="nombreEnlace" name="nombreEnlace"
+                   placeholder="boda-ana-y-luis">
+            <p class="form-hint">Solo letras minúsculas, números y guiones.</p>
+            <span id="previewEnlace" style="display:none"></span>
+          </div>
+        </div>
+
+        <!-- ── Paso 5: Fotos e ideas ── -->
+        <div class="form-step" id="step-5">
+          <div class="form-group" id="grupoFotos">
+            <label>Subir fotos <span class="req">*</span></label>
+            <label class="file-label" for="fotos">
+              <span class="file-icon">📸</span>
+              <span class="file-texto">Haz clic para seleccionar tus fotos</span>
+              <span class="file-min" id="fotosHint">Mínimo 3 fotos</span>
+            </label>
+            <input type="file" id="fotos" name="fotos" multiple accept="image/*">
+            <p class="form-hint" id="fotosSeleccionadas">Ninguna foto seleccionada</p>
+          </div>
+          <div class="form-group">
+            <label>¿Tienes una idea de diseño en mente?</label>
+            <div class="radio-group">
+              <label class="radio-option">
+                <input type="radio" name="tieneIdeas" value="festali" id="ideasFestali" checked>
+                <span class="radio-label">✨ Se lo dejo al buen gusto de Festali</span>
+                <small class="radio-desc">Nuestro equipo creará algo especial para ti</small>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="tieneIdeas" value="tengoIdea" id="ideasPropia">
+                <span class="radio-label">💡 Tengo una idea</span>
+                <small class="radio-desc">Cuéntanos o sube referencias de inspiración</small>
+              </label>
+            </div>
+          </div>
+          <div id="grupoIdeas" style="display:none">
+            <div class="form-group">
+              <label for="ideasExtra">¿Tienes algo específico en mente?</label>
+              <textarea class="form-control" id="ideasExtra" name="ideasExtra"
+                        placeholder="Describe detalles, colores, elementos que quieras incluir..."></textarea>
+            </div>
+            <div class="form-group">
+              <label>Sube tus referencias (Pinterest, screenshots, ideas)</label>
+              <label class="file-label" for="referenciaVisual">
+                <span class="file-icon">🖼️</span>
+                <span class="file-texto">Haz clic para seleccionar referencias</span>
+                <span class="file-min">Máximo 3 imágenes</span>
+              </label>
+              <input type="file" id="referenciaVisual" name="referenciaVisual" multiple accept="image/*">
+              <p class="form-hint" id="refsSeleccionadas">Ninguna referencia seleccionada</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Paso 6: Mensaje ── -->
+        <div class="form-step" id="step-6">
+          <div class="form-group">
+            <label>Mensaje especial para invitados</label>
+            <div class="radio-group">
+              <div>
+                <label class="radio-option">
+                  <input type="radio" name="tipoMensaje" value="propio" id="mensajePropio">
+                  <span class="radio-label">✍️ ¡Yo escribo el mensaje!</span>
+                  <small class="radio-desc">Redacta el mensaje para tus invitados</small>
+                </label>
+                <div id="grupoMensajeTexto" style="display:none">
+                  <div class="form-group" style="margin-top:10px">
+                    <textarea class="form-control" id="mensajeEspecial" name="mensajeEspecial"
+                              placeholder="Un mensaje que deseas compartir con tus invitados..."></textarea>
+                  </div>
                 </div>
               </div>
+              <label class="radio-option">
+                <input type="radio" name="tipoMensaje" value="festali" id="mensajeFestali">
+                <span class="radio-label">✨ ¡Que Festali me escriba algo bonito!</span>
+                <small class="radio-desc">Nuestro equipo redactará algo especial</small>
+              </label>
             </div>
-            <label class="radio-option">
-              <input type="radio" name="tipoMensaje" value="festali" id="mensajeFestali">
-              <span class="radio-label">✨ ¡Que Festali me escriba algo bonito!</span>
-              <small class="radio-desc">Nuestro equipo redactará algo especial</small>
-            </label>
           </div>
         </div>
 
-        <!-- ── Campos Smart Interactive ── -->
-        <div id="camposSmart" class="extra-fields" style="display:none">
-          <div class="form-section-title">Smart Interactive — Detalles adicionales</div>
-
+        <!-- ── Paso 7: Smart Interactive ── -->
+        <div class="form-step" id="step-7">
           <div class="form-group">
             <label for="dressCode">Dress Code</label>
             <input type="text" class="form-control" id="dressCode" name="dressCode"
@@ -294,7 +276,6 @@
               <p class="form-hint" id="dressCodeImgHint">Ninguna imagen seleccionada</p>
             </div>
           </div>
-
           <div class="form-group">
             <label>Contacto para confirmación de asistencia <span class="req">*</span></label>
             <div class="radio-group">
@@ -326,11 +307,10 @@
               </div>
             </div>
           </div>
-
           <div class="form-group">
             <label for="datosAsistencia">¿Qué quieres saber de tus invitados?</label>
             <textarea class="form-control" id="datosAsistencia" name="datosAsistencia"
-                      placeholder="Ej: ¿Vas con acompañante? / ¿Tienes alguna alergia? / ¿Prefieres menú de carne o vegetariano? / ¿Cuántos niños llevas? / ¿Necesitas transporte?"></textarea>
+                      placeholder="Ej: ¿Vas con acompañante? / ¿Tienes alguna alergia?..."></textarea>
             <div style="margin-top:10px">
               <label class="checkbox-option">
                 <input type="checkbox" id="soloAdultos" name="soloAdultos">
@@ -338,12 +318,8 @@
               </label>
             </div>
           </div>
-
-          <!-- ── Mesa de regalos ── -->
-          <div class="form-section-title">Mesa de regalos (opcional)</div>
-
           <div class="form-group">
-            <label>¿Deseas incluir mesa de regalos o datos bancarios?</label>
+            <label>Mesa de regalos (opcional)</label>
             <div class="radio-group">
               <label class="radio-option">
                 <input type="radio" name="tipoRegalos" value="ninguno" id="regalosNinguno" checked>
@@ -359,7 +335,6 @@
               </label>
             </div>
           </div>
-
           <div id="grupoMesaRegalos" style="display:none">
             <div class="form-group">
               <label for="mesaRegalosLink">Tienda y número de mesa o link</label>
@@ -367,7 +342,6 @@
                      placeholder="Ej: Liverpool mesa #12345 o https://mesaderegalos...">
             </div>
           </div>
-
           <div id="grupoTransferencia" style="display:none">
             <div class="form-group">
               <label for="bancoCuenta">Banco</label>
@@ -387,16 +361,13 @@
           </div>
         </div>
 
-        <!-- ── Campos Premium Experience ── -->
-        <div id="camposPremium" class="extra-fields" style="display:none">
-          <div class="form-section-title">Premium Experience — Detalles adicionales</div>
-
+        <!-- ── Paso 8: Premium Experience ── -->
+        <div class="form-step" id="step-8">
           <div class="form-group">
-            <label for="musica">Nombre de canción o enlace de música de fondo</label>
+            <label for="musica">Canción o enlace de música de fondo</label>
             <input type="text" class="form-control" id="musica" name="musica"
                    placeholder="Artista - Canción o enlace de YouTube / Spotify">
           </div>
-
           <div class="form-group">
             <label>Agenda del evento</label>
             <div class="radio-group">
@@ -409,7 +380,7 @@
                 <div id="grupoAgendaTexto" style="display:none">
                   <div class="form-group" style="margin-top:10px">
                     <textarea class="form-control" id="agendaEvento" name="agendaEvento"
-                              placeholder="Describe el programa (ej: 5:00pm Ceremonia religiosa / 7:00pm Coctel / 8:00pm Cena y baile)..."></textarea>
+                              placeholder="Ej: 5:00pm Ceremonia / 7:00pm Coctel / 8:00pm Cena y baile..."></textarea>
                   </div>
                 </div>
               </div>
@@ -424,7 +395,7 @@
                     <label class="file-label" for="agendaImagenFile">
                       <span class="file-icon">📋</span>
                       <span class="file-texto">Haz clic para subir la imagen de agenda</span>
-                      <span class="file-min">1 imagen — captura, diseño o foto del programa</span>
+                      <span class="file-min">1 imagen — captura o foto del programa</span>
                     </label>
                     <input type="file" id="agendaImagenFile" name="agendaImagenFile" accept="image/*">
                     <p class="form-hint" id="agendaImgSeleccionada">Ninguna imagen seleccionada</p>
@@ -433,10 +404,14 @@
               </div>
             </div>
           </div>
-
         </div>
 
-        <button type="submit" class="btn-enviar">✨ Enviar mi solicitud</button>
+        <!-- Navegación del wizard -->
+        <div class="wizard-nav">
+          <button type="button" class="btn-anterior" id="btnAnterior">← Anterior</button>
+          <button type="button" class="btn-siguiente" id="btnSiguiente">Siguiente →</button>
+          <button type="submit" class="btn-enviar" id="btnEnviar" style="display:none">✨ Enviar mi solicitud</button>
+        </div>
 
       </form>
     </div>

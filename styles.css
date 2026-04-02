@@ -704,6 +704,93 @@ input[type="file"] {
   background: #f0eeff;
 }
 
+/* ==================== WIZARD ==================== */
+.form-step { display: none; }
+
+.wizard-progress {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 0 auto 14px;
+  flex-wrap: wrap;
+  max-width: 360px;
+}
+
+.wizard-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ddd9f0;
+  transition: background 0.3s, transform 0.2s;
+  flex-shrink: 0;
+}
+
+.wizard-dot.active {
+  background: var(--morado);
+  transform: scale(1.3);
+}
+
+.wizard-dot.done {
+  background: #a89ee0;
+}
+
+.wizard-step-title {
+  text-align: center;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--morado);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+
+.wizard-nav {
+  display: flex;
+  gap: 12px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+
+.btn-anterior {
+  flex: 1;
+  padding: 14px;
+  background: #f4f2ff;
+  color: var(--morado);
+  border: 1.5px solid #ddd9f0;
+  border-radius: 50px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transicion);
+}
+
+.btn-anterior:hover {
+  background: #e8e4ff;
+}
+
+.btn-siguiente {
+  flex: 2;
+  padding: 14px;
+  background: var(--gradiente);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transicion);
+  box-shadow: 0 4px 18px rgba(75, 68, 149, 0.3);
+}
+
+.btn-siguiente:hover {
+  filter: brightness(1.07);
+  transform: translateY(-2px);
+}
+
 /* ==================== BOTÓN ENVIAR ==================== */
 .btn-enviar {
   width: 100%;

@@ -18,17 +18,17 @@ const TIPOS_VALIDOS = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'im
 
 const PAQUETES = {
   essence: {
-    nombre: '🌿 Digital Essence',
+    nombre: 'Digital Essence',
     minFotos: 3,
     extras: []
   },
   smart: {
-    nombre: '💡 Smart Interactive',
+    nombre: 'Smart Interactive',
     minFotos: 3,
     extras: ['smart']
   },
   premium: {
-    nombre: '💎 Premium Experience',
+    nombre: 'Premium Experience',
     minFotos: 15,
     extras: ['smart', 'premium']
   }
@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initDressCodeImg();
   initMensajeToggle();
   initPreviewEnlace();
+  initWizard(paqueteKey);
   initSubmit(paqueteKey);
 });
 
@@ -97,17 +98,7 @@ async function setFolio() {
 
 function configurarPaquete(paqueteKey) {
   const config = PAQUETES[paqueteKey];
-
-  // Mostrar nombre del paquete en la banda
   document.getElementById('paqueteNombre').textContent = config.nombre;
-
-  // Mostrar campos adicionales según paquete
-  if (config.extras.includes('smart')) {
-    document.getElementById('camposSmart').style.display = 'block';
-  }
-  if (config.extras.includes('premium')) {
-    document.getElementById('camposPremium').style.display = 'block';
-  }
 }
 
 // ==================== CONFIRMACIÓN TOGGLE ====================
@@ -635,6 +626,146 @@ function mostrarErrores(errores) {
 }
 
 // ==================== SPINNER — ROTACIÓN DE MENSAJES ====================
+
+// ==================== WIZARD ====================
+
+function initWizard(paqueteKey) {
+  const todosLosPasos = [
+    { id: 'step-1', titulo: 'Tus datos de contacto',   paquetes: ['essence','smart','premium'] },
+    { id: 'step-2', titulo: 'Sobre el evento',          paquetes: ['essence','smart','premium'] },
+    { id: 'step-3', titulo: 'Ubicaciones',              paquetes: ['essence','smart','premium'] },
+    { id: 'step-4', titulo: 'Detalles del diseño',      paquetes: ['essence','smart','premium'] },
+    { id: 'step-5', titulo: 'Fotos e ideas',            paquetes: ['essence','smart','premium'] },
+    { id: 'step-6', titulo: 'Mensaje especial',         paquetes: ['essence','smart','premium'] },
+    { id: 'step-7', titulo: 'Detalles adicionales',     paquetes: ['smart','premium'] },
+    { id: 'step-8', titulo: 'Música y agenda',          paquetes: ['premium'] },
+  ];
+
+  const pasos = todosLosPasos.filter(p => p.paquetes.includes(paqueteKey));
+  let actual  = 0;
+
+  function irA(n) {
+    document.querySelectorAll('.form-step').forEach(s => s.style.display = 'none');
+    actual = n;
+    document.getElementById(pasos[n].id).style.display = 'block';
+    document.getElementById('wizardStepTitle').textContent = pasos[n].titulo;
+    actualizarProgreso();
+    const btnAnt = document.getElementById('btnAnterior');
+    const btnSig = document.getElementById('btnSiguiente');
+    const btnEnv = document.getElementById('btnEnviar');
+    btnAnt.style.display = n === 0 ? 'none' : '';
+    btnSig.style.display = n < pasos.length - 1 ? '' : 'none';
+    btnEnv.style.display = n === pasos.length - 1 ? '' : 'none';
+    document.getElementById('formWrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function actualizarProgreso() {
+    document.getElementById('wizardProgress').innerHTML = pasos.map((p, i) =>
+      `<div class="wizard-dot ${i < actual ? 'done' : i === actual ? 'active' : ''}"></div>`
+    ).join('');
+  }
+
+  function validarPasoActual() {
+    const stepId = pasos[actual].id;
+    const errores = [];
+    const marcar  = id => { document.getElementById(id)?.classList.add('error'); };
+
+    if (stepId === 'step-1') {
+      ['nombreCompleto','whatsapp','correo'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el?.value.trim()) { errores.push(id === 'nombreCompleto' ? 'Nombre completo' : id === 'whatsapp' ? 'WhatsApp' : 'Correo'); marcar(id); }
+      });
+      const correoEl = document.getElementById('correo');
+      if (correoEl?.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correoEl.value.trim())) {
+        errores.push('Correo (formato inválido)'); marcar('correo');
+      }
+      const wspVal = (document.getElementById('whatsapp')?.value || '').replace(/\s/g,'');
+      if (wspVal && !/^\+?\d{7,15}$/.test(wspVal)) {
+        errores.push('WhatsApp (formato inválido, ej: +52 686 000 0000)'); marcar('whatsapp');
+      }
+    }
+
+    if (stepId === 'step-2') {
+      ['tipoEvento','fechaEvento','horaEvento','nombresFestejados'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el?.value.trim()) { errores.push(el?.labels?.[0]?.textContent?.replace('*','').trim() || id); marcar(id); }
+      });
+      const fechaEl = document.getElementById('fechaEvento');
+      if (fechaEl?.value) {
+        const hoy = new Date(); hoy.setHours(0,0,0,0);
+        if (new Date(fechaEl.value + 'T00:00:00') < hoy) {
+          errores.push('Fecha del evento (no puede ser una fecha pasada)'); marcar('fechaEvento');
+        }
+      }
+    }
+
+    if (stepId === 'step-3') {
+      if (document.getElementById('hayCeremonia')?.checked) {
+        const el = document.getElementById('lugarCeremonia');
+        if (!el?.value.trim()) { errores.push('Lugar de la ceremonia'); marcar('lugarCeremonia'); }
+      }
+      if (document.getElementById('hayRecepcion')?.checked) {
+        const el = document.getElementById('lugarRecepcion');
+        if (!el?.value.trim()) { errores.push('Lugar de la recepción'); marcar('lugarRecepcion'); }
+      }
+    }
+
+    if (stepId === 'step-4') {
+      ['paletaColores','estiloInvitacion'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el?.value.trim()) { errores.push(id === 'paletaColores' ? 'Paleta de colores' : 'Estilo de invitación'); marcar(id); }
+      });
+      if (!document.querySelector('input[name="tipoDiseno"]:checked')) {
+        errores.push('Tipo de diseño (Mis fotos / Diseño gráfico)');
+      }
+    }
+
+    if (stepId === 'step-5') {
+      const tipoDis = document.querySelector('input[name="tipoDiseno"]:checked');
+      const minFotos = PAQUETES[paqueteKey].minFotos;
+      if (!tipoDis || tipoDis.value === 'fotos') {
+        if (document.getElementById('fotos').files.length < minFotos) {
+          errores.push(`Fotos (mínimo ${minFotos})`);
+        }
+      }
+      const tieneIdeas = document.querySelector('input[name="tieneIdeas"]:checked')?.value;
+      if (tieneIdeas === 'tengoIdea' && document.getElementById('referenciaVisual').files.length > 3) {
+        errores.push('Referencias visuales (máximo 3 imágenes)');
+      }
+      Array.from(document.getElementById('fotos').files || []).forEach(f => {
+        if (!TIPOS_VALIDOS.includes(f.type)) errores.push(`Archivo "${f.name}" no es una imagen válida`);
+      });
+    }
+
+    if (stepId === 'step-7') {
+      const tipoConf = document.querySelector('input[name="tipoConfirmacion"]:checked')?.value;
+      if (!tipoConf) {
+        errores.push('Método de confirmación de asistencia');
+      } else if (tipoConf === 'wsp') {
+        const el = document.getElementById('whatsappConfirmaciones');
+        if (!el?.value.trim()) { errores.push('WhatsApp para confirmaciones'); marcar('whatsappConfirmaciones'); }
+      } else if (tipoConf === 'correo') {
+        const el = document.getElementById('correoConfirmaciones');
+        if (!el?.value.trim()) { errores.push('Correo para confirmaciones'); marcar('correoConfirmaciones'); }
+      }
+    }
+
+    return errores;
+  }
+
+  document.getElementById('btnSiguiente').addEventListener('click', () => {
+    document.querySelectorAll('.form-control.error').forEach(el => el.classList.remove('error'));
+    const errores = validarPasoActual();
+    if (errores.length > 0) { mostrarErrores(errores); return; }
+    if (actual < pasos.length - 1) irA(actual + 1);
+  });
+
+  document.getElementById('btnAnterior').addEventListener('click', () => {
+    if (actual > 0) irA(actual - 1);
+  });
+
+  irA(0);
+}
 
 const SPINNER_MENSAJES = [
   'Enviando tu información... 📤',
