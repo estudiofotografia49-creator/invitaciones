@@ -478,6 +478,8 @@ function crearPreferenciaMercadoPago(folio, paquete) {
       payload:     JSON.stringify(preferencia)
     });
 
+    Logger.log('Respuesta MP status: ' + response.getResponseCode());
+    Logger.log('Respuesta MP body: ' + response.getContentText());
     const resultado = JSON.parse(response.getContentText());
     Logger.log('✅ Preferencia MP creada — folio: ' + folio + ' | init_point: ' + resultado.init_point);
     return resultado.init_point || null;
