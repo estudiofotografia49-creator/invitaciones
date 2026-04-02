@@ -494,6 +494,7 @@ async function enviar(datos, archivos, referencias, agendaImg, dressCodeImgs) {
   // ── MODO PRODUCCIÓN ── Enviar JSON a Google Apps Script
   // Content-Type: text/plain evita el preflight CORS que bloquea Apps Script.
   console.log('datos a enviar:', JSON.stringify(datos));
+  console.log('📦 FESTALI — payload (sin imágenes):', JSON.stringify(Object.assign({}, payload, { fotos: payload.fotos?.length + ' foto(s)', referencias: payload.referencias?.length + ' ref(s)', agendaImagenes: payload.agendaImagenes?.length + ' agenda', dressCodeImagenes: payload.dressCodeImagenes?.length + ' dressCode' })));
   console.log('📤 FESTALI — fetch a:', SCRIPT_URL);
   console.log(`📎 Archivos: ${fotosBase64.length} foto(s), ${refsBase64.length} ref(s), ${agendaBase64.length} agenda, ${dressCodeBase64.length} dressCode`);
 
