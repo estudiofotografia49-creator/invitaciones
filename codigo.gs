@@ -76,9 +76,11 @@ function logDebug(msg) {
 
 function doPost(e) {
   try {
+    logDebug('doPost iniciado — raw: ' + (e.postData ? e.postData.contents.substring(0, 300) : 'SIN BODY'));
+
     const datos = JSON.parse(e.postData.contents);
 
-    logDebug('doPost recibido — folio: ' + datos.folio + ' | paquete: ' + datos.paquete + ' | correo: ' + datos.correo);
+    logDebug('doPost parseado — folio: ' + datos.folio + ' | paquete: ' + datos.paquete + ' | correo: ' + datos.correo);
 
     // ── Webhook de MercadoPago ──
     // MP envía { type: 'payment', data: { id: '...' } }
