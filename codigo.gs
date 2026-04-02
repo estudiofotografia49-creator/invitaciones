@@ -67,9 +67,15 @@ const ENCABEZADOS = [
 
 function doPost(e) {
   try {
-    const datos  = JSON.parse(e.postData.contents);
+    const datos = JSON.parse(e.postData.contents);
 
-    // Validación server-side — rechaza payloads incompletos o malformados
+    // ── Webhook de MercadoPago ──
+    // MP envía { type: 'payment', data: { id: '...' } }
+    if (datos.type === 'payment' && datos.data && datos.data.id) {
+      return procesarWebhookMP(datos);
+    }
+
+    // ── Formulario de solicitud ──
     const errValidacion = validarPayload(datos);
     if (errValidacion) {
       Logger.log('FESTALI doPost — payload rechazado: ' + errValidacion);
@@ -92,12 +98,15 @@ function doPost(e) {
     const linksDressCode = guardarFotosEnSub(datos.dressCodeImagenes || [], subcarpeta, 'Ejemplos vestimenta');
     const linksAgenda    = guardarFotosEnSub(datos.agendaImagenes    || [], subcarpeta, 'Agenda');
 
-    // 4. Guardar fila en Sheets
+    // 4. Guardar fila en Sheets con estado "Pendiente de Pago"
     const ss   = SpreadsheetApp.openById(SPREADSHEET_ID);
     const hoja = prepararHoja(ss);
     escribirFila(hoja, datos, linksFotos, subcarpeta.getUrl(), linksRefs, linksAgenda, linksDressCode);
 
-    return respuestaOk({ folio: folio, carpeta: subcarpeta.getUrl() });
+    // 5. Crear preferencia de pago en MercadoPago
+    const initPoint = crearPreferenciaMercadoPago(folio, datos.paquete);
+
+    return respuestaOk({ folio: folio, carpeta: subcarpeta.getUrl(), initPoint: initPoint });
 
   } catch (err) {
     Logger.log('Error FESTALI doPost: ' + err.message + '\n' + err.stack);
@@ -331,7 +340,7 @@ function escribirFila(hoja, d, linksFotos, urlCarpeta, linksRefs, linksAgenda, l
     s(d.folio                  || ''),  // 1  Folio
     s(d.fechaSolicitud         || ''),  // 2  Fecha Solicitud
     s(d.paquete                || ''),  // 3  Paquete
-    'Pendiente',                        // 4  Estado — editar manualmente
+    'Pendiente de Pago',                // 4  Estado — se actualiza automáticamente al pagar
     s(d.nombreCompleto         || ''),  // 5  Nombre
     s(d.whatsapp               || ''),  // 6  WhatsApp
     s(d.correo                 || ''),  // 7  Correo
@@ -410,6 +419,153 @@ function respuestaError(mensaje) {
   return ContentService
     .createTextOutput(JSON.stringify({ ok: false, error: mensaje }))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ============================================================
+// MERCADOPAGO — crear preferencia de pago
+// ============================================================
+
+// Requiere en Script Properties:
+//   MP_ACCESS_TOKEN  → tu Access Token de MercadoPago (producción o sandbox)
+//   MP_URL_EXITO     → URL a la que MP redirige después de pago exitoso
+//   MP_URL_FALLA     → URL a la que MP redirige si el pago falla
+//   MP_URL_PENDIENTE → URL a la que MP redirige si el pago queda pendiente
+//
+// Precios configurados: Essence $850 | Smart $1,450 | Premium $2,100 MXN
+function crearPreferenciaMercadoPago(folio, paquete) {
+  const props       = PropertiesService.getScriptProperties();
+  const accessToken = props.getProperty('MP_ACCESS_TOKEN');
+
+  if (!accessToken) {
+    Logger.log('⚠️ MP_ACCESS_TOKEN no configurado — se omite creación de preferencia');
+    return null;
+  }
+
+  const precios = { essence: 850, smart: 1450, premium: 2100 };
+  const paqueteLower = (paquete || '').toLowerCase();
+  let precio       = precios.essence;
+  let nombrePaq    = 'Digital Essence';
+  if (paqueteLower.includes('smart'))   { precio = precios.smart;   nombrePaq = 'Smart Interactive';   }
+  if (paqueteLower.includes('premium')) { precio = precios.premium; nombrePaq = 'Premium Experience';  }
+
+  const scriptUrl   = ScriptApp.getService().getUrl();
+  const urlExito    = props.getProperty('MP_URL_EXITO')     || scriptUrl;
+  const urlFalla    = props.getProperty('MP_URL_FALLA')     || scriptUrl;
+  const urlPendiente= props.getProperty('MP_URL_PENDIENTE') || scriptUrl;
+
+  const preferencia = {
+    items: [{
+      title:      'Invitación FESTALI — ' + nombrePaq,
+      quantity:   1,
+      unit_price: precio,
+      currency_id: 'MXN'
+    }],
+    external_reference: folio,
+    notification_url:   scriptUrl,
+    back_urls: {
+      success: urlExito,
+      failure: urlFalla,
+      pending: urlPendiente
+    },
+    auto_return: 'approved'
+  };
+
+  try {
+    const response = UrlFetchApp.fetch('https://api.mercadopago.com/checkout/preferences', {
+      method:      'post',
+      contentType: 'application/json',
+      headers:     { 'Authorization': 'Bearer ' + accessToken },
+      payload:     JSON.stringify(preferencia)
+    });
+
+    const resultado = JSON.parse(response.getContentText());
+    Logger.log('✅ Preferencia MP creada — folio: ' + folio + ' | init_point: ' + resultado.init_point);
+    return resultado.init_point || null;
+
+  } catch (err) {
+    Logger.log('❌ Error creando preferencia MP: ' + err.message);
+    return null;
+  }
+}
+
+// ============================================================
+// MERCADOPAGO — procesar webhook de pago
+// ============================================================
+
+function procesarWebhookMP(datos) {
+  const accessToken = PropertiesService.getScriptProperties().getProperty('MP_ACCESS_TOKEN');
+  if (!accessToken) return respuestaError('MP_ACCESS_TOKEN no configurado');
+
+  try {
+    const pagoId   = datos.data.id;
+    const response = UrlFetchApp.fetch('https://api.mercadopago.com/v1/payments/' + pagoId, {
+      headers: { 'Authorization': 'Bearer ' + accessToken }
+    });
+
+    const pago   = JSON.parse(response.getContentText());
+    const folio  = pago.external_reference;
+    const status = pago.status;
+
+    Logger.log('Webhook MP — folio: ' + folio + ' | status: ' + status);
+
+    if (!folio) {
+      Logger.log('⚠️ Webhook MP sin external_reference — se ignora');
+      return respuestaOk({ recibido: true });
+    }
+
+    if (status === 'approved') {
+      actualizarEstadoPago(folio, 'Pagado ✓');
+    } else if (status === 'pending' || status === 'in_process') {
+      actualizarEstadoPago(folio, 'Pago en proceso');
+    } else if (status === 'rejected') {
+      actualizarEstadoPago(folio, 'Pago rechazado');
+    }
+
+    return respuestaOk({ recibido: true });
+
+  } catch (err) {
+    Logger.log('❌ Error procesando webhook MP: ' + err.message);
+    return respuestaError(err.message);
+  }
+}
+
+// ============================================================
+// MERCADOPAGO — actualizar estado en Sheets
+// ============================================================
+
+function actualizarEstadoPago(folio, nuevoEstado) {
+  const ss   = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const hoja = ss.getSheetByName(NOMBRE_HOJA);
+  if (!hoja) { Logger.log('Hoja no encontrada: ' + NOMBRE_HOJA); return; }
+
+  const datos = hoja.getDataRange().getValues();
+  for (let i = 1; i < datos.length; i++) {
+    if (datos[i][0] === folio) {
+      hoja.getRange(i + 1, 4).setValue(nuevoEstado);
+      Logger.log('Estado actualizado: ' + folio + ' → ' + nuevoEstado);
+
+      // Notificar al admin solo cuando el pago es aprobado
+      if (nuevoEstado === 'Pagado ✓') {
+        try {
+          const adminEmail = PropertiesService.getScriptProperties().getProperty('ADMIN_EMAIL');
+          if (adminEmail) {
+            const nombre  = datos[i][4];  // columna 5 — Nombre
+            const paquete = datos[i][2];  // columna 3 — Paquete
+            MailApp.sendEmail(
+              adminEmail,
+              '✅ FESTALI — Pago confirmado: ' + folio,
+              'El pedido ' + folio + ' ha sido pagado.\n\n' +
+              'Cliente: ' + nombre + '\n' +
+              'Paquete: ' + paquete + '\n\n' +
+              'Ver Sheets: https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID
+            );
+          }
+        } catch (_) {}
+      }
+      return;
+    }
+  }
+  Logger.log('⚠️ Folio no encontrado al actualizar estado: ' + folio);
 }
 
 // ============================================================

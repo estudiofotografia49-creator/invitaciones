@@ -6,7 +6,7 @@
 
 // Dejar vacío hasta configurar Google Apps Script.
 // En modo vacío, los datos se imprimen en consola y se simula éxito.
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwf7buy9TOVQEwv_25c700ba4BDpA2Yoiv_DVwqaGSpyU9W9fK6nUZElJ0CmsySUVd7/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbye-Y1h6PLo5sVevx4tkXOPWAkCAqu0iX_gI2TItgmSlP5otBB_gy4bDCVJb9gm8IO2/exec';
 
 // ==================== CONFIGURACIÓN DE PAQUETES ====================
 
@@ -499,25 +499,27 @@ async function enviar(datos, archivos, referencias, agendaImg, dressCodeImgs) {
   console.log('📤 FESTALI — fetch a:', SCRIPT_URL);
   console.log(`📎 Archivos: ${fotosBase64.length} foto(s), ${refsBase64.length} ref(s), ${agendaBase64.length} agenda, ${dressCodeBase64.length} dressCode`);
 
+  let resultado;
   try {
-    await fetch(SCRIPT_URL, {
+    const response = await fetch(SCRIPT_URL, {
       method: 'POST',
-      mode: 'no-cors',
+      mode: 'cors',
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(payload)
     });
-    console.log('✅ Fetch completado (no-cors — respuesta opaca, revisar GAS Ejecuciones para confirmar)');
+    resultado = await response.json();
+    console.log('✅ Respuesta del servidor:', resultado);
   } catch (fetchErr) {
     console.error('❌ Fetch falló antes de llegar al servidor:', fetchErr);
     throw fetchErr;
   }
 
-  return { ok: true };
+  return resultado;
 }
 
 // ==================== MOSTRAR CONFIRMACIÓN ====================
 
-function mostrarConfirmacion(folio) {
+function mostrarConfirmacion(folio, initPoint) {
   // Ocultar formulario y banner
   const wrapper = document.getElementById('formWrapper');
   const banner  = document.getElementById('paqueteBanner');
@@ -528,7 +530,7 @@ function mostrarConfirmacion(folio) {
   const confirmacion = document.getElementById('confirmacion');
   document.getElementById('folioConfirmacion').textContent = folio;
 
-  // Botón de pago MP según paquete
+  // Botón de pago MP — usar link dinámico si está disponible, si no usar el link estático
   const linksPago = {
     essence: 'https://mpago.la/2keQv3Z',
     smart:   'https://mpago.la/2TiAHyW',
@@ -537,7 +539,9 @@ function mostrarConfirmacion(folio) {
   const params  = new URLSearchParams(window.location.search);
   const paquete = (params.get('paquete') || '').toLowerCase();
   const btnMP   = document.getElementById('btnPagoMP');
-  if (btnMP) btnMP.href = linksPago[paquete] || linksPago.essence;
+  if (btnMP) {
+    btnMP.href = initPoint || linksPago[paquete] || linksPago.essence;
+  }
 
   // Actualizar folio en la nota de pago
   const folioNota = document.getElementById('folioNotaPago');
@@ -630,14 +634,14 @@ function initSubmit(paqueteKey) {
       const folio       = datos.folio;
 
       console.log('🚀 Llamando a enviar()...');
-      await enviar(datos, archivos, referencias, agendaImg, dressCodeImgs);
+      const resultado = await enviar(datos, archivos, referencias, agendaImg, dressCodeImgs);
 
       // Confirmar folio solo después de envío exitoso
       confirmarFolio();
 
       detenerMensajesSpinner();
       spinner.classList.remove('active');
-      mostrarConfirmacion(folio);
+      mostrarConfirmacion(folio, resultado?.initPoint);
 
     } catch (err) {
       detenerMensajesSpinner();
