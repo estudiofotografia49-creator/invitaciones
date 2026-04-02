@@ -123,6 +123,19 @@ function initConfirmacionToggle() {
     const val = document.querySelector('input[name="tipoConfirmacion"]:checked')?.value;
     grupoWsp.style.display    = val === 'wsp'    ? 'block' : 'none';
     grupoCorreo.style.display = val === 'correo' ? 'block' : 'none';
+
+    // Pre-llenar con el contacto ingresado al inicio (editable)
+    if (val === 'wsp') {
+      const inputConf = document.getElementById('whatsappConfirmaciones');
+      if (inputConf && !inputConf.value) {
+        inputConf.value = document.getElementById('whatsapp')?.value || '';
+      }
+    } else if (val === 'correo') {
+      const inputConf = document.getElementById('correoConfirmaciones');
+      if (inputConf && !inputConf.value) {
+        inputConf.value = document.getElementById('correo')?.value || '';
+      }
+    }
   }
 
   radios.forEach(r => r.addEventListener('change', actualizar));
