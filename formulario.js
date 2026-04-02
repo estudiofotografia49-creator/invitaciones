@@ -70,6 +70,13 @@ function setFechaAutomatica() {
   const hoy = new Date();
   const opciones = { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'America/Mexico_City' };
   document.getElementById('fechaSolicitud').value = hoy.toLocaleDateString('es-MX', opciones);
+
+  // Fecha mínima del evento — hoy (evita fechas pasadas)
+  const yyyy = hoy.getFullYear();
+  const mm   = String(hoy.getMonth() + 1).padStart(2, '0');
+  const dd   = String(hoy.getDate()).padStart(2, '0');
+  const inputFecha = document.getElementById('fechaEvento');
+  if (inputFecha) inputFecha.min = `${yyyy}-${mm}-${dd}`;
 }
 
 // ==================== FOLIO ====================
@@ -371,6 +378,25 @@ function validar(paqueteKey) {
   if (correoEl.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correoEl.value.trim())) {
     if (!errores.includes('Correo electrónico')) errores.push('Correo electrónico (formato inválido)');
     correoEl.classList.add('error');
+  }
+
+  // Validar WhatsApp — solo dígitos y +, entre 7 y 15 caracteres
+  const wspEl = document.getElementById('whatsapp');
+  const wspVal = (wspEl?.value || '').replace(/\s/g, '');
+  if (wspVal && !/^\+?\d{7,15}$/.test(wspVal)) {
+    errores.push('WhatsApp (formato inválido, ej: +52 686 000 0000)');
+    wspEl?.classList.add('error');
+  }
+
+  // Validar que la fecha del evento no sea en el pasado
+  const fechaEl = document.getElementById('fechaEvento');
+  if (fechaEl?.value) {
+    const hoy      = new Date(); hoy.setHours(0, 0, 0, 0);
+    const fechaSel = new Date(fechaEl.value + 'T00:00:00');
+    if (fechaSel < hoy) {
+      errores.push('Fecha del evento (no puede ser una fecha pasada)');
+      fechaEl.classList.add('error');
+    }
   }
 
   // Validar tipo de diseño (radio obligatorio)
