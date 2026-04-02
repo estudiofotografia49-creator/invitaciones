@@ -124,7 +124,17 @@ function doPost(e) {
 // GET — prueba de conectividad
 // ============================================================
 
-function doGet() {
+function doGet(e) {
+  if (e && e.parameter && e.parameter.action === 'folio') {
+    const ss   = SpreadsheetApp.openById(SPREADSHEET_ID);
+    const hoja = prepararHoja(ss);
+    const n     = Math.max(hoja.getLastRow() - 1, 0) + 1; // -1 encabezado, +1 siguiente
+    const folio = 'FEST-' + String(n).padStart(3, '0');
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: true, folio: folio }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
   return ContentService
     .createTextOutput(JSON.stringify({ status: 'FESTALI API activa ✓' }))
     .setMimeType(ContentService.MimeType.JSON);

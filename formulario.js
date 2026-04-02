@@ -68,18 +68,16 @@ function setFechaAutomatica() {
 
 // ==================== FOLIO ====================
 
-function getFolioSiguiente() {
-  const actual = parseInt(localStorage.getItem('festali_folio_counter') || '0');
-  return 'FEST-' + String(actual + 1).padStart(3, '0');
-}
-
-function confirmarFolio() {
-  const actual = parseInt(localStorage.getItem('festali_folio_counter') || '0');
-  localStorage.setItem('festali_folio_counter', String(actual + 1));
-}
-
-function setFolio() {
-  document.getElementById('numeroFolio').value = getFolioSiguiente();
+async function setFolio() {
+  const input = document.getElementById('numeroFolio');
+  input.value = 'Cargando...';
+  try {
+    const res  = await fetch(SCRIPT_URL + '?action=folio');
+    const data = await res.json();
+    input.value = data.folio || 'FEST-???';
+  } catch (_) {
+    input.value = 'FEST-???';
+  }
 }
 
 // ==================== CONFIGURAR PAQUETE ====================
@@ -635,9 +633,6 @@ function initSubmit(paqueteKey) {
 
       console.log('🚀 Llamando a enviar()...');
       const resultado = await enviar(datos, archivos, referencias, agendaImg, dressCodeImgs);
-
-      // Confirmar folio solo después de envío exitoso
-      confirmarFolio();
 
       detenerMensajesSpinner();
       spinner.classList.remove('active');
