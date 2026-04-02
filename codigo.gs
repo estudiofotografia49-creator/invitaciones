@@ -600,3 +600,8 @@ function testConexion() {
   const hoja = prepararHoja(ss);
   Logger.log('✅ Conexión exitosa: ' + hoja.getName());
 }
+
+function autorizarFetch() {
+  const r = UrlFetchApp.fetch('https://www.google.com');
+  Logger.log('OK: ' + r.getResponseCode());
+}
