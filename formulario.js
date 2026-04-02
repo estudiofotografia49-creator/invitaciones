@@ -6,7 +6,7 @@
 
 // Dejar vacío hasta configurar Google Apps Script.
 // En modo vacío, los datos se imprimen en consola y se simula éxito.
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw_LifxgqakvympfK6ipb5jfWeIvE7NQj5llzKAri9fiOsNmQ0_m1Qn2ff_t--EqWrP/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzjE2bO1WhEl0Sa77n66uEVPUtIWXXaIrFq0-ousJB32U7PyTHQPPWw9yD9suz-_Q4U/exec';
 
 // ==================== CONFIGURACIÓN DE PAQUETES ====================
 
