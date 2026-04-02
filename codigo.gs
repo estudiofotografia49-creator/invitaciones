@@ -475,19 +475,20 @@ function crearPreferenciaMercadoPago(folio, paquete) {
       method:      'post',
       contentType: 'application/json',
       headers:     { 'Authorization': 'Bearer ' + accessToken },
-      payload:     JSON.stringify(preferencia)
+      payload:     JSON.stringify(preferencia),
+      muteHttpExceptions: true
     });
-
-    Logger.log('Respuesta MP status: ' + response.getResponseCode());
-    Logger.log('Respuesta MP body: ' + response.getContentText());
-    const resultado = JSON.parse(response.getContentText());
-    Logger.log('✅ Preferencia MP creada — folio: ' + folio + ' | init_point: ' + resultado.init_point);
+    const code = response.getResponseCode();
+    const body = response.getContentText();
+    PropertiesService.getScriptProperties().setProperty('MP_LAST_CODE', String(code));
+    PropertiesService.getScriptProperties().setProperty('MP_LAST_BODY', body.substring(0, 500));
+    Logger.log('MP status: ' + code + ' | body: ' + body.substring(0, 200));
+    const resultado = JSON.parse(body);
     return resultado.init_point || null;
 
   } catch (err) {
-    Logger.log('❌ Error creando preferencia MP: ' + err.message);
-    Logger.log('❌ Respuesta HTTP: ' + (err.response ? err.response.getContentText() : 'sin respuesta'));
-    PropertiesService.getScriptProperties().setProperty('ULTIMO_ERROR_MP', err.message);
+    PropertiesService.getScriptProperties().setProperty('MP_LAST_ERROR', err.message);
+    Logger.log('Error MP: ' + err.message);
     return null;
   }
 }
