@@ -33,34 +33,35 @@ const ENCABEZADOS = [
   'Correo',                       // 7
   'Tipo Evento',                  // 8
   'Fecha Evento',                 // 9
-  'Hora Evento',                  // 10
-  'Festejados',                   // 11
-  '¿Hay Ceremonia?',              // 12
-  'Lugar Ceremonia',              // 13
+  'Festejados',                   // 10
+  '¿Hay Ceremonia?',              // 11
+  'Lugar Ceremonia',              // 12
+  'Hora Ceremonia',               // 13
   'Enlace Ubicación Ceremonia',   // 14
   '¿Hay Recepción?',              // 15
   'Lugar Recepción',              // 16
-  'Enlace Ubicación Recepción',   // 17
-  'Medio Confirmaciones',         // 18
-  'Contacto Confirmaciones',      // 19
-  'Paleta Colores',               // 20
-  'Estilo Invitación',            // 21
-  'Tipo Diseño',                  // 22
-  'Fotos (cantidad)',             // 23
-  'Carpeta Fotos',                // 24
-  'Dress Code',                   // 25
-  'Ejemplos Vestimenta',          // 26
-  'Mensaje Especial',             // 27
-  '¿Festali escribe el mensaje?', // 28
-  'Datos Asistencia',             // 29
-  'Solo Adultos',                 // 30
-  'Mesa de Regalos',              // 31
-  'Música',                       // 32
-  'Agenda',                       // 33
-  'Ideas',                        // 34
-  'Referencias',                  // 35
-  'Nombre Enlace',                // 36
-  'Timestamp Servidor'            // 37
+  'Hora Recepción',               // 17
+  'Enlace Ubicación Recepción',   // 18
+  'Medio Confirmaciones',         // 19
+  'Contacto Confirmaciones',      // 20
+  'Paleta Colores',               // 21
+  'Estilo Invitación',            // 22
+  'Tipo Diseño',                  // 23
+  'Fotos (cantidad)',             // 24
+  'Carpeta Fotos',                // 25
+  'Dress Code',                   // 26
+  'Ejemplos Vestimenta',          // 27
+  'Mensaje Especial',             // 28
+  '¿Festali escribe el mensaje?', // 29
+  'Datos Asistencia',             // 30
+  'Solo Adultos',                 // 31
+  'Mesa de Regalos',              // 32
+  'Música',                       // 33
+  'Agenda',                       // 34
+  'Ideas',                        // 35
+  'Referencias',                  // 36
+  'Nombre Enlace',                // 37
+  'Timestamp Servidor'            // 38
 ];
 
 // ============================================================
@@ -310,17 +311,17 @@ function aplicarEncabezados(hoja) {
   hoja.setColumnWidth(5,  180);  // Nombre
   hoja.setColumnWidth(6,  140);  // WhatsApp
   hoja.setColumnWidth(7,  190);  // Correo
-  hoja.setColumnWidth(11, 180);  // Festejados
+  hoja.setColumnWidth(10, 180);  // Festejados
   hoja.setColumnWidth(14, 210);  // Enlace Ubicación Ceremonia
-  hoja.setColumnWidth(17, 210);  // Enlace Ubicación Recepción
-  hoja.setColumnWidth(19, 180);  // Contacto Confirmaciones
-  hoja.setColumnWidth(20, 160);  // Paleta Colores
-  hoja.setColumnWidth(24, 210);  // Carpeta Fotos
-  hoja.setColumnWidth(27, 200);  // Mensaje Especial
-  hoja.setColumnWidth(29, 200);  // Datos Asistencia
-  hoja.setColumnWidth(31, 200);  // Mesa de Regalos
-  hoja.setColumnWidth(33, 200);  // Agenda
-  hoja.setColumnWidth(36, 160);  // Nombre Enlace
+  hoja.setColumnWidth(18, 210);  // Enlace Ubicación Recepción
+  hoja.setColumnWidth(20, 180);  // Contacto Confirmaciones
+  hoja.setColumnWidth(21, 160);  // Paleta Colores
+  hoja.setColumnWidth(25, 210);  // Carpeta Fotos
+  hoja.setColumnWidth(28, 200);  // Mensaje Especial
+  hoja.setColumnWidth(30, 200);  // Datos Asistencia
+  hoja.setColumnWidth(32, 200);  // Mesa de Regalos
+  hoja.setColumnWidth(34, 200);  // Agenda
+  hoja.setColumnWidth(37, 160);  // Nombre Enlace
 }
 
 // ============================================================
@@ -386,34 +387,35 @@ function escribirFila(hoja, d, linksFotos, urlCarpeta, linksRefs, linksAgenda, l
     s(d.correo                 || ''),  // 7  Correo
     s(d.tipoEvento             || ''),  // 8  Tipo Evento
     s(d.fechaEvento            || ''),  // 9  Fecha Evento
-    s(d.horaEvento             || ''),  // 10 Hora Evento
-    s(d.nombresFestejados      || ''),  // 11 Festejados
-    hayCeremonia,                       // 12 ¿Hay Ceremonia? (Sí/No)
-    s(d.lugarCeremonia         || ''),  // 13 Lugar Ceremonia
+    s(d.nombresFestejados      || ''),  // 10 Festejados
+    hayCeremonia,                       // 11 ¿Hay Ceremonia? (Sí/No)
+    s(d.lugarCeremonia         || ''),  // 12 Lugar Ceremonia
+    s(d.horaCeremonia          || ''),  // 13 Hora Ceremonia
     s(enlaceCeremonia),                 // 14 Enlace Ubicación Ceremonia
     hayRecepcion,                       // 15 ¿Hay Recepción? (Sí/No)
     s(d.lugarRecepcion         || ''),  // 16 Lugar Recepción
-    s(enlaceRecepcion),                 // 17 Enlace Ubicación Recepción
-    medioConf,                          // 18 Medio Confirmaciones (WhatsApp/Correo)
-    s(contactoConf),                    // 19 Contacto Confirmaciones
-    s(d.paletaColores          || ''),  // 20 Paleta Colores
-    s(d.estiloInvitacion       || ''),  // 21 Estilo Invitación
-    s(d.tipoDiseno             || ''),  // 22 Tipo Diseño
-    linksFotos.length,                  // 23 Fotos (cantidad) — número
-    urlCarpeta               || '',     // 24 Carpeta Fotos — URL generada por Drive
-    s(d.dressCode              || ''),  // 25 Dress Code
-    (linksDressCode || []).length,      // 26 Ejemplos Vestimenta — número
-    s(d.mensajeEspecial        || ''),  // 27 Mensaje Especial
-    mensajeFestali,                     // 28 ¿Festali escribe el mensaje? (Sí/No)
-    s(d.datosAsistencia        || ''),  // 29 Datos Asistencia
-    s(d.soloAdultos            || ''),  // 30 Solo Adultos
-    s(mesaRegalos),                     // 31 Mesa de Regalos
-    s(d.musica                 || ''),  // 32 Música
-    s(agenda),                          // 33 Agenda
-    s(d.ideasExtra             || ''),  // 34 Ideas
-    (linksRefs || []).length,           // 35 Referencias — número
-    s(d.nombreEnlace           || ''),  // 36 Nombre Enlace
-    Utilities.formatDate(ahora, Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm:ss')  // 37
+    s(d.horaRecepcion          || ''),  // 17 Hora Recepción
+    s(enlaceRecepcion),                 // 18 Enlace Ubicación Recepción
+    medioConf,                          // 19 Medio Confirmaciones (WhatsApp/Correo)
+    s(contactoConf),                    // 20 Contacto Confirmaciones
+    s(d.paletaColores          || ''),  // 21 Paleta Colores
+    s(d.estiloInvitacion       || ''),  // 22 Estilo Invitación
+    s(d.tipoDiseno             || ''),  // 23 Tipo Diseño
+    linksFotos.length,                  // 24 Fotos (cantidad) — número
+    urlCarpeta               || '',     // 25 Carpeta Fotos — URL generada por Drive
+    s(d.dressCode              || ''),  // 26 Dress Code
+    (linksDressCode || []).length,      // 27 Ejemplos Vestimenta — número
+    s(d.mensajeEspecial        || ''),  // 28 Mensaje Especial
+    mensajeFestali,                     // 29 ¿Festali escribe el mensaje? (Sí/No)
+    s(d.datosAsistencia        || ''),  // 30 Datos Asistencia
+    s(d.soloAdultos            || ''),  // 31 Solo Adultos
+    s(mesaRegalos),                     // 32 Mesa de Regalos
+    s(d.musica                 || ''),  // 33 Música
+    s(agenda),                          // 34 Agenda
+    s(d.ideasExtra             || ''),  // 35 Ideas
+    (linksRefs || []).length,           // 36 Referencias — número
+    s(d.nombreEnlace           || ''),  // 37 Nombre Enlace
+    Utilities.formatDate(ahora, Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm:ss')  // 38
   ];
 
   hoja.appendRow(fila);
@@ -639,6 +641,15 @@ function testConexion() {
   const ss   = SpreadsheetApp.openById(SPREADSHEET_ID);
   const hoja = prepararHoja(ss);
   Logger.log('✅ Conexión exitosa: ' + hoja.getName());
+}
+
+// Ejecutar UNA vez para actualizar los encabezados del Spreadsheet existente
+function actualizarEncabezados() {
+  const ss   = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const hoja = ss.getSheetByName(NOMBRE_HOJA);
+  if (!hoja) { Logger.log('Hoja no encontrada'); return; }
+  aplicarEncabezados(hoja);
+  Logger.log('✅ Encabezados actualizados correctamente (' + ENCABEZADOS.length + ' columnas)');
 }
 
 function autorizarFetch() {

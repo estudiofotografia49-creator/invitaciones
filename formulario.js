@@ -1,4 +1,4 @@
-// v2.1 - botón MP confirmación
+// v2.2 - fotos pendientes fix + hora en ubicaciones
 // ============================================================
 // FESTALI — formulario.js
 // Lógica del formulario de contratación
@@ -6,7 +6,7 @@
 
 // Dejar vacío hasta configurar Google Apps Script.
 // En modo vacío, los datos se imprimen en consola y se simula éxito.
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzd7cHYsGMOFZ1HOyQrFvM52NkyXe6fsqUmTIGs1LDi6K7VkLgJhWL6XYCAag4i9tGC/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz957yBhCCOLfEIQSwN-uczZ3j1W49sZbQxgDjmaROBGHPtmPky_GoGb5Ewh0koFOvt/exec';
 
 // Token de acceso — debe coincidir con FESTALI_TOKEN en Script Properties de Apps Script
 const FESTALI_TOKEN = 'festali-2026-xK9mP';
@@ -355,7 +355,6 @@ function validar(paqueteKey) {
     { id: 'correo',               label: 'Correo electrónico' },
     { id: 'tipoEvento',           label: 'Tipo de evento' },
     { id: 'fechaEvento',          label: 'Fecha del evento' },
-    { id: 'horaEvento',           label: 'Hora del evento' },
     { id: 'nombresFestejados',    label: 'Nombres de los festejados' },
     { id: 'paletaColores',        label: 'Paleta de colores' },
     { id: 'estiloInvitacion',     label: 'Estilo de invitación' },
@@ -432,10 +431,11 @@ function validar(paqueteKey) {
     errores.push('Tipo de diseño (Mis fotos / Diseño gráfico)');
   }
 
-  // Validar fotos solo si seleccionó "Mis fotos"
+  // Validar fotos solo si seleccionó "Mis fotos" Y tiene las fotos disponibles
   const minFotos = PAQUETES[paqueteKey].minFotos;
   const fotosInput = document.getElementById('fotos');
-  if (!tipoDisenoChecked || tipoDisenoChecked.value === 'fotos') {
+  const tieneFotosDisp = document.querySelector('input[name="tienesFotos"]:checked')?.value !== 'no';
+  if (tieneFotosDisp && (!tipoDisenoChecked || tipoDisenoChecked.value === 'fotos')) {
     if (fotosInput.files.length < minFotos) {
       errores.push(`Fotos (mínimo ${minFotos})`);
     }
@@ -476,11 +476,12 @@ function recopilarDatos(paqueteKey) {
     correo:                 val('correo'),
     tipoEvento:             val('tipoEvento'),
     fechaEvento:            val('fechaEvento'),
-    horaEvento:             val('horaEvento'),
     nombresFestejados:      val('nombresFestejados'),
     lugarCeremonia:         document.getElementById('hayCeremonia')?.checked ? val('lugarCeremonia')     : '',
+    horaCeremonia:          document.getElementById('hayCeremonia')?.checked ? val('horaCeremonia')      : '',
     ubicacionCeremonia:     document.getElementById('hayCeremonia')?.checked ? val('ubicacionCeremonia') : '',
     lugarRecepcion:         document.getElementById('hayRecepcion')?.checked  ? val('lugarRecepcion')     : '',
+    horaRecepcion:          document.getElementById('hayRecepcion')?.checked  ? val('horaRecepcion')      : '',
     ubicacionRecepcion:     document.getElementById('hayRecepcion')?.checked  ? val('ubicacionRecepcion') : '',
     whatsappConfirmaciones: document.querySelector('input[name="tipoConfirmacion"]:checked')?.value === 'wsp'
                             ? val('whatsappConfirmaciones') : '',
@@ -648,7 +649,6 @@ function initWizard(paqueteKey) {
     { id: 'q-correo',      titulo: 'Tu correo electrónico',                   paquetes: A },
     { id: 'q-evento',      titulo: '¿Qué tipo de evento es?',                 paquetes: A },
     { id: 'q-fecha',       titulo: '¿Cuándo es el evento?',                   paquetes: A },
-    { id: 'q-hora',        titulo: '¿A qué hora comienza?',                   paquetes: A },
     { id: 'q-festejados',  titulo: '¿Quién o quiénes son los festejados?',    paquetes: A },
     { id: 'q-ubicacion',   titulo: '¿Dónde será el evento?',                  paquetes: A },
     { id: 'q-paleta',      titulo: '¿Qué colores deseas en tu invitación?',   paquetes: A },
@@ -717,10 +717,6 @@ function initWizard(paqueteKey) {
         if (new Date(el.value + 'T00:00:00') < hoy) { errores.push('La fecha no puede ser en el pasado'); marcar('fechaEvento'); }
       }
     }
-    if (id === 'q-hora') {
-      const el = document.getElementById('horaEvento');
-      if (!el?.value) { errores.push('Selecciona la hora del evento'); marcar('horaEvento'); }
-    }
     if (id === 'q-festejados') {
       const el = document.getElementById('nombresFestejados');
       if (!el?.value.trim()) { errores.push('Escribe los nombres de los festejados'); marcar('nombresFestejados'); }
@@ -729,10 +725,14 @@ function initWizard(paqueteKey) {
       if (document.getElementById('hayCeremonia')?.checked) {
         const el = document.getElementById('lugarCeremonia');
         if (!el?.value.trim()) { errores.push('Escribe el lugar de la ceremonia'); marcar('lugarCeremonia'); }
+        const elHora = document.getElementById('horaCeremonia');
+        if (!elHora?.value) { errores.push('Escribe la hora de la ceremonia'); marcar('horaCeremonia'); }
       }
       if (document.getElementById('hayRecepcion')?.checked) {
         const el = document.getElementById('lugarRecepcion');
         if (!el?.value.trim()) { errores.push('Escribe el lugar de la recepción'); marcar('lugarRecepcion'); }
+        const elHora = document.getElementById('horaRecepcion');
+        if (!elHora?.value) { errores.push('Escribe la hora de la recepción'); marcar('horaRecepcion'); }
       }
     }
     if (id === 'q-paleta') {

@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body id="top" class="form-page has-navbar">
 
@@ -99,13 +99,6 @@
           </div>
         </div>
 
-        <!-- Q6: Hora -->
-        <div class="form-step" id="q-hora">
-          <div class="form-group">
-            <input type="time" class="form-control" id="horaEvento" name="horaEvento" required>
-          </div>
-        </div>
-
         <!-- Q7: Festejados -->
         <div class="form-step" id="q-festejados">
           <div class="form-group">
@@ -129,6 +122,10 @@
                      placeholder="Nombre del lugar">
             </div>
             <div class="form-group">
+              <label for="horaCeremonia">Hora de la ceremonia <span class="req">*</span></label>
+              <input type="time" class="form-control" id="horaCeremonia" name="horaCeremonia">
+            </div>
+            <div class="form-group">
               <label for="ubicacionCeremonia">Enlace de ubicación (opcional)</label>
               <input type="url" class="form-control" id="ubicacionCeremonia" name="ubicacionCeremonia"
                      placeholder="https://maps.google.com/...">
@@ -145,6 +142,10 @@
               <label for="lugarRecepcion">Lugar de la recepción <span class="req">*</span></label>
               <input type="text" class="form-control" id="lugarRecepcion" name="lugarRecepcion"
                      placeholder="Nombre del lugar">
+            </div>
+            <div class="form-group">
+              <label for="horaRecepcion">Hora de la recepción <span class="req">*</span></label>
+              <input type="time" class="form-control" id="horaRecepcion" name="horaRecepcion">
             </div>
             <div class="form-group">
               <label for="ubicacionRecepcion">Enlace de ubicación (opcional)</label>
@@ -511,6 +512,6 @@
     <a href="#top" class="fab fab-top" title="Volver arriba">↑</a>
   </div>
 
-  <script src="formulario.js?v=2"></script>
+  <script src="formulario.js?v=4"></script>
 </body>
 </html>
