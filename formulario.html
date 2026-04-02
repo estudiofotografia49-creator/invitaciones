@@ -48,18 +48,9 @@
     <div class="form-card">
       <form id="festaliForm" novalidate>
 
-        <!-- ── Datos del pedido ── -->
-        <div class="form-section-title">Datos del pedido</div>
-
-        <div class="form-group">
-          <label>Fecha de solicitud</label>
-          <input type="text" class="form-control" id="fechaSolicitud" readonly>
-        </div>
-
-        <div class="form-group">
-          <label>Número de folio</label>
-          <input type="text" class="form-control" id="numeroFolio" readonly>
-        </div>
+        <!-- Campos internos — ocultos al cliente, usados por el servidor -->
+        <input type="hidden" id="fechaSolicitud">
+        <input type="hidden" id="numeroFolio">
 
         <!-- ── Contacto ── -->
         <div class="form-section-title">Tus datos de contacto</div>
