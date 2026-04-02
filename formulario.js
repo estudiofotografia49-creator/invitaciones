@@ -638,15 +638,32 @@ function mostrarErrores(errores) {
 // ==================== WIZARD ====================
 
 function initWizard(paqueteKey) {
+  const A = ['essence','smart','premium'];
+  const S = ['smart','premium'];
+  const P = ['premium'];
+
   const todosLosPasos = [
-    { id: 'step-1', titulo: 'Tus datos de contacto',   paquetes: ['essence','smart','premium'] },
-    { id: 'step-2', titulo: 'Sobre el evento',          paquetes: ['essence','smart','premium'] },
-    { id: 'step-3', titulo: 'Ubicaciones',              paquetes: ['essence','smart','premium'] },
-    { id: 'step-4', titulo: 'Detalles del diseño',      paquetes: ['essence','smart','premium'] },
-    { id: 'step-5', titulo: 'Fotos e ideas',            paquetes: ['essence','smart','premium'] },
-    { id: 'step-6', titulo: 'Mensaje especial',         paquetes: ['essence','smart','premium'] },
-    { id: 'step-7', titulo: 'Detalles adicionales',     paquetes: ['smart','premium'] },
-    { id: 'step-8', titulo: 'Música y agenda',          paquetes: ['premium'] },
+    { id: 'q-nombre',      titulo: '¿Cuál es tu nombre?',                    paquetes: A },
+    { id: 'q-whatsapp',    titulo: 'Tu número de WhatsApp',                   paquetes: A },
+    { id: 'q-correo',      titulo: 'Tu correo electrónico',                   paquetes: A },
+    { id: 'q-evento',      titulo: '¿Qué tipo de evento es?',                 paquetes: A },
+    { id: 'q-fecha',       titulo: '¿Cuándo es el evento?',                   paquetes: A },
+    { id: 'q-hora',        titulo: '¿A qué hora comienza?',                   paquetes: A },
+    { id: 'q-festejados',  titulo: '¿Quién o quiénes son los festejados?',    paquetes: A },
+    { id: 'q-ubicacion',   titulo: '¿Dónde será el evento?',                  paquetes: A },
+    { id: 'q-paleta',      titulo: '¿Qué colores deseas en tu invitación?',   paquetes: A },
+    { id: 'q-estilo',      titulo: '¿Qué estilo te gusta?',                   paquetes: A },
+    { id: 'q-diseno',      titulo: '¿Cómo quieres el diseño?',                paquetes: A },
+    { id: 'q-fotos',       titulo: 'Tus fotos',                               paquetes: A },
+    { id: 'q-ideas',       titulo: '¿Tienes ideas de diseño en mente?',       paquetes: A },
+    { id: 'q-enlace',      titulo: 'Nombre para tu enlace personalizado',     paquetes: A },
+    { id: 'q-mensaje',     titulo: 'Mensaje especial para tus invitados',     paquetes: A },
+    { id: 'q-dresscode',   titulo: '¿Hay dress code?',                        paquetes: S },
+    { id: 'q-confirmacion',titulo: '¿Cómo confirmarán asistencia?',           paquetes: S },
+    { id: 'q-asistencia',  titulo: '¿Qué quieres saber de tus invitados?',   paquetes: S },
+    { id: 'q-regalos',     titulo: 'Mesa de regalos',                         paquetes: S },
+    { id: 'q-musica',      titulo: '¿Música de fondo para la invitación?',    paquetes: P },
+    { id: 'q-agenda',      titulo: '¿Incluyes agenda del evento?',            paquetes: P },
   ];
 
   const pasos = todosLosPasos.filter(p => p.paquetes.includes(paqueteKey));
@@ -657,108 +674,106 @@ function initWizard(paqueteKey) {
     actual = n;
     document.getElementById(pasos[n].id).style.display = 'block';
     document.getElementById('wizardStepTitle').textContent = pasos[n].titulo;
-    actualizarProgreso();
-    const btnAnt = document.getElementById('btnAnterior');
-    const btnSig = document.getElementById('btnSiguiente');
-    const btnEnv = document.getElementById('btnEnviar');
-    btnAnt.style.display = n === 0 ? 'none' : '';
-    btnSig.style.display = n < pasos.length - 1 ? '' : 'none';
-    btnEnv.style.display = n === pasos.length - 1 ? '' : 'none';
+    // Progreso
+    const pct = Math.round(((n + 1) / pasos.length) * 100);
+    document.getElementById('wizardProgressBar').style.width = pct + '%';
+    document.getElementById('wizardStepCounter').textContent = `Paso ${n + 1} de ${pasos.length}`;
+    // Botones
+    document.getElementById('btnAnterior').style.display = n === 0 ? 'none' : '';
+    document.getElementById('btnSiguiente').style.display = n < pasos.length - 1 ? '' : 'none';
+    document.getElementById('btnEnviar').style.display    = n === pasos.length - 1 ? '' : 'none';
     document.getElementById('formWrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  function actualizarProgreso() {
-    document.getElementById('wizardProgress').innerHTML = pasos.map((p, i) =>
-      `<div class="wizard-dot ${i < actual ? 'done' : i === actual ? 'active' : ''}"></div>`
-    ).join('');
-  }
-
   function validarPasoActual() {
-    const stepId = pasos[actual].id;
+    const id      = pasos[actual].id;
     const errores = [];
-    const marcar  = id => { document.getElementById(id)?.classList.add('error'); };
+    const marcar  = fieldId => document.getElementById(fieldId)?.classList.add('error');
 
-    if (stepId === 'step-1') {
-      ['nombreCompleto','whatsapp','correo'].forEach(id => {
-        const el = document.getElementById(id);
-        if (!el?.value.trim()) { errores.push(id === 'nombreCompleto' ? 'Nombre completo' : id === 'whatsapp' ? 'WhatsApp' : 'Correo'); marcar(id); }
-      });
-      const correoEl = document.getElementById('correo');
-      if (correoEl?.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correoEl.value.trim())) {
-        errores.push('Correo (formato inválido)'); marcar('correo');
-      }
-      const wspVal = (document.getElementById('whatsapp')?.value || '').replace(/\s/g,'');
-      if (wspVal && !/^\+?\d{7,15}$/.test(wspVal)) {
-        errores.push('WhatsApp (formato inválido, ej: +52 686 000 0000)'); marcar('whatsapp');
-      }
+    if (id === 'q-nombre') {
+      const el = document.getElementById('nombreCompleto');
+      if (!el?.value.trim()) { errores.push('Escribe tu nombre completo'); marcar('nombreCompleto'); }
     }
-
-    if (stepId === 'step-2') {
-      ['tipoEvento','fechaEvento','horaEvento','nombresFestejados'].forEach(id => {
-        const el = document.getElementById(id);
-        if (!el?.value.trim()) { errores.push(el?.labels?.[0]?.textContent?.replace('*','').trim() || id); marcar(id); }
-      });
-      const fechaEl = document.getElementById('fechaEvento');
-      if (fechaEl?.value) {
+    if (id === 'q-whatsapp') {
+      const el  = document.getElementById('whatsapp');
+      const val = (el?.value || '').replace(/\s/g,'');
+      if (!val) { errores.push('Escribe tu WhatsApp'); marcar('whatsapp'); }
+      else if (!/^\+?\d{7,15}$/.test(val)) { errores.push('Formato inválido (ej: +52 686 000 0000)'); marcar('whatsapp'); }
+    }
+    if (id === 'q-correo') {
+      const el = document.getElementById('correo');
+      if (!el?.value.trim()) { errores.push('Escribe tu correo'); marcar('correo'); }
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim())) { errores.push('Formato de correo inválido'); marcar('correo'); }
+    }
+    if (id === 'q-evento') {
+      const el = document.getElementById('tipoEvento');
+      if (!el?.value) { errores.push('Selecciona el tipo de evento'); marcar('tipoEvento'); }
+    }
+    if (id === 'q-fecha') {
+      const el = document.getElementById('fechaEvento');
+      if (!el?.value) { errores.push('Selecciona la fecha del evento'); marcar('fechaEvento'); }
+      else {
         const hoy = new Date(); hoy.setHours(0,0,0,0);
-        if (new Date(fechaEl.value + 'T00:00:00') < hoy) {
-          errores.push('Fecha del evento (no puede ser una fecha pasada)'); marcar('fechaEvento');
-        }
+        if (new Date(el.value + 'T00:00:00') < hoy) { errores.push('La fecha no puede ser en el pasado'); marcar('fechaEvento'); }
       }
     }
-
-    if (stepId === 'step-3') {
+    if (id === 'q-hora') {
+      const el = document.getElementById('horaEvento');
+      if (!el?.value) { errores.push('Selecciona la hora del evento'); marcar('horaEvento'); }
+    }
+    if (id === 'q-festejados') {
+      const el = document.getElementById('nombresFestejados');
+      if (!el?.value.trim()) { errores.push('Escribe los nombres de los festejados'); marcar('nombresFestejados'); }
+    }
+    if (id === 'q-ubicacion') {
       if (document.getElementById('hayCeremonia')?.checked) {
         const el = document.getElementById('lugarCeremonia');
-        if (!el?.value.trim()) { errores.push('Lugar de la ceremonia'); marcar('lugarCeremonia'); }
+        if (!el?.value.trim()) { errores.push('Escribe el lugar de la ceremonia'); marcar('lugarCeremonia'); }
       }
       if (document.getElementById('hayRecepcion')?.checked) {
         const el = document.getElementById('lugarRecepcion');
-        if (!el?.value.trim()) { errores.push('Lugar de la recepción'); marcar('lugarRecepcion'); }
+        if (!el?.value.trim()) { errores.push('Escribe el lugar de la recepción'); marcar('lugarRecepcion'); }
       }
     }
-
-    if (stepId === 'step-4') {
-      ['paletaColores','estiloInvitacion'].forEach(id => {
-        const el = document.getElementById(id);
-        if (!el?.value.trim()) { errores.push(id === 'paletaColores' ? 'Paleta de colores' : 'Estilo de invitación'); marcar(id); }
-      });
-      if (!document.querySelector('input[name="tipoDiseno"]:checked')) {
-        errores.push('Tipo de diseño (Mis fotos / Diseño gráfico)');
-      }
+    if (id === 'q-paleta') {
+      const el = document.getElementById('paletaColores');
+      if (!el?.value.trim()) { errores.push('Describe la paleta de colores'); marcar('paletaColores'); }
     }
-
-    if (stepId === 'step-5') {
-      const tipoDis    = document.querySelector('input[name="tipoDiseno"]:checked');
+    if (id === 'q-estilo') {
+      const el = document.getElementById('estiloInvitacion');
+      if (!el?.value) { errores.push('Selecciona un estilo de invitación'); marcar('estiloInvitacion'); }
+    }
+    if (id === 'q-diseno') {
+      if (!document.querySelector('input[name="tipoDiseno"]:checked')) errores.push('Selecciona el tipo de diseño');
+    }
+    if (id === 'q-fotos') {
       const tieneFotos = document.querySelector('input[name="tienesFotos"]:checked')?.value !== 'no';
+      const tipoDis    = document.querySelector('input[name="tipoDiseno"]:checked');
       const minFotos   = PAQUETES[paqueteKey].minFotos;
       if (tieneFotos && (!tipoDis || tipoDis.value === 'fotos')) {
-        if (document.getElementById('fotos').files.length < minFotos) {
-          errores.push(`Fotos (mínimo ${minFotos})`);
-        }
-      }
-      const tieneIdeas = document.querySelector('input[name="tieneIdeas"]:checked')?.value;
-      if (tieneIdeas === 'tengoIdea' && document.getElementById('referenciaVisual').files.length > 3) {
-        errores.push('Referencias visuales (máximo 3 imágenes)');
+        if (document.getElementById('fotos').files.length < minFotos) errores.push(`Sube al menos ${minFotos} foto${minFotos > 1 ? 's' : ''}`);
       }
       Array.from(document.getElementById('fotos').files || []).forEach(f => {
-        if (!TIPOS_VALIDOS.includes(f.type)) errores.push(`Archivo "${f.name}" no es una imagen válida`);
+        if (!TIPOS_VALIDOS.includes(f.type)) errores.push(`"${f.name}" no es una imagen válida`);
       });
     }
-
-    if (stepId === 'step-7') {
-      const tipoConf = document.querySelector('input[name="tipoConfirmacion"]:checked')?.value;
-      if (!tipoConf) {
-        errores.push('Método de confirmación de asistencia');
-      } else if (tipoConf === 'wsp') {
-        const el = document.getElementById('whatsappConfirmaciones');
-        if (!el?.value.trim()) { errores.push('WhatsApp para confirmaciones'); marcar('whatsappConfirmaciones'); }
-      } else if (tipoConf === 'correo') {
-        const el = document.getElementById('correoConfirmaciones');
-        if (!el?.value.trim()) { errores.push('Correo para confirmaciones'); marcar('correoConfirmaciones'); }
+    if (id === 'q-ideas') {
+      const tieneIdeas = document.querySelector('input[name="tieneIdeas"]:checked')?.value;
+      if (tieneIdeas === 'tengoIdea' && document.getElementById('referenciaVisual').files.length > 3) {
+        errores.push('Máximo 3 imágenes de referencia');
       }
     }
-
+    if (id === 'q-confirmacion') {
+      const tipoConf = document.querySelector('input[name="tipoConfirmacion"]:checked')?.value;
+      if (!tipoConf) { errores.push('Selecciona el método de confirmación'); }
+      else if (tipoConf === 'wsp') {
+        const el = document.getElementById('whatsappConfirmaciones');
+        if (!el?.value.trim()) { errores.push('Escribe el WhatsApp para confirmaciones'); marcar('whatsappConfirmaciones'); }
+      } else if (tipoConf === 'correo') {
+        const el = document.getElementById('correoConfirmaciones');
+        if (!el?.value.trim()) { errores.push('Escribe el correo para confirmaciones'); marcar('correoConfirmaciones'); }
+      }
+    }
     return errores;
   }
 

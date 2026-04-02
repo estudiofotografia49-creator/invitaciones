@@ -42,7 +42,8 @@
     <h2 class="form-titulo">Cuéntanos sobre tu evento</h2>
 
     <!-- Progreso -->
-    <div class="wizard-progress" id="wizardProgress"></div>
+    <div class="wizard-progress"><div class="wizard-progress-bar" id="wizardProgressBar"></div></div>
+    <div class="wizard-step-counter" id="wizardStepCounter"></div>
     <div class="wizard-step-title" id="wizardStepTitle"></div>
 
     <div class="form-card">
@@ -52,29 +53,33 @@
         <input type="hidden" id="fechaSolicitud">
         <input type="hidden" id="numeroFolio">
 
-        <!-- ── Paso 1: Contacto ── -->
-        <div class="form-step" id="step-1">
+        <!-- Q1: Nombre -->
+        <div class="form-step" id="q-nombre">
           <div class="form-group">
-            <label for="nombreCompleto">Nombre completo <span class="req">*</span></label>
             <input type="text" class="form-control" id="nombreCompleto" name="nombreCompleto"
                    placeholder="Tu nombre completo" required>
           </div>
+        </div>
+
+        <!-- Q2: WhatsApp -->
+        <div class="form-step" id="q-whatsapp">
           <div class="form-group">
-            <label for="whatsapp">WhatsApp (con código de país) <span class="req">*</span></label>
             <input type="tel" class="form-control" id="whatsapp" name="whatsapp"
                    placeholder="+52 686 000 0000" maxlength="15" required>
           </div>
+        </div>
+
+        <!-- Q3: Correo -->
+        <div class="form-step" id="q-correo">
           <div class="form-group">
-            <label for="correo">Correo electrónico <span class="req">*</span></label>
             <input type="email" class="form-control" id="correo" name="correo"
                    placeholder="ejemplo@correo.com" required>
           </div>
         </div>
 
-        <!-- ── Paso 2: Evento ── -->
-        <div class="form-step" id="step-2">
+        <!-- Q4: Tipo de evento -->
+        <div class="form-step" id="q-evento">
           <div class="form-group">
-            <label for="tipoEvento">Tipo de evento <span class="req">*</span></label>
             <select class="form-control" id="tipoEvento" name="tipoEvento" required>
               <option value="">— Selecciona —</option>
               <option value="Boda">Boda</option>
@@ -85,23 +90,32 @@
               <option value="Otro">Otro</option>
             </select>
           </div>
+        </div>
+
+        <!-- Q5: Fecha -->
+        <div class="form-step" id="q-fecha">
           <div class="form-group">
-            <label for="fechaEvento">Fecha del evento <span class="req">*</span></label>
             <input type="date" class="form-control" id="fechaEvento" name="fechaEvento" required>
           </div>
+        </div>
+
+        <!-- Q6: Hora -->
+        <div class="form-step" id="q-hora">
           <div class="form-group">
-            <label for="horaEvento">Hora del evento <span class="req">*</span></label>
             <input type="time" class="form-control" id="horaEvento" name="horaEvento" required>
           </div>
+        </div>
+
+        <!-- Q7: Festejados -->
+        <div class="form-step" id="q-festejados">
           <div class="form-group">
-            <label for="nombresFestejados">Nombres de los festejados <span class="req">*</span></label>
             <input type="text" class="form-control" id="nombresFestejados" name="nombresFestejados"
                    placeholder="Ej: Ana y Luis" required>
           </div>
         </div>
 
-        <!-- ── Paso 3: Ubicaciones ── -->
-        <div class="form-step" id="step-3">
+        <!-- Q8: Ubicaciones -->
+        <div class="form-step" id="q-ubicacion">
           <div class="form-group">
             <label class="checkbox-option">
               <input type="checkbox" id="hayCeremonia" name="hayCeremonia">
@@ -115,7 +129,7 @@
                      placeholder="Nombre del lugar">
             </div>
             <div class="form-group">
-              <label for="ubicacionCeremonia">Enlace de ubicación — Ceremonia</label>
+              <label for="ubicacionCeremonia">Enlace de ubicación (opcional)</label>
               <input type="url" class="form-control" id="ubicacionCeremonia" name="ubicacionCeremonia"
                      placeholder="https://maps.google.com/...">
             </div>
@@ -133,22 +147,24 @@
                      placeholder="Nombre del lugar">
             </div>
             <div class="form-group">
-              <label for="ubicacionRecepcion">Enlace de ubicación — Recepción</label>
+              <label for="ubicacionRecepcion">Enlace de ubicación (opcional)</label>
               <input type="url" class="form-control" id="ubicacionRecepcion" name="ubicacionRecepcion"
                      placeholder="https://maps.google.com/...">
             </div>
           </div>
         </div>
 
-        <!-- ── Paso 4: Diseño ── -->
-        <div class="form-step" id="step-4">
+        <!-- Q9: Paleta de colores -->
+        <div class="form-step" id="q-paleta">
           <div class="form-group">
-            <label for="paletaColores">Paleta de colores deseada <span class="req">*</span></label>
             <textarea class="form-control" id="paletaColores" name="paletaColores"
                       placeholder="Describe los colores que deseas para tu invitación..." required></textarea>
           </div>
+        </div>
+
+        <!-- Q10: Estilo -->
+        <div class="form-step" id="q-estilo">
           <div class="form-group">
-            <label for="estiloInvitacion">Estilo de invitación <span class="req">*</span></label>
             <select class="form-control" id="estiloInvitacion" name="estiloInvitacion" required>
               <option value="">— Selecciona un estilo —</option>
               <option value="Elegante y Clásico">Elegante y Clásico</option>
@@ -157,8 +173,11 @@
               <option value="Temático (Infantil/Fiesta)">Temático (Infantil/Fiesta)</option>
             </select>
           </div>
+        </div>
+
+        <!-- Q11: Tipo de diseño -->
+        <div class="form-step" id="q-diseno">
           <div class="form-group">
-            <label>¿Cómo quieres las fotos de tu invitación? <span class="req">*</span></label>
             <div class="radio-group">
               <label class="radio-option">
                 <input type="radio" name="tipoDiseno" value="fotos" id="tipoDisenoFotos">
@@ -172,19 +191,11 @@
               </label>
             </div>
           </div>
-          <div class="form-group">
-            <label for="nombreEnlace">Nombre deseado para el enlace</label>
-            <input type="text" class="form-control" id="nombreEnlace" name="nombreEnlace"
-                   placeholder="boda-ana-y-luis">
-            <p class="form-hint">Solo letras minúsculas, números y guiones.</p>
-            <span id="previewEnlace" style="display:none"></span>
-          </div>
         </div>
 
-        <!-- ── Paso 5: Fotos e ideas ── -->
-        <div class="form-step" id="step-5">
+        <!-- Q12: Fotos -->
+        <div class="form-step" id="q-fotos">
           <div class="form-group" id="grupoFotos">
-            <label>Subir fotos <span class="req">*</span></label>
             <div class="radio-group" style="margin-bottom:12px">
               <label class="radio-option">
                 <input type="radio" name="tienesFotos" value="si" id="fotosDisponibles" checked>
@@ -207,8 +218,11 @@
               <p class="form-hint" id="fotosSeleccionadas">Ninguna foto seleccionada</p>
             </div>
           </div>
+        </div>
+
+        <!-- Q13: Ideas -->
+        <div class="form-step" id="q-ideas">
           <div class="form-group">
-            <label>¿Tienes una idea de diseño en mente?</label>
             <div class="radio-group">
               <label class="radio-option">
                 <input type="radio" name="tieneIdeas" value="festali" id="ideasFestali" checked>
@@ -224,12 +238,11 @@
           </div>
           <div id="grupoIdeas" style="display:none">
             <div class="form-group">
-              <label for="ideasExtra">¿Tienes algo específico en mente?</label>
               <textarea class="form-control" id="ideasExtra" name="ideasExtra"
                         placeholder="Describe detalles, colores, elementos que quieras incluir..."></textarea>
             </div>
             <div class="form-group">
-              <label>Sube tus referencias (Pinterest, screenshots, ideas)</label>
+              <label>Sube tus referencias (máximo 3 imágenes)</label>
               <label class="file-label" for="referenciaVisual">
                 <span class="file-icon">🖼️</span>
                 <span class="file-texto">Haz clic para seleccionar referencias</span>
@@ -241,39 +254,47 @@
           </div>
         </div>
 
-        <!-- ── Paso 6: Mensaje ── -->
-        <div class="form-step" id="step-6">
+        <!-- Q14: Enlace -->
+        <div class="form-step" id="q-enlace">
           <div class="form-group">
-            <label>Mensaje especial para invitados</label>
+            <input type="text" class="form-control" id="nombreEnlace" name="nombreEnlace"
+                   placeholder="boda-ana-y-luis">
+            <p class="form-hint">Solo letras minúsculas, números y guiones.</p>
+            <span id="previewEnlace" style="display:none"></span>
+          </div>
+        </div>
+
+        <!-- Q15: Mensaje -->
+        <div class="form-step" id="q-mensaje">
+          <div class="form-group">
             <div class="radio-group">
               <div>
                 <label class="radio-option">
                   <input type="radio" name="tipoMensaje" value="propio" id="mensajePropio">
-                  <span class="radio-label">✍️ ¡Yo escribo el mensaje!</span>
+                  <span class="radio-label">✍️ Yo escribo el mensaje</span>
                   <small class="radio-desc">Redacta el mensaje para tus invitados</small>
                 </label>
                 <div id="grupoMensajeTexto" style="display:none">
                   <div class="form-group" style="margin-top:10px">
                     <textarea class="form-control" id="mensajeEspecial" name="mensajeEspecial"
-                              placeholder="Un mensaje que deseas compartir con tus invitados..."></textarea>
+                              placeholder="Un mensaje para tus invitados..."></textarea>
                   </div>
                 </div>
               </div>
               <label class="radio-option">
                 <input type="radio" name="tipoMensaje" value="festali" id="mensajeFestali">
-                <span class="radio-label">✨ ¡Que Festali me escriba algo bonito!</span>
+                <span class="radio-label">✨ Que Festali me escriba algo bonito</span>
                 <small class="radio-desc">Nuestro equipo redactará algo especial</small>
               </label>
             </div>
           </div>
         </div>
 
-        <!-- ── Paso 7: Smart Interactive ── -->
-        <div class="form-step" id="step-7">
+        <!-- Q16: Dress code (smart/premium) -->
+        <div class="form-step" id="q-dresscode">
           <div class="form-group">
-            <label for="dressCode">Dress Code</label>
             <input type="text" class="form-control" id="dressCode" name="dressCode"
-                   placeholder="Ej: Formal, Semiformal, Casual, Blanco y dorado...">
+                   placeholder="Ej: Formal, Blanco y dorado, Casual...">
             <div style="margin-top:10px">
               <label class="checkbox-option">
                 <input type="checkbox" id="cbDressCodeImg">
@@ -284,14 +305,17 @@
               <label class="file-label" for="dressCodeImgFile">
                 <span class="file-icon">👗</span>
                 <span class="file-texto">Haz clic para subir ejemplos</span>
-                <span class="file-min">Imágenes de referencia de vestimenta</span>
+                <span class="file-min">Imágenes de referencia</span>
               </label>
               <input type="file" id="dressCodeImgFile" name="dressCodeImgFile" multiple accept="image/*">
               <p class="form-hint" id="dressCodeImgHint">Ninguna imagen seleccionada</p>
             </div>
           </div>
+        </div>
+
+        <!-- Q17: Confirmación de asistencia (smart/premium) -->
+        <div class="form-step" id="q-confirmacion">
           <div class="form-group">
-            <label>Contacto para confirmación de asistencia <span class="req">*</span></label>
             <div class="radio-group">
               <div>
                 <label class="radio-option">
@@ -321,8 +345,11 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- Q18: Datos asistencia (smart/premium) -->
+        <div class="form-step" id="q-asistencia">
           <div class="form-group">
-            <label for="datosAsistencia">¿Qué quieres saber de tus invitados?</label>
             <textarea class="form-control" id="datosAsistencia" name="datosAsistencia"
                       placeholder="Ej: ¿Vas con acompañante? / ¿Tienes alguna alergia?..."></textarea>
             <div style="margin-top:10px">
@@ -332,8 +359,11 @@
               </label>
             </div>
           </div>
+        </div>
+
+        <!-- Q19: Mesa de regalos (smart/premium) -->
+        <div class="form-step" id="q-regalos">
           <div class="form-group">
-            <label>Mesa de regalos (opcional)</label>
             <div class="radio-group">
               <label class="radio-option">
                 <input type="radio" name="tipoRegalos" value="ninguno" id="regalosNinguno" checked>
@@ -351,39 +381,37 @@
           </div>
           <div id="grupoMesaRegalos" style="display:none">
             <div class="form-group">
-              <label for="mesaRegalosLink">Tienda y número de mesa o link</label>
               <input type="text" class="form-control" id="mesaRegalosLink" name="mesaRegalosLink"
                      placeholder="Ej: Liverpool mesa #12345 o https://mesaderegalos...">
             </div>
           </div>
           <div id="grupoTransferencia" style="display:none">
             <div class="form-group">
-              <label for="bancoCuenta">Banco</label>
               <input type="text" class="form-control" id="bancoCuenta" name="bancoCuenta"
-                     placeholder="Ej: BBVA, Banamex, Santander...">
+                     placeholder="Banco (ej: BBVA, Banamex...)">
             </div>
             <div class="form-group">
-              <label for="titularCuenta">Nombre del titular</label>
               <input type="text" class="form-control" id="titularCuenta" name="titularCuenta"
-                     placeholder="Nombre completo del titular">
+                     placeholder="Nombre del titular">
             </div>
             <div class="form-group">
-              <label for="clabeCuenta">CLABE interbancaria</label>
               <input type="text" class="form-control" id="clabeCuenta" name="clabeCuenta"
-                     placeholder="18 dígitos">
+                     placeholder="CLABE interbancaria (18 dígitos)">
             </div>
           </div>
         </div>
 
-        <!-- ── Paso 8: Premium Experience ── -->
-        <div class="form-step" id="step-8">
+        <!-- Q20: Música (premium) -->
+        <div class="form-step" id="q-musica">
           <div class="form-group">
-            <label for="musica">Canción o enlace de música de fondo</label>
             <input type="text" class="form-control" id="musica" name="musica"
                    placeholder="Artista - Canción o enlace de YouTube / Spotify">
           </div>
+        </div>
+
+        <!-- Q21: Agenda (premium) -->
+        <div class="form-step" id="q-agenda">
           <div class="form-group">
-            <label>Agenda del evento</label>
             <div class="radio-group">
               <label class="radio-option">
                 <input type="radio" name="tipoAgenda" value="ninguna" id="agendaOpcionNinguna">
@@ -399,7 +427,7 @@
                 <div id="grupoAgendaTexto" style="display:none">
                   <div class="form-group" style="margin-top:10px">
                     <textarea class="form-control" id="agendaEvento" name="agendaEvento"
-                              placeholder="Ej: 5:00pm Ceremonia / 7:00pm Coctel / 8:00pm Cena y baile..."></textarea>
+                              placeholder="Ej: 5:00pm Ceremonia / 7:00pm Coctel / 8:00pm Cena..."></textarea>
                   </div>
                 </div>
               </div>
@@ -413,8 +441,8 @@
                   <div class="form-group" style="margin-top:10px">
                     <label class="file-label" for="agendaImagenFile">
                       <span class="file-icon">📋</span>
-                      <span class="file-texto">Haz clic para subir la imagen de agenda</span>
-                      <span class="file-min">1 imagen — captura o foto del programa</span>
+                      <span class="file-texto">Haz clic para subir la imagen</span>
+                      <span class="file-min">1 imagen del programa</span>
                     </label>
                     <input type="file" id="agendaImagenFile" name="agendaImagenFile" accept="image/*">
                     <p class="form-hint" id="agendaImgSeleccionada">Ninguna imagen seleccionada</p>
