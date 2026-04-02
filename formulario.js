@@ -168,12 +168,20 @@ function initAcumulador(input, onUpdate) {
 }
 
 function initFileInput(paqueteKey) {
-  const config      = PAQUETES[paqueteKey];
-  const input       = document.getElementById('fotos');
-  const hint        = document.getElementById('fotosHint');
+  const config        = PAQUETES[paqueteKey];
+  const input         = document.getElementById('fotos');
+  const hint          = document.getElementById('fotosHint');
   const seleccionadas = document.getElementById('fotosSeleccionadas');
+  const grupoSubir    = document.getElementById('grupoSubirFotos');
 
   hint.textContent = `Mínimo ${config.minFotos} foto${config.minFotos > 1 ? 's' : ''}`;
+
+  // Toggle mostrar/ocultar el input de fotos según la selección
+  document.querySelectorAll('input[name="tienesFotos"]').forEach(r => {
+    r.addEventListener('change', () => {
+      grupoSubir.style.display = r.value === 'si' ? 'block' : 'none';
+    });
+  });
 
   initAcumulador(input, n => {
     if (n === 0) {
@@ -721,9 +729,10 @@ function initWizard(paqueteKey) {
     }
 
     if (stepId === 'step-5') {
-      const tipoDis = document.querySelector('input[name="tipoDiseno"]:checked');
-      const minFotos = PAQUETES[paqueteKey].minFotos;
-      if (!tipoDis || tipoDis.value === 'fotos') {
+      const tipoDis    = document.querySelector('input[name="tipoDiseno"]:checked');
+      const tieneFotos = document.querySelector('input[name="tienesFotos"]:checked')?.value !== 'no';
+      const minFotos   = PAQUETES[paqueteKey].minFotos;
+      if (tieneFotos && (!tipoDis || tipoDis.value === 'fotos')) {
         if (document.getElementById('fotos').files.length < minFotos) {
           errores.push(`Fotos (mínimo ${minFotos})`);
         }

@@ -185,13 +185,27 @@
         <div class="form-step" id="step-5">
           <div class="form-group" id="grupoFotos">
             <label>Subir fotos <span class="req">*</span></label>
-            <label class="file-label" for="fotos">
-              <span class="file-icon">📸</span>
-              <span class="file-texto">Haz clic para seleccionar tus fotos</span>
-              <span class="file-min" id="fotosHint">Mínimo 3 fotos</span>
-            </label>
-            <input type="file" id="fotos" name="fotos" multiple accept="image/*">
-            <p class="form-hint" id="fotosSeleccionadas">Ninguna foto seleccionada</p>
+            <div class="radio-group" style="margin-bottom:12px">
+              <label class="radio-option">
+                <input type="radio" name="tienesFotos" value="si" id="fotosDisponibles" checked>
+                <span class="radio-label">📸 Tengo mis fotos</span>
+                <small class="radio-desc">Las subo ahora</small>
+              </label>
+              <label class="radio-option">
+                <input type="radio" name="tienesFotos" value="no" id="fotosPendientes">
+                <span class="radio-label">⏳ Aún no las tengo</span>
+                <small class="radio-desc">Las enviaré después por WhatsApp</small>
+              </label>
+            </div>
+            <div id="grupoSubirFotos">
+              <label class="file-label" for="fotos">
+                <span class="file-icon">📸</span>
+                <span class="file-texto">Haz clic para seleccionar tus fotos</span>
+                <span class="file-min" id="fotosHint">Mínimo 3 fotos</span>
+              </label>
+              <input type="file" id="fotos" name="fotos" multiple accept="image/*">
+              <p class="form-hint" id="fotosSeleccionadas">Ninguna foto seleccionada</p>
+            </div>
           </div>
           <div class="form-group">
             <label>¿Tienes una idea de diseño en mente?</label>
