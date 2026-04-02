@@ -570,6 +570,19 @@ function actualizarEstadoPago(folio, nuevoEstado) {
 }
 
 // ============================================================
+// TEST — verificar integración con MercadoPago
+// ============================================================
+
+function testMP() {
+  const resultado = crearPreferenciaMercadoPago('FEST-TEST', 'essence');
+  if (resultado) {
+    Logger.log('✅ MercadoPago OK — init_point: ' + resultado);
+  } else {
+    Logger.log('❌ MercadoPago devolvió null — revisa los logs anteriores');
+  }
+}
+
+// ============================================================
 // TEST — verificar conexión con Sheets
 // ============================================================
 
