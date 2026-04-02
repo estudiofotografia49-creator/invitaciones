@@ -65,9 +65,20 @@ const ENCABEZADOS = [
 // PUNTO DE ENTRADA — POST
 // ============================================================
 
+function logDebug(msg) {
+  try {
+    const ss   = SpreadsheetApp.openById(SPREADSHEET_ID);
+    let hoja   = ss.getSheetByName('Debug');
+    if (!hoja) hoja = ss.insertSheet('Debug');
+    hoja.appendRow([new Date(), msg]);
+  } catch (_) {}
+}
+
 function doPost(e) {
   try {
     const datos = JSON.parse(e.postData.contents);
+
+    logDebug('doPost recibido — folio: ' + datos.folio + ' | paquete: ' + datos.paquete + ' | correo: ' + datos.correo);
 
     // ── Webhook de MercadoPago ──
     // MP envía { type: 'payment', data: { id: '...' } }
@@ -78,9 +89,12 @@ function doPost(e) {
     // ── Formulario de solicitud ──
     const errValidacion = validarPayload(datos);
     if (errValidacion) {
+      logDebug('validarPayload FALLÓ: ' + errValidacion);
       Logger.log('FESTALI doPost — payload rechazado: ' + errValidacion);
       return respuestaError('Solicitud inválida: ' + errValidacion);
     }
+
+    logDebug('validarPayload OK — paquete: ' + datos.paquete);
 
     const folio  = datos.folio || 'FEST-???';
     const nombre = datos.nombresFestejados || datos.nombreCompleto || 'Sin nombre';
