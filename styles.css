@@ -615,7 +615,8 @@ input[type="file"] {
 .radio-option {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 4px 12px;
   padding: 14px 16px;
   border: 1.5px solid #ddd9f0;
   border-radius: 11px;
@@ -636,6 +637,7 @@ input[type="file"] {
   accent-color: var(--morado);
   margin-top: 2px;
   flex-shrink: 0;
+  order: -1;
   cursor: pointer;
 }
 
@@ -650,6 +652,8 @@ input[type="file"] {
   font-weight: 600;
   color: #333;
   display: block;
+  flex: 1;
+  min-width: 0;
 }
 
 .radio-desc {
@@ -657,7 +661,9 @@ input[type="file"] {
   font-size: 0.76rem;
   color: #999;
   display: block;
-  margin-top: 2px;
+  flex-basis: 100%;
+  padding-left: 30px;
+  margin-top: 0;
 }
 
 /* ==================== CHECKBOX TOGGLE ==================== */
@@ -689,6 +695,7 @@ input[type="file"] {
   height: 18px;
   accent-color: var(--morado);
   flex-shrink: 0;
+  order: -1;
   cursor: pointer;
 }
 
