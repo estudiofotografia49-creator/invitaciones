@@ -484,6 +484,7 @@ function crearPreferenciaMercadoPago(folio, paquete) {
 
   } catch (err) {
     Logger.log('❌ Error creando preferencia MP: ' + err.message);
+    Logger.log('❌ Respuesta HTTP: ' + (err.response ? err.response.getContentText() : 'sin respuesta'));
     return null;
   }
 }
