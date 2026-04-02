@@ -177,6 +177,7 @@ function validarPayload(d) {
     }
   }
 
+  Logger.log('FESTALI validarPayload OK — paquete recibido: ' + d.paquete + ' | paqueteLower: ' + paqueteLower);
   return null;
 }
 
@@ -386,6 +387,7 @@ function escribirFila(hoja, d, linksFotos, urlCarpeta, linksRefs, linksAgenda, l
     Utilities.formatDate(ahora, Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm:ss')  // 37
   ];
 
+  Logger.log('FESTALI escribirFila — estado que se escribirá: Pendiente de Pago | paquete: ' + d.paquete);
   hoja.appendRow(fila);
 
   // ── Colorear fila según paquete ──
