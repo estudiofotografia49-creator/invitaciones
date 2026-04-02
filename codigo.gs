@@ -16,10 +16,12 @@
 // SPREADSHEET_ID se lee desde Propiedades del script (Apps Script → Configuración → Propiedades).
 // Para configurar: PropertiesService.getScriptProperties().setProperty('SPREADSHEET_ID', 'TU_ID')
 // El fallback permite seguir funcionando en instancias ya desplegadas.
-const SPREADSHEET_ID = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID')
-                       || '1UntGGT4Nt3YiSU9V_esnH_8jc9eFpHMwebCpf6Bm2UQ';
+const SPREADSHEET_ID = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID');
 const CARPETA_RAIZ   = 'Festali Clientes';
 const NOMBRE_HOJA    = 'Solicitudes';
+
+// Tipos MIME permitidos para archivos subidos
+const MIME_PERMITIDOS = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif'];
 
 const ENCABEZADOS = [
   'Folio',                        // 1
@@ -65,38 +67,42 @@ const ENCABEZADOS = [
 // PUNTO DE ENTRADA — POST
 // ============================================================
 
-function logDebug(msg) {
-  try {
-    const ss   = SpreadsheetApp.openById(SPREADSHEET_ID);
-    let hoja   = ss.getSheetByName('Debug');
-    if (!hoja) hoja = ss.insertSheet('Debug');
-    hoja.appendRow([new Date(), msg]);
-  } catch (_) {}
+// Rate limiting — máximo 15 envíos por minuto globalmente
+function checkRateLimit() {
+  const cache = CacheService.getScriptCache();
+  const key   = 'rl_' + Math.floor(Date.now() / 60000);
+  const n     = parseInt(cache.get(key) || '0');
+  if (n >= 15) return false;
+  cache.put(key, String(n + 1), 90);
+  return true;
 }
 
 function doPost(e) {
   try {
-    logDebug('doPost iniciado — raw: ' + (e.postData ? e.postData.contents.substring(0, 300) : 'SIN BODY'));
+    if (!SPREADSHEET_ID) return respuestaError('SPREADSHEET_ID no configurado');
 
     const datos = JSON.parse(e.postData.contents);
 
-    logDebug('doPost parseado — folio: ' + datos.folio + ' | paquete: ' + datos.paquete + ' | correo: ' + datos.correo);
-
     // ── Webhook de MercadoPago ──
-    // MP envía { type: 'payment', data: { id: '...' } }
     if (datos.type === 'payment' && datos.data && datos.data.id) {
       return procesarWebhookMP(datos);
+    }
+
+    // ── Rate limiting ──
+    if (!checkRateLimit()) return respuestaError('Demasiadas solicitudes, intenta en un momento');
+
+    // ── Verificar token de acceso ──
+    const tokenEsperado = PropertiesService.getScriptProperties().getProperty('FESTALI_TOKEN');
+    if (tokenEsperado && datos.token !== tokenEsperado) {
+      return respuestaError('No autorizado');
     }
 
     // ── Formulario de solicitud ──
     const errValidacion = validarPayload(datos);
     if (errValidacion) {
-      logDebug('validarPayload FALLÓ: ' + errValidacion);
       Logger.log('FESTALI doPost — payload rechazado: ' + errValidacion);
       return respuestaError('Solicitud inválida: ' + errValidacion);
     }
-
-    logDebug('validarPayload OK — paquete: ' + datos.paquete);
 
     const folio  = datos.folio || 'FEST-???';
     const nombre = datos.nombresFestejados || datos.nombreCompleto || 'Sin nombre';
@@ -170,6 +176,9 @@ function validarPayload(d) {
     if (!d[campo] || String(d[campo]).trim() === '') return 'Campo requerido faltante: ' + campo;
   }
 
+  // Formato de folio — debe ser FEST-NNN
+  if (!/^FEST-\d{3,}$/.test(d.folio)) return 'Formato de folio inválido: ' + d.folio;
+
   // Formato básico de correo
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.correo)) return 'Correo con formato inválido';
 
@@ -193,7 +202,6 @@ function validarPayload(d) {
     }
   }
 
-  Logger.log('FESTALI validarPayload OK — paquete recibido: ' + d.paquete + ' | paqueteLower: ' + paqueteLower);
   return null;
 }
 
@@ -238,6 +246,11 @@ function guardarFotos(fotos, carpeta) {
 
   fotos.forEach(function(foto, i) {
     try {
+      if (!MIME_PERMITIDOS.includes(foto.mimeType)) {
+        Logger.log('Archivo rechazado — MIME no permitido: ' + foto.mimeType);
+        links.push('Archivo rechazado');
+        return;
+      }
       const bytes = Utilities.base64Decode(foto.data);
       const blob  = Utilities.newBlob(bytes, foto.mimeType, foto.nombre || ('archivo_' + (i + 1)));
       const file  = carpeta.createFile(blob);
@@ -403,7 +416,6 @@ function escribirFila(hoja, d, linksFotos, urlCarpeta, linksRefs, linksAgenda, l
     Utilities.formatDate(ahora, Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm:ss')  // 37
   ];
 
-  Logger.log('FESTALI escribirFila — estado que se escribirá: Pendiente de Pago | paquete: ' + d.paquete);
   hoja.appendRow(fila);
 
   // ── Colorear fila según paquete ──
@@ -541,8 +553,8 @@ function procesarWebhookMP(datos) {
 
     Logger.log('Webhook MP — folio: ' + folio + ' | status: ' + status);
 
-    if (!folio) {
-      Logger.log('⚠️ Webhook MP sin external_reference — se ignora');
+    if (!folio || !/^FEST-\d{3,}$/.test(folio)) {
+      Logger.log('⚠️ Webhook MP con external_reference inválido — se ignora: ' + folio);
       return respuestaOk({ recibido: true });
     }
 

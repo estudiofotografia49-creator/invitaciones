@@ -8,6 +8,12 @@
 // En modo vacío, los datos se imprimen en consola y se simula éxito.
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxBd2IZg9ZLnfjdgzgdM_3xHe0TOL_qPxmiXH5SXXCAN1qMb5ADGf2B6zSRShsPebHB/exec';
 
+// Token de acceso — debe coincidir con FESTALI_TOKEN en Script Properties de Apps Script
+const FESTALI_TOKEN = 'festali-2026-xK9mP';
+
+// Tipos de archivo permitidos para subir
+const TIPOS_VALIDOS = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif'];
+
 // ==================== CONFIGURACIÓN DE PAQUETES ====================
 
 const PAQUETES = {
@@ -389,6 +395,17 @@ function validar(paqueteKey) {
     errores.push('Referencias visuales (máximo 3 imágenes)');
   }
 
+  // Validar que el folio esté listo y tenga formato correcto
+  const folioVal = document.getElementById('numeroFolio')?.value || '';
+  if (!folioVal || folioVal === 'Cargando...' || !/^FEST-\d+$/.test(folioVal)) {
+    errores.push('El folio no está listo, espera un momento y recarga la página');
+  }
+
+  // Validar tipos de archivo en fotos
+  Array.from(document.getElementById('fotos').files || []).forEach(f => {
+    if (!TIPOS_VALIDOS.includes(f.type)) errores.push(`Archivo "${f.name}" no es una imagen válida (usa JPG, PNG o WEBP)`);
+  });
+
   return errores;
 }
 
@@ -421,6 +438,7 @@ function recopilarDatos(paqueteKey) {
     estiloInvitacion:       val('estiloInvitacion'),
     ideasExtra:             document.querySelector('input[name="tieneIdeas"]:checked')?.value === 'tengoIdea' ? val('ideasExtra') : '',
     nombreEnlace:           val('nombreEnlace'),
+    token:                  FESTALI_TOKEN,
   };
 
   const extras = PAQUETES[paqueteKey].extras;
@@ -493,9 +511,6 @@ async function enviar(datos, archivos, referencias, agendaImg, dressCodeImgs) {
 
   // ── MODO PRODUCCIÓN ── Enviar JSON a Google Apps Script
   // Content-Type: text/plain evita el preflight CORS que bloquea Apps Script.
-  console.log('datos a enviar:', JSON.stringify(datos));
-  console.log('📦 FESTALI — payload (sin imágenes):', JSON.stringify(Object.assign({}, payload, { fotos: payload.fotos?.length + ' foto(s)', referencias: payload.referencias?.length + ' ref(s)', agendaImagenes: payload.agendaImagenes?.length + ' agenda', dressCodeImagenes: payload.dressCodeImagenes?.length + ' dressCode' })));
-  console.log('📤 FESTALI — fetch a:', SCRIPT_URL);
   console.log(`📎 Archivos: ${fotosBase64.length} foto(s), ${refsBase64.length} ref(s), ${agendaBase64.length} agenda, ${dressCodeBase64.length} dressCode`);
 
   let resultado;
