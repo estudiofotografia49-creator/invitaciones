@@ -278,7 +278,11 @@
     <div class="nav-links">
       <a href="index.html" class="nav-link" id="navInicio">Inicio</a>
       <a href="paquetes.html" class="nav-link" id="navInvitaciones">Invitaciones</a>
-      <button class="lang-toggle" id="langToggle" onclick="toggleLangPaquetes()">🇺🇸 EN</button>
+      <div class="lang-switch">
+        <span class="lang-flag" id="flagES" onclick="toggleLangPaquetes('es')" title="Español">🇲🇽</span>
+        <div class="lang-div"></div>
+        <span class="lang-flag" id="flagEN" onclick="toggleLangPaquetes('en')" title="English">🇺🇸</span>
+      </div>
     </div>
   </nav>
 
@@ -426,7 +430,7 @@
         feat_dress_visual: 'Dress code visual',
         feat_3meses: 'Activo 3 meses',
         btn_contratar: '¡Crear mi invitación con un profesional!',
-        lang_btn: '🇺🇸 EN', currency: 'MXN'
+        currency: 'MXN'
       },
       en: {
         navInicio: 'Home', navInvitaciones: 'Invitations',
@@ -454,7 +458,7 @@
         feat_dress_visual: 'Visual dress code',
         feat_3meses: 'Active for 3 months',
         btn_contratar: 'Create my invitation with a professional!',
-        lang_btn: '🇲🇽 ES', currency: 'USD'
+        currency: 'USD'
       }
     };
 
@@ -468,13 +472,17 @@
       var lang = getPaqLang();
       var T = PAQ_T[lang];
 
+      // Banderas activas
+      var fES = document.getElementById('flagES');
+      var fEN = document.getElementById('flagEN');
+      if (fES) fES.classList.toggle('active-flag', lang === 'es');
+      if (fEN) fEN.classList.toggle('active-flag', lang === 'en');
+
       // Navbar
       var ni = document.getElementById('navInicio');
       var nv = document.getElementById('navInvitaciones');
-      var tb = document.getElementById('langToggle');
       if (ni) ni.textContent = T.navInicio;
       if (nv) nv.textContent = T.navInvitaciones;
-      if (tb) tb.textContent = T.lang_btn;
 
       // Títulos sección
       var pt = document.getElementById('paqTitulo');
@@ -503,10 +511,8 @@
       });
     }
 
-    function toggleLangPaquetes() {
-      var current = getPaqLang();
-      var next    = current === 'es' ? 'en' : 'es';
-      localStorage.setItem('festali_lang', next);
+    function toggleLangPaquetes(lang) {
+      localStorage.setItem('festali_lang', lang);
       applyPaqLang();
     }
 

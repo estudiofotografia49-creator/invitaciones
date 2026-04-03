@@ -1169,33 +1169,48 @@ body.form-page .navbar {
   align-items: center;
 }
 
-/* ==================== LANG TOGGLE ==================== */
-.lang-toggle {
-  background: transparent;
-  border: 1.5px solid rgba(255,255,255,0.55);
-  color: #fff;
-  border-radius: 20px;
-  padding: 5px 13px;
-  font-size: 0.78rem;
-  font-weight: 700;
+/* ==================== LANG SWITCH ==================== */
+.lang-switch {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.lang-flag {
+  font-size: 1.2rem;
+  opacity: 0.28;
+  transition: opacity 0.2s, transform 0.15s;
   cursor: pointer;
-  font-family: 'Montserrat', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-  transition: all 0.2s;
-  letter-spacing: 0.04em;
+  user-select: none;
   line-height: 1;
+  background: none;
+  border: none;
+  padding: 0;
 }
 
-.lang-toggle:hover {
-  background: rgba(255,255,255,0.18);
+.lang-flag.active-flag {
+  opacity: 1;
 }
 
-body.form-page .lang-toggle {
-  border-color: rgba(75,68,149,0.4);
-  color: var(--morado);
+.lang-flag:hover {
+  opacity: 0.75;
+  transform: scale(1.18);
 }
 
-body.form-page .lang-toggle:hover {
-  background: rgba(75,68,149,0.08);
+.lang-flag.active-flag:hover {
+  opacity: 1;
+  transform: scale(1.08);
+}
+
+.lang-div {
+  width: 1px;
+  height: 13px;
+  background: rgba(255,255,255,0.28);
+  flex-shrink: 0;
+}
+
+body.form-page .lang-div {
+  background: rgba(75,68,149,0.22);
 }
 
 .nav-link {

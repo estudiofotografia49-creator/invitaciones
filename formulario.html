@@ -19,7 +19,11 @@
     <div class="nav-links">
       <a href="index.html" class="nav-link" id="navInicio">Inicio</a>
       <a href="paquetes.html" class="nav-link" id="navInvitaciones">Invitaciones</a>
-      <button class="lang-toggle" id="langToggle" onclick="toggleLang()">🇺🇸 EN</button>
+      <div class="lang-switch">
+        <span class="lang-flag" id="flagES" onclick="setLangAndApply('es')" title="Español">🇲🇽</span>
+        <div class="lang-div"></div>
+        <span class="lang-flag" id="flagEN" onclick="setLangAndApply('en')" title="English">🇺🇸</span>
+      </div>
     </div>
   </nav>
 

@@ -14,7 +14,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Montserrat', sans-serif;
+      font-family: 'Montserrat', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
       background: #ffffff;
       min-height: 100vh;
       display: flex;
@@ -68,7 +68,7 @@
     }
 
     .home-slogan {
-      font-family: 'Playfair Display', serif;
+      font-family: 'Playfair Display', Georgia, serif;
       font-style: italic;
       font-size: clamp(1.3rem, 4vw, 2rem);
       color: #4b4495;
@@ -82,7 +82,7 @@
       display: inline-block;
       background: linear-gradient(135deg, #e72268 0%, #c01755 100%);
       color: #fff;
-      font-family: 'Montserrat', sans-serif;
+      font-family: 'Montserrat', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
       font-size: 1.05rem;
       font-weight: 700;
       letter-spacing: 0.06em;
@@ -124,11 +124,11 @@
       -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid rgba(231,34,104,0.1);
     }
-    .nav-links { display: flex; gap: 36px; }
+    .nav-links { display: flex; gap: 36px; align-items: center; }
     .nav-link {
       color: #e72268;
       text-decoration: none;
-      font-family: 'Montserrat', sans-serif;
+      font-family: 'Montserrat', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
       font-size: 0.82rem;
       font-weight: 700;
       letter-spacing: 0.06em;
@@ -136,6 +136,12 @@
       transition: color 0.2s, opacity 0.2s;
     }
     .nav-link:hover { color: #c01755; opacity: 0.85; }
+    .lang-switch { display:flex; align-items:center; gap:5px; }
+    .lang-flag { font-size:1.2rem; opacity:0.28; transition:opacity .2s,transform .15s; cursor:pointer; user-select:none; line-height:1; background:none; border:none; padding:0; }
+    .lang-flag.active-flag { opacity:1; }
+    .lang-flag:hover { opacity:0.75; transform:scale(1.18); }
+    .lang-flag.active-flag:hover { opacity:1; transform:scale(1.08); }
+    .lang-div { width:1px; height:13px; background:rgba(75,68,149,0.22); flex-shrink:0; }
 
     /* FAB stack */
     .fab-stack {
@@ -169,8 +175,13 @@
   <!-- ==================== NAVBAR ==================== -->
   <nav class="navbar">
     <div class="nav-links">
-      <a href="index.html" class="nav-link">Inicio</a>
-      <a href="paquetes.html" class="nav-link">Invitaciones</a>
+      <a href="index.html" class="nav-link" id="navInicio">Inicio</a>
+      <a href="paquetes.html" class="nav-link" id="navInvitaciones">Invitaciones</a>
+      <div class="lang-switch">
+        <span class="lang-flag" id="flagES" onclick="setLangIndex('es')" title="Español">🇲🇽</span>
+        <div class="lang-div"></div>
+        <span class="lang-flag" id="flagEN" onclick="setLangIndex('en')" title="English">🇺🇸</span>
+      </div>
     </div>
   </nav>
 
@@ -187,5 +198,37 @@
     <a href="mailto:festaliconecta@gmail.com" class="fab fab-email" title="Email">✉</a>
   </div>
 
+  <script>
+    var IDX_T = {
+      es: { navInicio:'Inicio', navInv:'Invitaciones', slogan:'Conecta tus mejores momentos', btn:'Invitaciones Digitales' },
+      en: { navInicio:'Home',   navInv:'Invitations',  slogan:'Connect your best moments',    btn:'Digital Invitations'   }
+    };
+    function getIndexLang() {
+      var s = localStorage.getItem('festali_lang');
+      if (s === 'en' || s === 'es') return s;
+      return navigator.language.startsWith('en') ? 'en' : 'es';
+    }
+    function applyIndexLang() {
+      var lang = getIndexLang();
+      var T = IDX_T[lang];
+      var ni = document.getElementById('navInicio');
+      var nv = document.getElementById('navInvitaciones');
+      var sl = document.querySelector('.home-slogan');
+      var bt = document.querySelector('.btn-home');
+      var fES = document.getElementById('flagES');
+      var fEN = document.getElementById('flagEN');
+      if (ni) ni.textContent = T.navInicio;
+      if (nv) nv.textContent = T.navInv;
+      if (sl) sl.textContent = T.slogan;
+      if (bt) bt.textContent = T.btn;
+      if (fES) fES.classList.toggle('active-flag', lang === 'es');
+      if (fEN) fEN.classList.toggle('active-flag', lang === 'en');
+    }
+    function setLangIndex(lang) {
+      localStorage.setItem('festali_lang', lang);
+      applyIndexLang();
+    }
+    document.addEventListener('DOMContentLoaded', applyIndexLang);
+  </script>
 </body>
 </html>

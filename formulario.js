@@ -177,10 +177,13 @@ function t(key) {
     : (TRANSLATIONS['es'][key] !== undefined ? TRANSLATIONS['es'][key] : key);
 }
 
-function toggleLang() {
-  var next = getLang() === 'es' ? 'en' : 'es';
-  localStorage.setItem('festali_lang', next);
+function setLangAndApply(lang) {
+  localStorage.setItem('festali_lang', lang);
   applyLang();
+}
+
+function toggleLang() {
+  setLangAndApply(getLang() === 'es' ? 'en' : 'es');
 }
 
 function _setText(id, text) { var el = document.getElementById(id); if (el) el.textContent = text; }
@@ -209,8 +212,14 @@ function _setCBSpan(inputId, textKey) {
 }
 
 function applyLang() {
-  // Toggle btn + nav
-  _setText('langToggle', t('lang_btn'));
+  // Banderas activas
+  var lang = getLang();
+  var fES  = document.getElementById('flagES');
+  var fEN  = document.getElementById('flagEN');
+  if (fES) fES.classList.toggle('active-flag', lang === 'es');
+  if (fEN) fEN.classList.toggle('active-flag', lang === 'en');
+
+  // Nav links
   _setText('navInicio', t('nav_inicio'));
   _setText('navInvitaciones', t('nav_inv'));
 
