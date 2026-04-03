@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=5">
+  <link rel="stylesheet" href="styles.css?v=6">
 
   <style>
     /* ── Cocogoose Pro ── */
@@ -292,8 +292,8 @@
   <!-- ==================== HERO ==================== -->
   <section class="hero">
     <img src="logotipo.png" alt="FESTALI" class="hero-logo">
-    <h1>Diseñar tu invitación no debería ser un segundo trabajo.</h1>
-    <p>Olvida las plantillas complicadas. Un diseñador profesional se encarga de todo por ti.</p>
+    <h1 id="heroTitulo">Diseñar tu invitación no debería ser un segundo trabajo.</h1>
+    <p id="heroSubtitulo">Olvida las plantillas complicadas. Un diseñador profesional se encarga de todo por ti.</p>
   </section>
 
   <!-- ==================== PAQUETES ==================== -->
@@ -406,6 +406,8 @@
     var PAQ_T = {
       es: {
         navInicio: 'Inicio', navInvitaciones: 'Invitaciones',
+        heroTitulo: 'Diseñar tu invitación no debería ser un segundo trabajo.',
+        heroSubtitulo: 'Olvida las plantillas complicadas. Un diseñador profesional se encarga de todo por ti.',
         paqTitulo: 'Elige tu paquete',
         paqSubtitulo: 'Tres opciones pensadas para cada tipo de celebración',
         'sub-quick':  'Práctico, elegante y listo para compartir',
@@ -434,6 +436,8 @@
       },
       en: {
         navInicio: 'Home', navInvitaciones: 'Invitations',
+        heroTitulo: "Designing your invitation shouldn't be a second job.",
+        heroSubtitulo: 'Forget complicated templates. A professional designer takes care of everything for you.',
         paqTitulo: 'Choose your package',
         paqSubtitulo: 'Three options designed for every type of celebration',
         'sub-quick':  'Practical, elegant and ready to share',
@@ -483,6 +487,12 @@
       var nv = document.getElementById('navInvitaciones');
       if (ni) ni.textContent = T.navInicio;
       if (nv) nv.textContent = T.navInvitaciones;
+
+      // Hero
+      var ht = document.getElementById('heroTitulo');
+      var hs = document.getElementById('heroSubtitulo');
+      if (ht) ht.textContent = T.heroTitulo;
+      if (hs) hs.textContent = T.heroSubtitulo;
 
       // Títulos sección
       var pt = document.getElementById('paqTitulo');

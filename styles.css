@@ -1180,12 +1180,14 @@ body.form-page .navbar {
   font-size: 1.2rem;
   opacity: 0.28;
   transition: opacity 0.2s, transform 0.15s;
-  cursor: pointer;
+  cursor: pointer !important;
+  pointer-events: auto !important;
   user-select: none;
   line-height: 1;
   background: none;
   border: none;
   padding: 0;
+  display: inline-block;
 }
 
 .lang-flag.active-flag {
