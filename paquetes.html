@@ -312,7 +312,7 @@
           <div class="card-precio" data-mxn="650" data-usd="32.50">$650 <span>MXN</span></div>
           <div class="card-divider"></div>
           <ul class="features-list" id="feat-quick">
-            <li>📄 PDF interactivo</li>
+            <li data-i18n="feat_pdf_quick">📄 PDF interactivo</li>
             <li data-i18n="feat_diseno">Diseño personalizado</li>
             <li data-i18n="feat_gps">Ubicación GPS (Maps / Waze)</li>
             <li data-i18n="feat_wsp">Confirmación por WhatsApp</li>
@@ -337,7 +337,7 @@
           <div class="card-precio" data-mxn="950" data-usd="47.50">$950 <span>MXN</span></div>
           <div class="card-divider"></div>
           <ul class="features-list" id="feat-motion">
-            <li>🎬 Video invitación MP4</li>
+            <li data-i18n="feat_video">🎬 Video invitación MP4</li>
             <li data-i18n="feat_diseno">Diseño personalizado</li>
             <li data-i18n="feat_anim">Animaciones profesionales</li>
             <li data-i18n="feat_cancion">Tu canción favorita</li>
@@ -361,13 +361,13 @@
           <div class="card-precio" data-mxn="2100" data-usd="105">$2,100 <span>MXN</span></div>
           <div class="card-divider"></div>
           <ul class="features-list" id="feat-pro">
-            <li>🌐 Sitio web interactivo</li>
+            <li data-i18n="feat_web">🌐 Sitio web interactivo</li>
             <li data-i18n="feat_diseno">Diseño personalizado</li>
             <li data-i18n="feat_rsvp">Confirmaciones automáticas (RSVP)</li>
             <li data-i18n="feat_countdown">Cuenta regresiva en tiempo real</li>
             <li data-i18n="feat_fotos10">Galería hasta 10 fotos</li>
             <li data-i18n="feat_regalos">Mesa de regalos</li>
-            <li data-i18n="feat_dress">Dress code visual</li>
+            <li data-i18n="feat_dress_visual">Dress code visual</li>
             <li data-i18n="feat_3meses">Activo 3 meses</li>
           </ul>
           <a href="formulario.html?paquete=pro" class="btn-contratar" data-i18n="btn_contratar">
@@ -381,12 +381,12 @@
   </section>
 
   <!-- Volver a inicio (solo móvil) -->
-  <a href="index.html" class="btn-volver-inicio">← Volver a inicio</a>
+  <a href="index.html" class="btn-volver-inicio" id="btnVolver">← Volver a inicio</a>
 
   <!-- ==================== FOOTER ==================== -->
   <footer class="site-footer">
     <img src="logotipo.png" alt="FESTALI" class="footer-logo">
-    <p class="footer-slogan">Conectando tus mejores momentos.</p>
+    <p class="footer-slogan" id="footerSlogan">Conectando tus mejores momentos.</p>
     <div class="footer-contacto">
       <a href="mailto:festaliconecta@gmail.com">✉ festaliconecta@gmail.com</a>
       <a href="https://wa.me/526862301280" target="_blank" rel="noopener noreferrer">📱 +52 686 230 1280</a>
@@ -417,7 +417,11 @@
         feat_diseno: 'Diseño personalizado',
         feat_gps: 'Ubicación GPS (Maps / Waze)',
         feat_wsp: 'Confirmación por WhatsApp',
+        feat_pdf_quick: '📄 PDF interactivo',
+        feat_video: '🎬 Video invitación MP4',
+        feat_web: '🌐 Sitio web interactivo',
         feat_dress: 'Dress code',
+        feat_dress_visual: 'Dress code visual',
         feat_fotos3: 'Hasta 3 fotos',
         feat_48h: 'Entrega en 48–72 hrs',
         feat_anim: 'Animaciones profesionales',
@@ -429,9 +433,10 @@
         feat_countdown: 'Cuenta regresiva en tiempo real',
         feat_fotos10: 'Galería hasta 10 fotos',
         feat_regalos: 'Mesa de regalos',
-        feat_dress_visual: 'Dress code visual',
         feat_3meses: 'Activo 3 meses',
         btn_contratar: '¡Crear mi invitación con un profesional!',
+        btnVolver: '← Volver a inicio',
+        footerSlogan: 'Conectando tus mejores momentos.',
         currency: 'MXN'
       },
       en: {
@@ -447,7 +452,11 @@
         feat_diseno: 'Custom design',
         feat_gps: 'GPS location (Maps / Waze)',
         feat_wsp: 'RSVP via WhatsApp',
+        feat_pdf_quick: '📄 Interactive PDF',
+        feat_video: '🎬 MP4 video invitation',
+        feat_web: '🌐 Interactive website',
         feat_dress: 'Dress code',
+        feat_dress_visual: 'Visual dress code',
         feat_fotos3: 'Up to 3 photos',
         feat_48h: 'Delivery in 48–72 hrs',
         feat_anim: 'Professional animations',
@@ -459,9 +468,10 @@
         feat_countdown: 'Real-time countdown',
         feat_fotos10: 'Gallery up to 10 photos',
         feat_regalos: 'Gift registry',
-        feat_dress_visual: 'Visual dress code',
         feat_3meses: 'Active for 3 months',
         btn_contratar: 'Create my invitation with a professional!',
+        btnVolver: '← Back to home',
+        footerSlogan: 'Connecting your best moments.',
         currency: 'USD'
       }
     };
@@ -519,6 +529,12 @@
         var key = el.getAttribute('data-i18n');
         if (T[key]) el.textContent = T[key];
       });
+
+      // Footer y botón volver
+      var bv = document.getElementById('btnVolver');
+      var fs = document.getElementById('footerSlogan');
+      if (bv) bv.textContent = T.btnVolver;
+      if (fs) fs.textContent = T.footerSlogan;
     }
 
     function toggleLangPaquetes(lang) {
