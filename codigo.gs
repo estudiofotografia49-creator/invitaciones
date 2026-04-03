@@ -44,24 +44,23 @@ const ENCABEZADOS = [
   'Enlace Ubicación Recepción',   // 18
   'Medio Confirmaciones',         // 19
   'Contacto Confirmaciones',      // 20
-  'Paleta Colores',               // 21
-  'Estilo Invitación',            // 22
-  'Tipo Diseño',                  // 23
-  'Fotos (cantidad)',             // 24
-  'Carpeta Fotos',                // 25
-  'Dress Code',                   // 26
-  'Ejemplos Vestimenta',          // 27
-  'Mensaje Especial',             // 28
-  '¿Festali escribe el mensaje?', // 29
-  'Datos Asistencia',             // 30
-  'Solo Adultos',                 // 31
-  'Mesa de Regalos',              // 32
-  'Música',                       // 33
-  'Agenda',                       // 34
-  'Ideas',                        // 35
-  'Referencias',                  // 36
-  'Nombre Enlace',                // 37
-  'Timestamp Servidor'            // 38
+  'Estilo Invitación',            // 21
+  'Descripción Estilo',           // 22
+  'Imagen Ref. Estilo',           // 23
+  'Tipo Diseño',                  // 24
+  'Fotos (cantidad)',             // 25
+  'Carpeta Fotos',                // 26
+  'Dress Code',                   // 27
+  'Ejemplos Vestimenta',          // 28
+  'Mensaje Especial',             // 29
+  '¿Festali escribe el mensaje?', // 30
+  'Datos Asistencia',             // 31
+  'Solo Adultos',                 // 32
+  'Mesa de Regalos',              // 33
+  'Música',                       // 34
+  'Hospedaje',                    // 35
+  'Referencias Estilo',           // 36
+  'Timestamp Servidor'            // 37
 ];
 
 // ============================================================
@@ -117,17 +116,19 @@ function doPost(e) {
 
     // 3. Guardar imágenes en subcarpetas por tipo (solo se crean si hay archivos)
     const linksFotos     = guardarFotosEnSub(datos.fotos             || [], subcarpeta, 'Fotos del evento');
-    const linksRefs      = guardarFotosEnSub(datos.referencias       || [], subcarpeta, 'Referencias visuales');
+    const linksRefs      = guardarFotosEnSub(datos.referencias       || [], subcarpeta, 'Referencia Estilo');
     const linksDressCode = guardarFotosEnSub(datos.dressCodeImagenes || [], subcarpeta, 'Ejemplos vestimenta');
-    const linksAgenda    = guardarFotosEnSub(datos.agendaImagenes    || [], subcarpeta, 'Agenda');
 
     // 4. Guardar fila en Sheets con estado "Pendiente de Pago"
     const ss   = SpreadsheetApp.openById(SPREADSHEET_ID);
     const hoja = prepararHoja(ss);
-    escribirFila(hoja, datos, linksFotos, subcarpeta.getUrl(), linksRefs, linksAgenda, linksDressCode);
+    escribirFila(hoja, datos, linksFotos, subcarpeta.getUrl(), linksRefs, linksDressCode);
 
     // 5. Crear preferencia de pago en MercadoPago
     const initPoint = crearPreferenciaMercadoPago(folio, datos.paquete);
+
+    // 6. Enviar email de confirmación al cliente
+    enviarCorreoConfirmacion(datos, initPoint);
 
     return respuestaOk({ folio: folio, carpeta: subcarpeta.getUrl(), initPoint: initPoint });
 
@@ -149,13 +150,24 @@ function doPost(e) {
 
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'folio') {
-    const ss   = SpreadsheetApp.openById(SPREADSHEET_ID);
-    const hoja = prepararHoja(ss);
-    const n     = Math.max(hoja.getLastRow() - 1, 0) + 1; // -1 encabezado, +1 siguiente
-    const folio = 'FEST-' + String(n).padStart(3, '0');
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: true, folio: folio }))
-      .setMimeType(ContentService.MimeType.JSON);
+    const lock = LockService.getScriptLock();
+    try {
+      lock.waitLock(10000);
+      const props   = PropertiesService.getScriptProperties();
+      let counter   = parseInt(props.getProperty('FOLIO_COUNTER') || '0') + 1;
+      // Si el contador es menor al número de filas reales, sincronizar
+      const ss      = SpreadsheetApp.openById(SPREADSHEET_ID);
+      const hoja    = prepararHoja(ss);
+      const filas   = Math.max(hoja.getLastRow() - 1, 0); // -1 encabezado
+      if (counter <= filas) counter = filas + 1;
+      props.setProperty('FOLIO_COUNTER', String(counter));
+      const folio   = 'FEST-' + String(counter).padStart(3, '0');
+      return ContentService
+        .createTextOutput(JSON.stringify({ ok: true, folio: folio }))
+        .setMimeType(ContentService.MimeType.JSON);
+    } finally {
+      lock.releaseLock();
+    }
   }
 
   return ContentService
@@ -184,8 +196,8 @@ function validarPayload(d) {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.correo)) return 'Correo con formato inválido';
 
   // Paquete debe ser uno de los tres permitidos
-  const paquetesValidos = ['digital essence', 'smart interactive', 'premium experience',
-                           'essence', 'smart', 'premium'];
+  const paquetesValidos = ['digital quick', 'motion impact', 'experience pro',
+                           'quick', 'motion', 'pro'];
   const paqueteLower = (d.paquete || '').replace(/[^\w\s]/g, '').toLowerCase().trim();
   if (!paquetesValidos.some(p => paqueteLower.includes(p.split(' ')[0]))) {
     return 'Paquete no reconocido: ' + d.paquete;
@@ -328,20 +340,16 @@ function aplicarEncabezados(hoja) {
 // SHEETS — escribir fila
 // ============================================================
 
-function escribirFila(hoja, d, linksFotos, urlCarpeta, linksRefs, linksAgenda, linksDressCode) {
+function escribirFila(hoja, d, linksFotos, urlCarpeta, linksRefs, linksDressCode) {
   const ahora = new Date();
 
   // ── Derivar campos compuestos ──
 
-  // ¿Hay ceremonia? — campo explícito del payload o inferido del lugar
-  const hayCeremonia = d.hayCeremonia || (d.lugarCeremonia ? 'Sí' : 'No');
-  const hayRecepcion = d.hayRecepcion || (d.lugarRecepcion ? 'Sí' : 'No');
-
-  // Enlace de ubicación — soporta nombre de campo antiguo y nuevo
+  const hayCeremonia    = d.hayCeremonia || (d.lugarCeremonia ? 'Sí' : 'No');
+  const hayRecepcion    = d.hayRecepcion || (d.lugarRecepcion ? 'Sí' : 'No');
   const enlaceCeremonia = d.enlaceCeremonia || d.ubicacionCeremonia || '';
   const enlaceRecepcion = d.enlaceRecepcion || d.ubicacionRecepcion || '';
 
-  // Medio y contacto de confirmaciones
   const medioConf = d.medioConfirmaciones ||
                     (d.whatsappConfirmaciones ? 'WhatsApp' :
                      d.correoConfirmaciones   ? 'Correo'   : '');
@@ -349,13 +357,11 @@ function escribirFila(hoja, d, linksFotos, urlCarpeta, linksRefs, linksAgenda, l
                        d.whatsappConfirmaciones ||
                        d.correoConfirmaciones   || '';
 
-  // ¿Festali escribe el mensaje? — Sí si es smart/premium y no vino texto propio
-  const paqueteKey   = (d.paquete || '').replace(/[^\w\s]/g, '').toLowerCase().trim();
-  const esSmartOPlus = paqueteKey.includes('smart') || paqueteKey.includes('premium');
+  const paqueteKey    = (d.paquete || '').replace(/[^\w\s]/g, '').toLowerCase().trim();
+  const tienesMensaje = paqueteKey.includes('quick') || paqueteKey.includes('pro');
   const mensajeFestali = d.mensajeFestali ||
-                         (esSmartOPlus && !d.mensajeEspecial ? 'Sí' : 'No');
+                         (tienesMensaje && !d.mensajeEspecial ? 'Sí' : 'No');
 
-  // Mesa de regalos — consolidar tipo + link/datos bancarios en una celda
   let mesaRegalos = d.tipoRegalos || '';
   if (d.tipoRegalos === 'mesa' && d.mesaRegalosLink) {
     mesaRegalos = 'Mesa de regalos: ' + d.mesaRegalosLink;
@@ -369,53 +375,46 @@ function escribirFila(hoja, d, linksFotos, urlCarpeta, linksRefs, linksAgenda, l
     mesaRegalos = 'Sin mesa de regalos';
   }
 
-  // Agenda — texto si describió, o cantidad de imágenes si subió imagen
-  let agenda = d.agendaEvento || '';
-  if (!agenda && linksAgenda.length > 0) {
-    agenda = linksAgenda.length + ' imagen' + (linksAgenda.length > 1 ? 'es' : '') + ' (ver carpeta)';
-  }
-
-  const s = sanitizar; // alias corto
+  const s = sanitizar;
 
   const fila = [
     s(d.folio                  || ''),  // 1  Folio
     s(d.fechaSolicitud         || ''),  // 2  Fecha Solicitud
     s(d.paquete                || ''),  // 3  Paquete
-    'Pendiente de Pago',                // 4  Estado — se actualiza automáticamente al pagar
+    'Pendiente de Pago',                // 4  Estado
     s(d.nombreCompleto         || ''),  // 5  Nombre
     s(d.whatsapp               || ''),  // 6  WhatsApp
     s(d.correo                 || ''),  // 7  Correo
     s(d.tipoEvento             || ''),  // 8  Tipo Evento
     s(d.fechaEvento            || ''),  // 9  Fecha Evento
     s(d.nombresFestejados      || ''),  // 10 Festejados
-    hayCeremonia,                       // 11 ¿Hay Ceremonia? (Sí/No)
+    hayCeremonia,                       // 11 ¿Hay Ceremonia?
     s(d.lugarCeremonia         || ''),  // 12 Lugar Ceremonia
     s(d.horaCeremonia          || ''),  // 13 Hora Ceremonia
     s(enlaceCeremonia),                 // 14 Enlace Ubicación Ceremonia
-    hayRecepcion,                       // 15 ¿Hay Recepción? (Sí/No)
+    hayRecepcion,                       // 15 ¿Hay Recepción?
     s(d.lugarRecepcion         || ''),  // 16 Lugar Recepción
     s(d.horaRecepcion          || ''),  // 17 Hora Recepción
     s(enlaceRecepcion),                 // 18 Enlace Ubicación Recepción
-    medioConf,                          // 19 Medio Confirmaciones (WhatsApp/Correo)
+    medioConf,                          // 19 Medio Confirmaciones
     s(contactoConf),                    // 20 Contacto Confirmaciones
-    s(d.paletaColores          || ''),  // 21 Paleta Colores
-    s(d.estiloInvitacion       || ''),  // 22 Estilo Invitación
-    s(d.tipoDiseno             || ''),  // 23 Tipo Diseño
-    linksFotos.length,                  // 24 Fotos (cantidad) — número
-    urlCarpeta               || '',     // 25 Carpeta Fotos — URL generada por Drive
-    s(d.dressCode              || ''),  // 26 Dress Code
-    (linksDressCode || []).length,      // 27 Ejemplos Vestimenta — número
-    s(d.mensajeEspecial        || ''),  // 28 Mensaje Especial
-    mensajeFestali,                     // 29 ¿Festali escribe el mensaje? (Sí/No)
-    s(d.datosAsistencia        || ''),  // 30 Datos Asistencia
-    s(d.soloAdultos            || ''),  // 31 Solo Adultos
-    s(mesaRegalos),                     // 32 Mesa de Regalos
-    s(d.musica                 || ''),  // 33 Música
-    s(agenda),                          // 34 Agenda
-    s(d.ideasExtra             || ''),  // 35 Ideas
-    (linksRefs || []).length,           // 36 Referencias — número
-    s(d.nombreEnlace           || ''),  // 37 Nombre Enlace
-    Utilities.formatDate(ahora, Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm:ss')  // 38
+    s(d.estiloInvitacion       || ''),  // 21 Estilo Invitación
+    s(d.descripcionEstilo      || ''),  // 22 Descripción Estilo
+    (linksRefs || []).length,           // 23 Imagen Ref. Estilo — número
+    s(d.tipoDiseno             || ''),  // 24 Tipo Diseño
+    linksFotos.length,                  // 25 Fotos (cantidad)
+    urlCarpeta               || '',     // 26 Carpeta Fotos
+    s(d.dressCode              || ''),  // 27 Dress Code
+    (linksDressCode || []).length,      // 28 Ejemplos Vestimenta
+    s(d.mensajeEspecial        || ''),  // 29 Mensaje Especial
+    mensajeFestali,                     // 30 ¿Festali escribe el mensaje?
+    s(d.datosAsistencia        || ''),  // 31 Datos Asistencia
+    s(d.soloAdultos            || ''),  // 32 Solo Adultos
+    s(mesaRegalos),                     // 33 Mesa de Regalos
+    s(d.musica                 || ''),  // 34 Música
+    s(d.hospedaje              || ''),  // 35 Hospedaje
+    (linksRefs || []).length,           // 36 Referencias Estilo (mismo conteo que col 23)
+    Utilities.formatDate(ahora, Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm:ss')  // 37
   ];
 
   hoja.appendRow(fila);
@@ -483,12 +482,12 @@ function crearPreferenciaMercadoPago(folio, paquete) {
     return null;
   }
 
-  const precios = { essence: 850, smart: 1450, premium: 2100 };
+  const precios = { quick: 650, motion: 950, pro: 2100 };
   const paqueteLower = (paquete || '').replace(/[^\w\s]/g, '').toLowerCase().trim();
-  let precio       = precios.essence;
-  let nombrePaq    = 'Digital Essence';
-  if (paqueteLower.includes('smart'))   { precio = precios.smart;   nombrePaq = 'Smart Interactive';   }
-  if (paqueteLower.includes('premium')) { precio = precios.premium; nombrePaq = 'Premium Experience';  }
+  let precio    = precios.quick;
+  let nombrePaq = 'Digital Quick';
+  if (paqueteLower.includes('motion')) { precio = precios.motion; nombrePaq = 'Motion Impact';    }
+  if (paqueteLower.includes('pro'))    { precio = precios.pro;    nombrePaq = 'Experience Pro';   }
 
   const scriptUrl   = ScriptApp.getService().getUrl();
   const urlExito    = props.getProperty('MP_URL_EXITO')     || scriptUrl;
@@ -591,21 +590,30 @@ function actualizarEstadoPago(folio, nuevoEstado) {
       hoja.getRange(i + 1, 4).setValue(nuevoEstado);
       Logger.log('Estado actualizado: ' + folio + ' → ' + nuevoEstado);
 
-      // Notificar al admin solo cuando el pago es aprobado
-      if (nuevoEstado === 'Pagado ✓') {
+      // Notificar cuando el pago es aprobado
+      if (nuevoEstado === 'Pagado ✓' || nuevoEstado === 'Pagado PayPal ✓') {
         try {
-          const adminEmail = PropertiesService.getScriptProperties().getProperty('ADMIN_EMAIL');
+          const adminEmail  = PropertiesService.getScriptProperties().getProperty('ADMIN_EMAIL');
+          const nombre      = datos[i][4];  // columna 5 — Nombre
+          const paquete     = datos[i][2];  // columna 3 — Paquete
+          const correoCliente = datos[i][6]; // columna 7 — Correo
+
+          // Email al admin
           if (adminEmail) {
-            const nombre  = datos[i][4];  // columna 5 — Nombre
-            const paquete = datos[i][2];  // columna 3 — Paquete
             MailApp.sendEmail(
               adminEmail,
               '✅ FESTALI — Pago confirmado: ' + folio,
               'El pedido ' + folio + ' ha sido pagado.\n\n' +
               'Cliente: ' + nombre + '\n' +
-              'Paquete: ' + paquete + '\n\n' +
+              'Paquete: ' + paquete + '\n' +
+              'Método: ' + nuevoEstado + '\n\n' +
               'Ver Sheets: https://docs.google.com/spreadsheets/d/' + SPREADSHEET_ID
             );
+          }
+
+          // Email al cliente
+          if (correoCliente) {
+            enviarCorreoPagoConfirmado(folio, nombre, correoCliente, paquete);
           }
         } catch (_) {}
       }
@@ -655,4 +663,198 @@ function actualizarEncabezados() {
 function autorizarFetch() {
   const r = UrlFetchApp.fetch('https://www.google.com');
   Logger.log('OK: ' + r.getResponseCode());
+}
+
+// ============================================================
+// EMAILS AL CLIENTE
+// ============================================================
+
+function enviarCorreoConfirmacion(datos, initPoint) {
+  try {
+    if (!datos.correo) return;
+
+    const props      = PropertiesService.getScriptProperties();
+    const tipoCambio = parseFloat(props.getProperty('TIPO_CAMBIO') || '20');
+    const paypalBase = props.getProperty('PAYPAL_LINK') || 'https://paypal.me/estudio49';
+
+    const paqueteLower = (datos.paquete || '').replace(/[^\w\s]/g, '').toLowerCase().trim();
+    let precioMXN = 650;
+    let nombrePaq = 'Digital Quick';
+    if (paqueteLower.includes('motion')) { precioMXN = 950;  nombrePaq = 'Motion Impact';   }
+    if (paqueteLower.includes('pro'))    { precioMXN = 2100; nombrePaq = 'Experience Pro';  }
+
+    const precioUSD  = Math.round((precioMXN / tipoCambio) * 100) / 100;
+    const paypalLink = paypalBase + '/' + precioUSD;
+    const mpLink     = initPoint || _linkFallbackMP(paqueteLower);
+
+    const nombre = datos.nombreCompleto || 'Cliente';
+    const folio  = datos.folio || '';
+
+    const asunto = 'FESTALI — Recibimos tu solicitud ' + folio;
+
+    const htmlBody =
+      '<!DOCTYPE html><html><head><meta charset="UTF-8"></head>' +
+      '<body style="font-family:Arial,sans-serif;background:#f8f6ff;margin:0;padding:20px;">' +
+      '<div style="max-width:580px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(75,68,149,.12);">' +
+      // Header
+      '<div style="background:linear-gradient(135deg,#e72268,#4b4495);padding:32px;text-align:center;">' +
+      '<h1 style="color:#fff;font-size:1.6rem;margin:0;font-weight:700;letter-spacing:2px;">FESTALI</h1>' +
+      '<p style="color:rgba(255,255,255,.85);font-size:.85rem;margin:6px 0 0;font-style:italic;">Conectando tus mejores momentos</p>' +
+      '</div>' +
+      // Body
+      '<div style="padding:32px;">' +
+      '<h2 style="color:#4b4495;font-size:1.2rem;margin:0 0 10px;">¡Hola, ' + nombre + '! 🎉</h2>' +
+      '<p style="color:#555;font-size:.93rem;line-height:1.6;margin:0 0 22px;">Recibimos tu solicitud correctamente. Revisa el resumen y realiza tu pago para comenzar con tu diseño.</p>' +
+      // Folio
+      '<div style="text-align:center;margin:0 0 22px;">' +
+      '<span style="display:inline-block;background:linear-gradient(135deg,#e72268,#4b4495);color:#fff;font-size:1.1rem;font-weight:700;letter-spacing:4px;padding:10px 30px;border-radius:50px;">' + folio + '</span>' +
+      '</div>' +
+      // Resumen
+      '<div style="background:#f8f6ff;border-radius:12px;padding:18px;margin:0 0 24px;">' +
+      '<p style="color:#4b4495;font-size:.75rem;text-transform:uppercase;letter-spacing:2px;margin:0 0 14px;font-weight:700;">Resumen de tu solicitud</p>' +
+      '<table style="width:100%;border-collapse:collapse;">' +
+      '<tr><td style="color:#999;font-size:.82rem;padding:5px 0;">Paquete</td><td style="color:#333;font-size:.82rem;font-weight:700;text-align:right;">' + nombrePaq + '</td></tr>' +
+      '<tr style="border-top:1px solid #eee;"><td style="color:#999;font-size:.82rem;padding:5px 0;">Tipo de evento</td><td style="color:#333;font-size:.82rem;font-weight:700;text-align:right;">' + (datos.tipoEvento || '') + '</td></tr>' +
+      '<tr style="border-top:1px solid #eee;"><td style="color:#999;font-size:.82rem;padding:5px 0;">Fecha del evento</td><td style="color:#333;font-size:.82rem;font-weight:700;text-align:right;">' + (datos.fechaEvento || '') + '</td></tr>' +
+      '<tr style="border-top:1px solid #eee;"><td style="color:#999;font-size:.82rem;padding:5px 0;">Festejados</td><td style="color:#333;font-size:.82rem;font-weight:700;text-align:right;">' + (datos.nombresFestejados || '') + '</td></tr>' +
+      '</table></div>' +
+      // Precio
+      '<div style="text-align:center;margin:0 0 22px;">' +
+      '<p style="color:#4b4495;font-size:1.5rem;font-weight:700;margin:0;">$' + precioMXN.toLocaleString() + ' <span style="font-size:.9rem;color:#e72268;">MXN</span></p>' +
+      '<p style="color:#aaa;font-size:.78rem;margin:4px 0 0;">/ $' + precioUSD + ' USD</p>' +
+      '</div>' +
+      // Pago
+      '<p style="color:#333;font-size:.88rem;text-align:center;margin:0 0 14px;font-weight:600;">¿Cómo deseas pagar?</p>' +
+      '<div style="text-align:center;margin:0 0 12px;">' +
+      '<a href="' + mpLink + '" style="display:inline-block;background:#009ee3;color:#fff;text-decoration:none;padding:12px 26px;border-radius:50px;font-weight:700;font-size:.88rem;">💳 Pagar con MercadoPago</a>' +
+      '<p style="color:#bbb;font-size:.73rem;margin:5px 0 0;">México — Tarjeta, OXXO, SPEI</p>' +
+      '</div>' +
+      '<div style="text-align:center;margin:0 0 24px;">' +
+      '<a href="' + paypalLink + '" style="display:inline-block;background:#003087;color:#fff;text-decoration:none;padding:12px 26px;border-radius:50px;font-weight:700;font-size:.88rem;">💰 Pagar con PayPal</a>' +
+      '<p style="color:#bbb;font-size:.73rem;margin:5px 0 0;">USA / Internacional — $' + precioUSD + ' USD</p>' +
+      '</div>' +
+      // Nota
+      '<div style="background:#fffbeb;border-left:3px solid #f59e0b;padding:12px 14px;border-radius:0 8px 8px 0;margin:0 0 24px;">' +
+      '<p style="color:#92400e;font-size:.8rem;margin:0;line-height:1.55;">Al completar tu pago recibirás una confirmación automática. Tu invitación estará lista en máximo <strong>3 días hábiles</strong>.</p>' +
+      '</div>' +
+      // Contacto
+      '<p style="color:#555;font-size:.86rem;text-align:center;margin:0 0 14px;">¿Tienes dudas o quieres hacer un cambio?</p>' +
+      '<div style="text-align:center;">' +
+      '<a href="https://wa.me/526862301280" style="display:inline-block;background:#25d366;color:#fff;text-decoration:none;padding:10px 20px;border-radius:50px;font-weight:700;font-size:.84rem;margin:4px;">💬 WhatsApp</a>' +
+      '<a href="mailto:festaliconecta@gmail.com" style="display:inline-block;background:#4b4495;color:#fff;text-decoration:none;padding:10px 20px;border-radius:50px;font-weight:700;font-size:.84rem;margin:4px;">✉ Correo</a>' +
+      '</div></div>' +
+      // Footer
+      '<div style="background:#f8f6ff;padding:18px;text-align:center;border-top:1px solid #eee;">' +
+      '<p style="color:#aaa;font-size:.72rem;margin:0;">© 2026 FESTALI · festaliconecta@gmail.com</p>' +
+      '<p style="color:#ccc;font-size:.68rem;margin:4px 0 0;">Folio: ' + folio + '</p>' +
+      '</div></div></body></html>';
+
+    MailApp.sendEmail({
+      to:       datos.correo,
+      subject:  asunto,
+      htmlBody: htmlBody
+    });
+
+    Logger.log('✅ Email confirmación enviado a ' + datos.correo + ' — ' + folio);
+  } catch (err) {
+    Logger.log('❌ Error enviando email confirmación: ' + err.message);
+  }
+}
+
+function enviarCorreoPagoConfirmado(folio, nombre, correo, paquete) {
+  try {
+    if (!correo) return;
+
+    const asunto = 'FESTALI — ¡Pago confirmado! ' + folio;
+
+    const htmlBody =
+      '<!DOCTYPE html><html><head><meta charset="UTF-8"></head>' +
+      '<body style="font-family:Arial,sans-serif;background:#f8f6ff;margin:0;padding:20px;">' +
+      '<div style="max-width:580px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(75,68,149,.12);">' +
+      '<div style="background:linear-gradient(135deg,#e72268,#4b4495);padding:32px;text-align:center;">' +
+      '<h1 style="color:#fff;font-size:1.6rem;margin:0;font-weight:700;letter-spacing:2px;">FESTALI</h1>' +
+      '<p style="color:rgba(255,255,255,.85);font-size:.85rem;margin:6px 0 0;font-style:italic;">Conectando tus mejores momentos</p>' +
+      '</div>' +
+      '<div style="padding:32px;text-align:center;">' +
+      '<div style="font-size:3.2rem;margin-bottom:14px;">✅</div>' +
+      '<h2 style="color:#4b4495;font-size:1.25rem;margin:0 0 10px;">¡Pago confirmado, ' + nombre + '!</h2>' +
+      '<p style="color:#555;font-size:.93rem;line-height:1.6;max-width:400px;margin:0 auto 22px;">Recibimos tu pago correctamente. Nuestro equipo ya está trabajando en tu invitación.</p>' +
+      '<div style="text-align:center;margin:0 0 22px;">' +
+      '<span style="display:inline-block;background:linear-gradient(135deg,#e72268,#4b4495);color:#fff;font-size:1.1rem;font-weight:700;letter-spacing:4px;padding:10px 30px;border-radius:50px;">' + folio + '</span>' +
+      '</div>' +
+      '<div style="background:#f8f6ff;border-radius:12px;padding:18px;margin:0 0 24px;text-align:left;">' +
+      '<div style="display:flex;gap:10px;align-items:flex-start;padding:6px 0;">' +
+      '<span style="font-size:1.1rem;">✅</span>' +
+      '<div><p style="margin:0;font-weight:700;color:#333;font-size:.86rem;">Pago recibido</p><p style="margin:2px 0 0;color:#999;font-size:.76rem;">Tu solicitud está confirmada — ' + paquete + '</p></div></div>' +
+      '<div style="display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-top:1px solid #eee;">' +
+      '<span style="font-size:1.1rem;">🎨</span>' +
+      '<div><p style="margin:0;font-weight:700;color:#333;font-size:.86rem;">En diseño</p><p style="margin:2px 0 0;color:#999;font-size:.76rem;">Tu invitación está siendo creada</p></div></div>' +
+      '<div style="display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-top:1px solid #eee;">' +
+      '<span style="font-size:1.1rem;">🚀</span>' +
+      '<div><p style="margin:0;font-weight:700;color:#333;font-size:.86rem;">Entrega en máx. 3 días hábiles</p><p style="margin:2px 0 0;color:#999;font-size:.76rem;">Te contactaremos a la brevedad</p></div></div>' +
+      '</div>' +
+      '<p style="color:#555;font-size:.86rem;margin:0 0 14px;">¿Tienes dudas o quieres hacer algún cambio?</p>' +
+      '<div>' +
+      '<a href="https://wa.me/526862301280" style="display:inline-block;background:#25d366;color:#fff;text-decoration:none;padding:10px 20px;border-radius:50px;font-weight:700;font-size:.84rem;margin:4px;">💬 WhatsApp</a>' +
+      '<a href="mailto:festaliconecta@gmail.com" style="display:inline-block;background:#4b4495;color:#fff;text-decoration:none;padding:10px 20px;border-radius:50px;font-weight:700;font-size:.84rem;margin:4px;">✉ Correo</a>' +
+      '</div></div>' +
+      '<div style="background:#f8f6ff;padding:18px;text-align:center;border-top:1px solid #eee;">' +
+      '<p style="color:#aaa;font-size:.72rem;margin:0;">© 2026 FESTALI · festaliconecta@gmail.com</p>' +
+      '<p style="color:#ccc;font-size:.68rem;margin:4px 0 0;">Folio: ' + folio + '</p>' +
+      '</div></div></body></html>';
+
+    MailApp.sendEmail({
+      to:       correo,
+      subject:  asunto,
+      htmlBody: htmlBody
+    });
+
+    Logger.log('✅ Email pago confirmado enviado a ' + correo + ' — ' + folio);
+  } catch (err) {
+    Logger.log('❌ Error enviando email pago confirmado: ' + err.message);
+  }
+}
+
+function _linkFallbackMP(paqueteLower) {
+  // TODO: actualizar estos links con los nuevos precios en MercadoPago
+  if (paqueteLower.includes('motion')) return 'https://mpago.la/2TiAHyW';
+  if (paqueteLower.includes('pro'))    return 'https://mpago.la/2TLTp3t';
+  return 'https://mpago.la/2keQv3Z';
+}
+
+// ============================================================
+// onEdit TRIGGER — detecta "Pagado PayPal ✓" en columna Estado
+// ============================================================
+// IMPORTANTE: Este trigger debe instalarse manualmente una vez:
+//   Apps Script → Triggers (reloj) → Add Trigger
+//   Función: onEdit | Evento: "From spreadsheet" → "On edit"
+// ============================================================
+
+function onEdit(e) {
+  try {
+    if (!e || !e.range) return;
+    const hoja = e.range.getSheet();
+    if (hoja.getName() !== NOMBRE_HOJA) return;
+    if (e.range.getColumn() !== 4) return; // columna 4 = Estado
+
+    const nuevoValor = (e.value || '').trim();
+    if (nuevoValor !== 'Pagado PayPal ✓') return;
+
+    const fila    = e.range.getRow();
+    if (fila <= 1) return; // ignorar encabezado
+
+    const datos   = hoja.getRange(fila, 1, 1, 37).getValues()[0];
+    const folio   = datos[0];   // col 1
+    const paquete = datos[2];   // col 3
+    const nombre  = datos[4];   // col 5
+    const correo  = datos[6];   // col 7
+
+    if (correo) {
+      enviarCorreoPagoConfirmado(folio, nombre, correo, paquete);
+    }
+
+    Logger.log('onEdit — Email enviado por Pagado PayPal ✓: ' + folio);
+  } catch (err) {
+    Logger.log('Error en onEdit: ' + err.message);
+  }
 }

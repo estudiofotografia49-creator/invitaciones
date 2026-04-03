@@ -1,4 +1,4 @@
-// v2.2 - fotos pendientes fix + hora en ubicaciones
+// v2.3 - compatibilidad navegadores antiguos (sin optional chaining)
 // ============================================================
 // FESTALI — formulario.js
 // Lógica del formulario de contratación
@@ -17,20 +17,20 @@ const TIPOS_VALIDOS = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'im
 // ==================== CONFIGURACIÓN DE PAQUETES ====================
 
 const PAQUETES = {
-  essence: {
-    nombre: 'Digital Essence',
-    minFotos: 3,
-    extras: []
+  quick: {
+    nombre: 'Digital Quick',
+    maxFotos: 3,
+    extras: ['quick']
   },
-  smart: {
-    nombre: 'Smart Interactive',
-    minFotos: 3,
-    extras: ['smart']
+  motion: {
+    nombre: 'Motion Impact',
+    maxFotos: 3,
+    extras: ['motion']
   },
-  premium: {
-    nombre: 'Premium Experience',
-    minFotos: 15,
-    extras: ['smart', 'premium']
+  pro: {
+    nombre: 'Experience Pro',
+    maxFotos: 10,
+    extras: ['quick', 'pro']
   }
 };
 
@@ -42,17 +42,16 @@ document.addEventListener('DOMContentLoaded', () => {
   setFechaAutomatica();
   setFolio();
   configurarPaquete(paqueteKey);
-  initUbicaciones();
+  initUbicaciones(paqueteKey);
   initConfirmacionToggle();
   initFileInput(paqueteKey);
   initTipoDiseño(paqueteKey);
-  initIdeasToggle();
-  initAgendaToggle();
-  initRefInput();
+  initEstiloToggle();
+  initEventoOtro();
+  initPhonePrefix();
   initMesaRegalos();
   initDressCodeImg();
   initMensajeToggle();
-  initPreviewEnlace();
   initWizard(paqueteKey);
   initSubmit(paqueteKey);
 });
@@ -62,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function detectarPaquete() {
   const params = new URLSearchParams(window.location.search);
   const valor = (params.get('paquete') || '').toLowerCase();
-  return PAQUETES[valor] ? valor : 'essence';
+  return PAQUETES[valor] ? valor : 'quick';
 }
 
 // ==================== FECHA AUTOMÁTICA ====================
@@ -111,7 +110,8 @@ function initConfirmacionToggle() {
   if (!radios.length || !grupoWsp || !grupoCorreo) return;
 
   function actualizar() {
-    const val = document.querySelector('input[name="tipoConfirmacion"]:checked')?.value;
+    var _chk = document.querySelector('input[name="tipoConfirmacion"]:checked');
+    const val = _chk ? _chk.value : undefined;
     grupoWsp.style.display    = val === 'wsp'    ? 'block' : 'none';
     grupoCorreo.style.display = val === 'correo' ? 'block' : 'none';
 
@@ -119,12 +119,12 @@ function initConfirmacionToggle() {
     if (val === 'wsp') {
       const inputConf = document.getElementById('whatsappConfirmaciones');
       if (inputConf && !inputConf.value) {
-        inputConf.value = document.getElementById('whatsapp')?.value || '';
+        inputConf.value = (document.getElementById('whatsapp') || {value: ''}).value || '';
       }
     } else if (val === 'correo') {
       const inputConf = document.getElementById('correoConfirmaciones');
       if (inputConf && !inputConf.value) {
-        inputConf.value = document.getElementById('correo')?.value || '';
+        inputConf.value = (document.getElementById('correo') || {value: ''}).value || '';
       }
     }
   }
@@ -134,11 +134,19 @@ function initConfirmacionToggle() {
 
 // ==================== UBICACIONES ====================
 
-function initUbicaciones() {
+function initUbicaciones(paqueteKey) {
   const cbCeremonia    = document.getElementById('hayCeremonia');
   const cbRecepcion    = document.getElementById('hayRecepcion');
   const grupoCeremonia = document.getElementById('grupoCeremonia');
   const grupoRecepcion = document.getElementById('grupoRecepcion');
+
+  // Motion Impact: no necesita enlaces GPS, solo lugar y hora
+  if (paqueteKey === 'motion') {
+    const gEnlCer = document.getElementById('grupoEnlaceCeremonia');
+    const gEnlRec = document.getElementById('grupoEnlaceRecepcion');
+    if (gEnlCer) gEnlCer.style.display = 'none';
+    if (gEnlRec) gEnlRec.style.display = 'none';
+  }
 
   cbCeremonia.addEventListener('change', () => {
     grupoCeremonia.style.display = cbCeremonia.checked ? 'block' : 'none';
@@ -174,7 +182,7 @@ function initFileInput(paqueteKey) {
   const seleccionadas = document.getElementById('fotosSeleccionadas');
   const grupoSubir    = document.getElementById('grupoSubirFotos');
 
-  hint.textContent = `Mínimo ${config.minFotos} foto${config.minFotos > 1 ? 's' : ''}`;
+  hint.textContent = `Máximo ${config.maxFotos} foto${config.maxFotos > 1 ? 's' : ''}`;
 
   // Toggle mostrar/ocultar el input de fotos según la selección
   document.querySelectorAll('input[name="tienesFotos"]').forEach(r => {
@@ -186,9 +194,13 @@ function initFileInput(paqueteKey) {
   initAcumulador(input, n => {
     if (n === 0) {
       seleccionadas.textContent = 'Ninguna foto seleccionada';
+      seleccionadas.style.color = '';
+    } else if (n > config.maxFotos) {
+      seleccionadas.textContent = `${n} fotos — máximo ${config.maxFotos} permitidas`;
+      seleccionadas.style.color = '#e72268';
     } else {
       seleccionadas.textContent = `${n} foto${n > 1 ? 's' : ''} seleccionada${n > 1 ? 's' : ''}`;
-      seleccionadas.style.color = n >= config.minFotos ? '#4b4495' : '#e72268';
+      seleccionadas.style.color = '#4b4495';
     }
   });
 }
@@ -238,72 +250,84 @@ function initMensajeToggle() {
   if (!radios.length || !grupoMensaje) return;
 
   function actualizar() {
-    const val = document.querySelector('input[name="tipoMensaje"]:checked')?.value;
+    var _chk = document.querySelector('input[name="tipoMensaje"]:checked');
+    const val = _chk ? _chk.value : undefined;
     grupoMensaje.style.display = val === 'propio' ? 'block' : 'none';
   }
 
   radios.forEach(r => r.addEventListener('change', actualizar));
 }
 
-// ==================== AGENDA TOGGLE ====================
+// ==================== ESTILO TOGGLE ====================
 
-function initAgendaToggle() {
-  const radios          = document.querySelectorAll('input[name="tipoAgenda"]');
-  const grupoTexto      = document.getElementById('grupoAgendaTexto');
-  const grupoImagen     = document.getElementById('grupoAgendaImagen');
-  const agendaImgInput  = document.getElementById('agendaImagenFile');
-  const agendaImgHint   = document.getElementById('agendaImgSeleccionada');
+function initEstiloToggle() {
+  const select    = document.getElementById('estiloInvitacion');
+  const grupoDesc = document.getElementById('grupoEstiloDesc');
+  const textarea  = document.getElementById('descripcionEstilo');
+  const input     = document.getElementById('imagenRefEstilo');
+  const hint      = document.getElementById('refEstiloSeleccionada');
 
-  if (!radios.length || !grupoTexto || !grupoImagen) return;
+  const placeholders = {
+    'Elegante / Clásico':    'Ej: Tonos dorados con blanco, tipografía cursiva fina, flores de peonías o rosas...',
+    'Moderno / Minimalista': 'Ej: Algo muy limpio, blanco y negro o con un color de acento, sin muchos adornos...',
+    'Floral / Romántico':    'Ej: Colores pastel como rosa o lila, muchas flores, algo delicado y femenino...',
+    'Temático':              '¿Cuál es tu tema? Ej: Vintage, Disney, deportivo, jardín encantado, mexicano...'
+  };
 
-  function actualizar() {
-    const val = document.querySelector('input[name="tipoAgenda"]:checked')?.value;
-    grupoTexto.style.display   = val === 'texto'  ? 'block' : 'none';
-    grupoImagen.style.display  = val === 'imagen' ? 'block' : 'none';
-  }
+  if (!select || !grupoDesc) return;
 
-  radios.forEach(r => r.addEventListener('change', actualizar));
+  select.addEventListener('change', () => {
+    const val = select.value;
+    if (val) {
+      grupoDesc.style.display = 'block';
+      if (textarea && placeholders[val]) textarea.placeholder = placeholders[val];
+    } else {
+      grupoDesc.style.display = 'none';
+    }
+  });
 
-  if (agendaImgInput && agendaImgHint) {
-    initAcumulador(agendaImgInput, n => {
-      agendaImgHint.textContent = n
-        ? `${n} imagen${n > 1 ? 'es' : ''} seleccionada${n > 1 ? 's' : ''}`
-        : 'Ninguna imagen seleccionada';
+  if (input && hint) {
+    input.addEventListener('change', () => {
+      const n = input.files.length;
+      if (n === 0) {
+        hint.textContent = 'Ninguna imagen seleccionada';
+        hint.style.color = '';
+      } else if (n > 1) {
+        // Si selecciona más de 1, conservar solo la primera
+        const dt = new DataTransfer();
+        dt.items.add(input.files[0]);
+        input.files = dt.files;
+        hint.textContent = '1 imagen seleccionada';
+        hint.style.color = '#4b4495';
+      } else {
+        hint.textContent = '1 imagen seleccionada';
+        hint.style.color = '#4b4495';
+      }
     });
   }
 }
 
-// ==================== IDEAS TOGGLE ====================
+// ==================== EVENTO OTRO ====================
 
-function initIdeasToggle() {
-  const radios     = document.querySelectorAll('input[name="tieneIdeas"]');
-  const grupoIdeas = document.getElementById('grupoIdeas');
+function initEventoOtro() {
+  const select = document.getElementById('tipoEvento');
+  const grupo  = document.getElementById('grupoEventoOtro');
+  if (!select || !grupo) return;
 
-  function actualizar() {
-    const val = document.querySelector('input[name="tieneIdeas"]:checked')?.value;
-    grupoIdeas.style.display = val === 'tengoIdea' ? 'block' : 'none';
-  }
-
-  radios.forEach(r => r.addEventListener('change', actualizar));
+  select.addEventListener('change', () => {
+    grupo.style.display = select.value === 'Otro' ? 'block' : 'none';
+  });
 }
 
-// ==================== REFERENCIAS ====================
+// ==================== PHONE PREFIX ====================
 
-function initRefInput() {
-  const input         = document.getElementById('referenciaVisual');
-  const seleccionadas = document.getElementById('refsSeleccionadas');
+function initPhonePrefix() {
+  const input = document.getElementById('whatsapp');
+  if (!input) return;
 
-  initAcumulador(input, n => {
-    if (n === 0) {
-      seleccionadas.textContent = 'Ninguna referencia seleccionada';
-      seleccionadas.style.color = '';
-    } else if (n > 3) {
-      seleccionadas.textContent = `${n} imágenes — máximo 3 permitidas`;
-      seleccionadas.style.color = '#e72268';
-    } else {
-      seleccionadas.textContent = `${n} imagen${n > 1 ? 'es' : ''} seleccionada${n > 1 ? 's' : ''}`;
-      seleccionadas.style.color = '#4b4495';
-    }
+  // Solo permitir dígitos
+  input.addEventListener('input', () => {
+    input.value = input.value.replace(/\D/g, '');
   });
 }
 
@@ -317,7 +341,8 @@ function initMesaRegalos() {
   if (!radios.length || !grupoMesa || !grupoTransf) return;
 
   function actualizarVistaMesa() {
-    const val = document.querySelector('input[name="tipoRegalos"]:checked')?.value || 'ninguno';
+    var _chk = document.querySelector('input[name="tipoRegalos"]:checked');
+    const val = (_chk ? _chk.value : '') || 'ninguno';
     grupoMesa.style.display   = val === 'mesa'          ? 'block' : 'none';
     grupoTransf.style.display = val === 'transferencia' ? 'block' : 'none';
   }
@@ -325,42 +350,18 @@ function initMesaRegalos() {
   radios.forEach(radio => radio.addEventListener('change', actualizarVistaMesa));
 }
 
-// ==================== PREVIEW ENLACE ====================
-
-function initPreviewEnlace() {
-  const input = document.getElementById('nombreEnlace');
-  if (!input) return;
-
-  const preview = document.getElementById('previewEnlace');
-
-  input.addEventListener('input', () => {
-    const limpio = input.value
-      .toLowerCase()
-      .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quitar acentos
-      .replace(/[^a-z0-9-]/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
-
-    input.value = limpio;
-    preview.textContent = limpio || 'nombre-del-evento';
-  });
-}
-
 // ==================== VALIDACIÓN ====================
 
 function validar(paqueteKey) {
   const camposRequeridos = [
-    { id: 'nombreCompleto',       label: 'Nombre completo' },
-    { id: 'whatsapp',             label: 'WhatsApp' },
-    { id: 'correo',               label: 'Correo electrónico' },
-    { id: 'tipoEvento',           label: 'Tipo de evento' },
-    { id: 'fechaEvento',          label: 'Fecha del evento' },
-    { id: 'nombresFestejados',    label: 'Nombres de los festejados' },
-    { id: 'paletaColores',        label: 'Paleta de colores' },
-    { id: 'estiloInvitacion',     label: 'Estilo de invitación' },
+    { id: 'nombreCompleto',    label: 'Nombre completo' },
+    { id: 'correo',            label: 'Correo electrónico' },
+    { id: 'tipoEvento',        label: 'Tipo de evento' },
+    { id: 'fechaEvento',       label: 'Fecha del evento' },
+    { id: 'nombresFestejados', label: 'Nombres de los festejados' },
+    { id: 'estiloInvitacion',  label: 'Estilo de invitación' },
   ];
 
-  // Limpiar errores previos
   document.querySelectorAll('.form-control.error').forEach(el => el.classList.remove('error'));
 
   const errores = [];
@@ -373,91 +374,107 @@ function validar(paqueteKey) {
     }
   });
 
-  // Validar contacto para confirmaciones — solo Smart y Premium
-  if (paqueteKey !== 'essence') {
-    const tipoConf = document.querySelector('input[name="tipoConfirmacion"]:checked')?.value;
-    if (!tipoConf) {
-      errores.push('Método de confirmación de asistencia (WhatsApp o Correo)');
-    } else if (tipoConf === 'wsp') {
-      const el = document.getElementById('whatsappConfirmaciones');
-      if (!el?.value.trim()) { errores.push('WhatsApp para confirmaciones'); el?.classList.add('error'); }
-    } else if (tipoConf === 'correo') {
-      const el = document.getElementById('correoConfirmaciones');
-      if (!el?.value.trim()) { errores.push('Correo para confirmaciones'); el?.classList.add('error'); }
-    }
+  // Tipo de evento "Otro" — requiere descripción
+  const tipoEventoEl = document.getElementById('tipoEvento');
+  if (tipoEventoEl && tipoEventoEl.value === 'Otro') {
+    const otroEl = document.getElementById('tipoEventoOtro');
+    if (!otroEl || !otroEl.value.trim()) { errores.push('Describe tu tipo de evento'); if (otroEl) otroEl.classList.add('error'); }
   }
 
-  // Validar ubicaciones solo si el checkbox está marcado
-  const cbCeremonia = document.getElementById('hayCeremonia');
-  const cbRecepcion = document.getElementById('hayRecepcion');
-  if (cbCeremonia?.checked) {
-    const el = document.getElementById('lugarCeremonia');
-    if (!el?.value.trim()) { errores.push('Lugar de la ceremonia'); el?.classList.add('error'); }
-  }
-  if (cbRecepcion?.checked) {
-    const el = document.getElementById('lugarRecepcion');
-    if (!el?.value.trim()) { errores.push('Lugar de la recepción'); el?.classList.add('error'); }
+  // WhatsApp — solo dígitos, 10 caracteres
+  const wspEl     = document.getElementById('whatsapp');
+  const wspDigits = ((wspEl ? wspEl.value : '') || '').replace(/\D/g, '');
+  if (!wspDigits) {
+    errores.push('WhatsApp (número requerido)');
+    if (wspEl) wspEl.classList.add('error');
+  } else if (wspDigits.length !== 10) {
+    errores.push('WhatsApp (debe tener exactamente 10 dígitos)');
+    if (wspEl) wspEl.classList.add('error');
   }
 
-  // Validar formato de correo
+  // Correo — formato
   const correoEl = document.getElementById('correo');
-  if (correoEl.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correoEl.value.trim())) {
+  if (correoEl && correoEl.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correoEl.value.trim())) {
     if (!errores.includes('Correo electrónico')) errores.push('Correo electrónico (formato inválido)');
     correoEl.classList.add('error');
   }
 
-  // Validar WhatsApp — solo dígitos y +, entre 7 y 15 caracteres
-  const wspEl = document.getElementById('whatsapp');
-  const wspVal = (wspEl?.value || '').replace(/\s/g, '');
-  if (wspVal && !/^\+?\d{7,15}$/.test(wspVal)) {
-    errores.push('WhatsApp (formato inválido, ej: +52 686 000 0000)');
-    wspEl?.classList.add('error');
-  }
-
-  // Validar que la fecha del evento no sea en el pasado
+  // Fecha no pasada
   const fechaEl = document.getElementById('fechaEvento');
-  if (fechaEl?.value) {
-    const hoy      = new Date(); hoy.setHours(0, 0, 0, 0);
-    const fechaSel = new Date(fechaEl.value + 'T00:00:00');
-    if (fechaSel < hoy) {
-      errores.push('Fecha del evento (no puede ser una fecha pasada)');
+  if (fechaEl && fechaEl.value) {
+    const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
+    if (new Date(fechaEl.value + 'T00:00:00') < hoy) {
+      errores.push('Fecha del evento (no puede ser en el pasado)');
       fechaEl.classList.add('error');
     }
   }
 
-  // Validar tipo de diseño (radio obligatorio)
-  const tipoDisenoChecked = document.querySelector('input[name="tipoDiseno"]:checked');
-  if (!tipoDisenoChecked) {
-    errores.push('Tipo de diseño (Mis fotos / Diseño gráfico)');
+  // Ubicación — mínimo una (ceremonia o recepción)
+  const cbCeremonia = document.getElementById('hayCeremonia');
+  const cbRecepcion = document.getElementById('hayRecepcion');
+  const tieneCeremonia = cbCeremonia && cbCeremonia.checked;
+  const tieneRecepcion = cbRecepcion && cbRecepcion.checked;
+  if (!tieneCeremonia && !tieneRecepcion) {
+    errores.push('Selecciona al menos una ubicación (ceremonia o recepción)');
+  }
+  if (tieneCeremonia) {
+    const el = document.getElementById('lugarCeremonia');
+    if (!el || !el.value.trim()) { errores.push('Lugar de la ceremonia'); if (el) el.classList.add('error'); }
+  }
+  if (tieneRecepcion) {
+    const el = document.getElementById('lugarRecepcion');
+    if (!el || !el.value.trim()) { errores.push('Lugar de la recepción'); if (el) el.classList.add('error'); }
   }
 
-  // Validar fotos solo si seleccionó "Mis fotos" Y tiene las fotos disponibles
-  const minFotos = PAQUETES[paqueteKey].minFotos;
-  const fotosInput = document.getElementById('fotos');
-  const tieneFotosDisp = document.querySelector('input[name="tienesFotos"]:checked')?.value !== 'no';
-  if (tieneFotosDisp && (!tipoDisenoChecked || tipoDisenoChecked.value === 'fotos')) {
-    if (fotosInput.files.length < minFotos) {
-      errores.push(`Fotos (mínimo ${minFotos})`);
+  // Mensaje — obligatorio seleccionar opción (Quick y Pro)
+  if (paqueteKey !== 'motion') {
+    if (!document.querySelector('input[name="tipoMensaje"]:checked')) {
+      errores.push('Selecciona una opción para el mensaje de invitados');
     }
   }
 
-  // Validar referencias máximo 3 (solo si eligió "Tengo una idea")
-  const tieneIdeasVal = document.querySelector('input[name="tieneIdeas"]:checked')?.value;
-  const refsInput = document.getElementById('referenciaVisual');
-  if (tieneIdeasVal === 'tengoIdea' && refsInput.files.length > 3) {
-    errores.push('Referencias visuales (máximo 3 imágenes)');
+  // Tipo de diseño — Quick y Pro
+  if (paqueteKey !== 'motion') {
+    if (!document.querySelector('input[name="tipoDiseno"]:checked')) {
+      errores.push('Selecciona el tipo de diseño (Mis fotos / Diseño gráfico)');
+    }
   }
 
-  // Validar que el folio esté listo y tenga formato correcto
-  const folioVal = document.getElementById('numeroFolio')?.value || '';
+  // Fotos — validar cantidad máxima
+  const maxFotos   = PAQUETES[paqueteKey].maxFotos;
+  const fotosInput = document.getElementById('fotos');
+  var _chkFotos    = document.querySelector('input[name="tienesFotos"]:checked');
+  const tieneFotosDisp = (_chkFotos ? _chkFotos.value : '') !== 'no';
+  const tipoDisenoChecked = document.querySelector('input[name="tipoDiseno"]:checked');
+  if (tieneFotosDisp && (paqueteKey === 'motion' || !tipoDisenoChecked || tipoDisenoChecked.value === 'fotos')) {
+    if (fotosInput && fotosInput.files.length > maxFotos) {
+      errores.push(`Fotos (máximo ${maxFotos} permitidas)`);
+    }
+  }
+  Array.from((fotosInput ? fotosInput.files : []) || []).forEach(f => {
+    if (!TIPOS_VALIDOS.includes(f.type)) errores.push(`"${f.name}" no es una imagen válida`);
+  });
+
+  // Confirmaciones — Quick (solo WSP), Pro (WSP o Correo)
+  if (paqueteKey === 'quick' || paqueteKey === 'pro') {
+    var _chkConf = document.querySelector('input[name="tipoConfirmacion"]:checked');
+    const tipoConf = _chkConf ? _chkConf.value : undefined;
+    if (!tipoConf) {
+      errores.push('Selecciona el método de confirmación de asistencia');
+    } else if (tipoConf === 'wsp') {
+      const el = document.getElementById('whatsappConfirmaciones');
+      if (!el || !el.value.trim()) { errores.push('WhatsApp para confirmaciones'); if (el) el.classList.add('error'); }
+    } else if (tipoConf === 'correo') {
+      const el = document.getElementById('correoConfirmaciones');
+      if (!el || !el.value.trim()) { errores.push('Correo para confirmaciones'); if (el) el.classList.add('error'); }
+    }
+  }
+
+  // Folio listo
+  const folioVal = (document.getElementById('numeroFolio') || {value: ''}).value || '';
   if (!folioVal || folioVal === 'Cargando...' || !/^FEST-\d+$/.test(folioVal)) {
     errores.push('El folio no está listo, espera un momento y recarga la página');
   }
-
-  // Validar tipos de archivo en fotos
-  Array.from(document.getElementById('fotos').files || []).forEach(f => {
-    if (!TIPOS_VALIDOS.includes(f.type)) errores.push(`Archivo "${f.name}" no es una imagen válida (usa JPG, PNG o WEBP)`);
-  });
 
   return errores;
 }
@@ -465,55 +482,75 @@ function validar(paqueteKey) {
 // ==================== RECOPILAR DATOS ====================
 
 function recopilarDatos(paqueteKey) {
-  const val = id => (document.getElementById(id)?.value || '').trim();
+  const val = function(id) { var _e = document.getElementById(id); return _e ? (_e.value || '').trim() : ''; };
+
+  // WhatsApp: prefijo + dígitos
+  const prefijo  = (document.getElementById('whatsappPrefijo') ? document.getElementById('whatsappPrefijo').value : '+52') || '+52';
+  const wspNum   = val('whatsapp').replace(/\D/g, '');
+  const whatsapp = prefijo + wspNum;
+
+  // Tipo evento: si es "Otro", usar la descripción
+  const tipoEvento = val('tipoEvento') === 'Otro'
+    ? ('Otro: ' + val('tipoEventoOtro'))
+    : val('tipoEvento');
+
+  const hayCeremonia = document.getElementById('hayCeremonia') && document.getElementById('hayCeremonia').checked;
+  const hayRecepcion = document.getElementById('hayRecepcion')  && document.getElementById('hayRecepcion').checked;
 
   const datos = {
-    folio:                  val('numeroFolio'),
-    fechaSolicitud:         val('fechaSolicitud'),
-    paquete:                PAQUETES[paqueteKey].nombre,
-    nombreCompleto:         val('nombreCompleto'),
-    whatsapp:               val('whatsapp'),
-    correo:                 val('correo'),
-    tipoEvento:             val('tipoEvento'),
-    fechaEvento:            val('fechaEvento'),
-    nombresFestejados:      val('nombresFestejados'),
-    lugarCeremonia:         document.getElementById('hayCeremonia')?.checked ? val('lugarCeremonia')     : '',
-    horaCeremonia:          document.getElementById('hayCeremonia')?.checked ? val('horaCeremonia')      : '',
-    ubicacionCeremonia:     document.getElementById('hayCeremonia')?.checked ? val('ubicacionCeremonia') : '',
-    lugarRecepcion:         document.getElementById('hayRecepcion')?.checked  ? val('lugarRecepcion')     : '',
-    horaRecepcion:          document.getElementById('hayRecepcion')?.checked  ? val('horaRecepcion')      : '',
-    ubicacionRecepcion:     document.getElementById('hayRecepcion')?.checked  ? val('ubicacionRecepcion') : '',
-    whatsappConfirmaciones: document.querySelector('input[name="tipoConfirmacion"]:checked')?.value === 'wsp'
-                            ? val('whatsappConfirmaciones') : '',
-    correoConfirmaciones:   document.querySelector('input[name="tipoConfirmacion"]:checked')?.value === 'correo'
-                            ? val('correoConfirmaciones') : '',
-    paletaColores:          val('paletaColores'),
-    tipoDiseno:             (document.querySelector('input[name="tipoDiseno"]:checked')?.value || ''),
-    estiloInvitacion:       val('estiloInvitacion'),
-    ideasExtra:             document.querySelector('input[name="tieneIdeas"]:checked')?.value === 'tengoIdea' ? val('ideasExtra') : '',
-    nombreEnlace:           val('nombreEnlace'),
-    mensajeEspecial:        document.querySelector('input[name="tipoMensaje"]:checked')?.value === 'propio'
-                            ? val('mensajeEspecial') : '',
-    token:                  FESTALI_TOKEN,
+    folio:               val('numeroFolio'),
+    fechaSolicitud:      val('fechaSolicitud'),
+    paquete:             PAQUETES[paqueteKey].nombre,
+    nombreCompleto:      val('nombreCompleto'),
+    whatsapp:            whatsapp,
+    correo:              val('correo'),
+    tipoEvento:          tipoEvento,
+    fechaEvento:         val('fechaEvento'),
+    nombresFestejados:   val('nombresFestejados'),
+    hayCeremonia:        hayCeremonia ? 'Sí' : 'No',
+    lugarCeremonia:      hayCeremonia ? val('lugarCeremonia')     : '',
+    horaCeremonia:       hayCeremonia ? val('horaCeremonia')      : '',
+    ubicacionCeremonia:  (hayCeremonia && paqueteKey !== 'motion') ? val('ubicacionCeremonia') : '',
+    hayRecepcion:        hayRecepcion ? 'Sí' : 'No',
+    lugarRecepcion:      hayRecepcion ? val('lugarRecepcion')     : '',
+    horaRecepcion:       hayRecepcion ? val('horaRecepcion')      : '',
+    ubicacionRecepcion:  (hayRecepcion && paqueteKey !== 'motion') ? val('ubicacionRecepcion') : '',
+    estiloInvitacion:    val('estiloInvitacion'),
+    descripcionEstilo:   val('descripcionEstilo'),
+    dressCode:           val('dressCode'),
+    token:               FESTALI_TOKEN,
   };
 
   const extras = PAQUETES[paqueteKey].extras;
 
-  if (extras.includes('smart')) {
-    datos.dressCode       = val('dressCode');
-    datos.datosAsistencia = val('datosAsistencia');
-    datos.soloAdultos     = document.getElementById('soloAdultos')?.checked ? 'Sí' : 'No';
-    datos.tipoRegalos     = (document.querySelector('input[name="tipoRegalos"]:checked')?.value || '');
+  // Quick y Pro: tienen tipo diseño, mensaje y confirmaciones
+  if (extras.includes('quick')) {
+    datos.tipoDiseno   = ((function(){ var _e = document.querySelector('input[name="tipoDiseno"]:checked'); return _e ? _e.value : ''; })() || '');
+    datos.mensajeEspecial = (function(){ var _e = document.querySelector('input[name="tipoMensaje"]:checked'); return _e && _e.value === 'propio'; })()
+                            ? val('mensajeEspecial') : '';
+    datos.mensajeFestali  = (function(){ var _e = document.querySelector('input[name="tipoMensaje"]:checked'); return _e && _e.value === 'festali'; })() ? 'Sí' : '';
+    datos.whatsappConfirmaciones = (function(){ var _e = document.querySelector('input[name="tipoConfirmacion"]:checked'); return _e && _e.value === 'wsp'; })()
+                                   ? val('whatsappConfirmaciones') : '';
+    datos.correoConfirmaciones   = (function(){ var _e = document.querySelector('input[name="tipoConfirmacion"]:checked'); return _e && _e.value === 'correo'; })()
+                                   ? val('correoConfirmaciones') : '';
+    datos.tipoRegalos     = ((function(){ var _e = document.querySelector('input[name="tipoRegalos"]:checked'); return _e ? _e.value : ''; })() || '');
     datos.mesaRegalosLink = val('mesaRegalosLink');
     datos.bancoCuenta     = val('bancoCuenta');
     datos.titularCuenta   = val('titularCuenta');
     datos.clabeCuenta     = val('clabeCuenta');
   }
 
-  if (extras.includes('premium')) {
-    datos.musica        = val('musica');
-    datos.agendaEvento  = document.querySelector('input[name="tipoAgenda"]:checked')?.value === 'texto'
-                          ? val('agendaEvento') : '';
+  // Motion: solo música (no confirmaciones ni regalos)
+  if (extras.includes('motion') && !extras.includes('quick')) {
+    datos.musica = val('musica');
+  }
+
+  // Pro: todo + música + asistencia + hospedaje
+  if (extras.includes('pro')) {
+    datos.musica          = val('musica');
+    datos.datosAsistencia = val('datosAsistencia');
+    datos.soloAdultos     = (document.getElementById('soloAdultos') && document.getElementById('soloAdultos').checked) ? 'Sí' : 'No';
+    datos.hospedaje       = val('hospedaje');
   }
 
   return datos;
@@ -536,16 +573,14 @@ function archivoABase64(archivo) {
 
 // ==================== ENVÍO ====================
 
-async function enviar(datos, archivos, referencias, agendaImg, dressCodeImgs) {
+async function enviar(datos, archivos, imagenRefEstilo, dressCodeImgs) {
   // Convertir archivos a base64
-  const fotosBase64      = await Promise.all(Array.from(archivos).map(archivoABase64));
-  const refsBase64       = await Promise.all(Array.from(referencias    || []).map(archivoABase64));
-  const agendaBase64     = await Promise.all(Array.from(agendaImg      || []).map(archivoABase64));
-  const dressCodeBase64  = await Promise.all(Array.from(dressCodeImgs  || []).map(archivoABase64));
+  const fotosBase64      = await Promise.all(Array.from(archivos          || []).map(archivoABase64));
+  const refsBase64       = await Promise.all(Array.from(imagenRefEstilo   || []).map(archivoABase64));
+  const dressCodeBase64  = await Promise.all(Array.from(dressCodeImgs     || []).map(archivoABase64));
   const payload = Object.assign({}, datos, {
     fotos: fotosBase64,
     referencias: refsBase64,
-    agendaImagenes: agendaBase64,
     dressCodeImagenes: dressCodeBase64,
   });
 
@@ -587,35 +622,14 @@ async function enviar(datos, archivos, referencias, agendaImg, dressCodeImgs) {
 
 // ==================== MOSTRAR CONFIRMACIÓN ====================
 
-function mostrarConfirmacion(folio, initPoint) {
-  // Ocultar formulario y banner
+function mostrarConfirmacion(folio) {
   const wrapper = document.getElementById('formWrapper');
   const banner  = document.getElementById('paqueteBanner');
   if (wrapper) wrapper.style.display = 'none';
   if (banner)  banner.style.display  = 'none';
 
-  // Mostrar pantalla de éxito
-  const confirmacion = document.getElementById('confirmacion');
   document.getElementById('folioConfirmacion').textContent = folio;
-
-  // Botón de pago MP — usar link dinámico si está disponible, si no usar el link estático
-  const linksPago = {
-    essence: 'https://mpago.la/2keQv3Z',
-    smart:   'https://mpago.la/2TiAHyW',
-    premium: 'https://mpago.la/2TLTp3t',
-  };
-  const params  = new URLSearchParams(window.location.search);
-  const paquete = (params.get('paquete') || '').toLowerCase();
-  const btnMP   = document.getElementById('btnPagoMP');
-  if (btnMP) {
-    btnMP.href = initPoint || linksPago[paquete] || linksPago.essence;
-  }
-
-  // Actualizar folio en la nota de pago
-  const folioNota = document.getElementById('folioNotaPago');
-  if (folioNota) folioNota.textContent = folio;
-
-  confirmacion.classList.add('active');
+  document.getElementById('confirmacion').classList.add('active');
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -639,31 +653,29 @@ function mostrarErrores(errores) {
 // ==================== WIZARD ====================
 
 function initWizard(paqueteKey) {
-  const A = ['essence','smart','premium'];
-  const S = ['smart','premium'];
-  const P = ['premium'];
+  const A  = ['quick','motion','pro'];
+  const QP = ['quick','pro'];
+  const MP = ['motion','pro'];
+  const P  = ['pro'];
 
   const todosLosPasos = [
-    { id: 'q-nombre',      titulo: '¿Cuál es tu nombre?',                    paquetes: A },
-    { id: 'q-whatsapp',    titulo: 'Tu número de WhatsApp',                   paquetes: A },
-    { id: 'q-correo',      titulo: 'Tu correo electrónico',                   paquetes: A },
-    { id: 'q-evento',      titulo: '¿Qué tipo de evento es?',                 paquetes: A },
-    { id: 'q-fecha',       titulo: '¿Cuándo es el evento?',                   paquetes: A },
-    { id: 'q-festejados',  titulo: '¿Quién o quiénes son los festejados?',    paquetes: A },
-    { id: 'q-ubicacion',   titulo: '¿Dónde será el evento?',                  paquetes: A },
-    { id: 'q-paleta',      titulo: '¿Qué colores deseas en tu invitación?',   paquetes: A },
-    { id: 'q-estilo',      titulo: '¿Qué estilo te gusta?',                   paquetes: A },
-    { id: 'q-diseno',      titulo: '¿Cómo quieres el diseño?',                paquetes: A },
-    { id: 'q-fotos',       titulo: 'Tus fotos',                               paquetes: A },
-    { id: 'q-ideas',       titulo: '¿Tienes ideas de diseño en mente?',       paquetes: A },
-    { id: 'q-enlace',      titulo: 'Nombre para tu enlace personalizado',     paquetes: A },
-    { id: 'q-mensaje',     titulo: 'Mensaje especial para tus invitados',     paquetes: A },
-    { id: 'q-dresscode',   titulo: '¿Hay dress code?',                        paquetes: S },
-    { id: 'q-confirmacion',titulo: '¿Cómo confirmarán asistencia?',           paquetes: S },
-    { id: 'q-asistencia',  titulo: '¿Qué quieres saber de tus invitados?',   paquetes: S },
-    { id: 'q-regalos',     titulo: 'Mesa de regalos',                         paquetes: S },
-    { id: 'q-musica',      titulo: '¿Música de fondo para la invitación?',    paquetes: P },
-    { id: 'q-agenda',      titulo: '¿Incluyes agenda del evento?',            paquetes: P },
+    { id: 'q-nombre',      titulo: '¿Cuál es tu nombre?',                    paquetes: A  },
+    { id: 'q-whatsapp',    titulo: 'Tu número de WhatsApp',                   paquetes: A  },
+    { id: 'q-correo',      titulo: 'Tu correo electrónico',                   paquetes: A  },
+    { id: 'q-evento',      titulo: '¿Qué tipo de evento es?',                 paquetes: A  },
+    { id: 'q-fecha',       titulo: '¿Cuándo es el evento?',                   paquetes: A  },
+    { id: 'q-festejados',  titulo: '¿Quién o quiénes son los festejados?',    paquetes: A  },
+    { id: 'q-ubicacion',   titulo: '¿Dónde será el evento?',                  paquetes: A  },
+    { id: 'q-estilo',      titulo: '¿Qué estilo te gusta?',                   paquetes: A  },
+    { id: 'q-diseno',      titulo: '¿Cómo quieres el diseño?',                paquetes: QP },
+    { id: 'q-fotos',       titulo: 'Tus fotos',                               paquetes: A  },
+    { id: 'q-mensaje',     titulo: 'Mensaje especial para tus invitados',     paquetes: QP },
+    { id: 'q-dresscode',   titulo: '¿Hay dress code?',                        paquetes: A  },
+    { id: 'q-confirmacion',titulo: '¿Cómo confirmarán asistencia?',           paquetes: QP },
+    { id: 'q-asistencia',  titulo: '¿Qué quieres saber de tus invitados?',   paquetes: P  },
+    { id: 'q-regalos',     titulo: 'Mesa de regalos',                         paquetes: QP },
+    { id: 'q-musica',      titulo: '¿Canción para el video/invitación?',      paquetes: MP },
+    { id: 'q-hospedaje',   titulo: 'Información de hospedaje',                paquetes: P  },
   ];
 
   const pasos = todosLosPasos.filter(p => p.paquetes.includes(paqueteKey));
@@ -688,30 +700,20 @@ function initWizard(paqueteKey) {
   function validarPasoActual() {
     const id      = pasos[actual].id;
     const errores = [];
-    const marcar  = fieldId => document.getElementById(fieldId)?.classList.add('error');
+    const marcar  = function(fieldId) { var _e = document.getElementById(fieldId); if (_e) _e.classList.add('error'); };
 
     if (id === 'q-nombre') {
       const el = document.getElementById('nombreCompleto');
-      if (!el?.value.trim()) { errores.push('Escribe tu nombre completo'); marcar('nombreCompleto'); }
-    }
-    if (id === 'q-whatsapp') {
-      const el  = document.getElementById('whatsapp');
-      const val = (el?.value || '').replace(/\s/g,'');
-      if (!val) { errores.push('Escribe tu WhatsApp'); marcar('whatsapp'); }
-      else if (!/^\+?\d{7,15}$/.test(val)) { errores.push('Formato inválido (ej: +52 686 000 0000)'); marcar('whatsapp'); }
+      if (!el || !el.value.trim()) { errores.push('Escribe tu nombre completo'); marcar('nombreCompleto'); }
     }
     if (id === 'q-correo') {
       const el = document.getElementById('correo');
-      if (!el?.value.trim()) { errores.push('Escribe tu correo'); marcar('correo'); }
+      if (!el || !el.value.trim()) { errores.push('Escribe tu correo'); marcar('correo'); }
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim())) { errores.push('Formato de correo inválido'); marcar('correo'); }
-    }
-    if (id === 'q-evento') {
-      const el = document.getElementById('tipoEvento');
-      if (!el?.value) { errores.push('Selecciona el tipo de evento'); marcar('tipoEvento'); }
     }
     if (id === 'q-fecha') {
       const el = document.getElementById('fechaEvento');
-      if (!el?.value) { errores.push('Selecciona la fecha del evento'); marcar('fechaEvento'); }
+      if (!el || !el.value) { errores.push('Selecciona la fecha del evento'); marcar('fechaEvento'); }
       else {
         const hoy = new Date(); hoy.setHours(0,0,0,0);
         if (new Date(el.value + 'T00:00:00') < hoy) { errores.push('La fecha no puede ser en el pasado'); marcar('fechaEvento'); }
@@ -719,73 +721,109 @@ function initWizard(paqueteKey) {
     }
     if (id === 'q-festejados') {
       const el = document.getElementById('nombresFestejados');
-      if (!el?.value.trim()) { errores.push('Escribe los nombres de los festejados'); marcar('nombresFestejados'); }
+      if (!el || !el.value.trim()) { errores.push('Escribe los nombres de los festejados'); marcar('nombresFestejados'); }
     }
     if (id === 'q-ubicacion') {
-      if (document.getElementById('hayCeremonia')?.checked) {
+      const cbCer = document.getElementById('hayCeremonia');
+      const cbRec = document.getElementById('hayRecepcion');
+      if (!cbCer.checked && !cbRec.checked) {
+        errores.push('Selecciona al menos una ubicación (ceremonia o recepción)');
+      }
+      if (cbCer && cbCer.checked) {
         const el = document.getElementById('lugarCeremonia');
-        if (!el?.value.trim()) { errores.push('Escribe el lugar de la ceremonia'); marcar('lugarCeremonia'); }
+        if (!el || !el.value.trim()) { errores.push('Escribe el lugar de la ceremonia'); marcar('lugarCeremonia'); }
         const elHora = document.getElementById('horaCeremonia');
-        if (!elHora?.value) { errores.push('Escribe la hora de la ceremonia'); marcar('horaCeremonia'); }
+        if (!elHora || !elHora.value) { errores.push('Escribe la hora de la ceremonia'); marcar('horaCeremonia'); }
       }
-      if (document.getElementById('hayRecepcion')?.checked) {
+      if (cbRec && cbRec.checked) {
         const el = document.getElementById('lugarRecepcion');
-        if (!el?.value.trim()) { errores.push('Escribe el lugar de la recepción'); marcar('lugarRecepcion'); }
+        if (!el || !el.value.trim()) { errores.push('Escribe el lugar de la recepción'); marcar('lugarRecepcion'); }
         const elHora = document.getElementById('horaRecepcion');
-        if (!elHora?.value) { errores.push('Escribe la hora de la recepción'); marcar('horaRecepcion'); }
+        if (!elHora || !elHora.value) { errores.push('Escribe la hora de la recepción'); marcar('horaRecepcion'); }
       }
-    }
-    if (id === 'q-paleta') {
-      const el = document.getElementById('paletaColores');
-      if (!el?.value.trim()) { errores.push('Describe la paleta de colores'); marcar('paletaColores'); }
     }
     if (id === 'q-estilo') {
       const el = document.getElementById('estiloInvitacion');
-      if (!el?.value) { errores.push('Selecciona un estilo de invitación'); marcar('estiloInvitacion'); }
+      if (!el || !el.value) { errores.push('Selecciona un estilo de invitación'); marcar('estiloInvitacion'); }
     }
     if (id === 'q-diseno') {
       if (!document.querySelector('input[name="tipoDiseno"]:checked')) errores.push('Selecciona el tipo de diseño');
     }
-    if (id === 'q-fotos') {
-      const tieneFotos = document.querySelector('input[name="tienesFotos"]:checked')?.value !== 'no';
-      const tipoDis    = document.querySelector('input[name="tipoDiseno"]:checked');
-      const minFotos   = PAQUETES[paqueteKey].minFotos;
-      if (tieneFotos && (!tipoDis || tipoDis.value === 'fotos')) {
-        if (document.getElementById('fotos').files.length < minFotos) errores.push(`Sube al menos ${minFotos} foto${minFotos > 1 ? 's' : ''}`);
+    if (id === 'q-evento') {
+      const el = document.getElementById('tipoEvento');
+      if (!el || !el.value) { errores.push('Selecciona el tipo de evento'); marcar('tipoEvento'); }
+      else if (el.value === 'Otro') {
+        const otroEl = document.getElementById('tipoEventoOtro');
+        if (!otroEl || !otroEl.value.trim()) { errores.push('Describe tu tipo de evento'); marcar('tipoEventoOtro'); }
       }
-      Array.from(document.getElementById('fotos').files || []).forEach(f => {
+    }
+    if (id === 'q-whatsapp') {
+      const el     = document.getElementById('whatsapp');
+      const digits = ((el ? el.value : '') || '').replace(/\D/g, '');
+      if (!digits) { errores.push('Escribe tu número de WhatsApp'); marcar('whatsapp'); }
+      else if (digits.length !== 10) { errores.push('El número debe tener 10 dígitos'); marcar('whatsapp'); }
+    }
+    if (id === 'q-mensaje') {
+      if (!document.querySelector('input[name="tipoMensaje"]:checked')) {
+        errores.push('Selecciona una opción para el mensaje');
+      }
+    }
+    if (id === 'q-fotos') {
+      var _chkTieneFotos = document.querySelector('input[name="tienesFotos"]:checked');
+      const tieneFotos   = (_chkTieneFotos ? _chkTieneFotos.value : '') !== 'no';
+      const tipoDis      = document.querySelector('input[name="tipoDiseno"]:checked');
+      const maxFotos     = PAQUETES[paqueteKey].maxFotos;
+      const fotosFiles   = document.getElementById('fotos').files;
+      if (tieneFotos && (paqueteKey === 'motion' || !tipoDis || tipoDis.value === 'fotos')) {
+        if (fotosFiles.length > maxFotos) errores.push(`Máximo ${maxFotos} foto${maxFotos > 1 ? 's' : ''} permitidas`);
+      }
+      Array.from(fotosFiles || []).forEach(f => {
         if (!TIPOS_VALIDOS.includes(f.type)) errores.push(`"${f.name}" no es una imagen válida`);
       });
     }
-    if (id === 'q-ideas') {
-      const tieneIdeas = document.querySelector('input[name="tieneIdeas"]:checked')?.value;
-      if (tieneIdeas === 'tengoIdea' && document.getElementById('referenciaVisual').files.length > 3) {
-        errores.push('Máximo 3 imágenes de referencia');
-      }
-    }
     if (id === 'q-confirmacion') {
-      const tipoConf = document.querySelector('input[name="tipoConfirmacion"]:checked')?.value;
+      var _chkTipoConf = document.querySelector('input[name="tipoConfirmacion"]:checked');
+      const tipoConf = _chkTipoConf ? _chkTipoConf.value : undefined;
       if (!tipoConf) { errores.push('Selecciona el método de confirmación'); }
       else if (tipoConf === 'wsp') {
         const el = document.getElementById('whatsappConfirmaciones');
-        if (!el?.value.trim()) { errores.push('Escribe el WhatsApp para confirmaciones'); marcar('whatsappConfirmaciones'); }
+        if (!el || !el.value.trim()) { errores.push('Escribe el WhatsApp para confirmaciones'); marcar('whatsappConfirmaciones'); }
       } else if (tipoConf === 'correo') {
         const el = document.getElementById('correoConfirmaciones');
-        if (!el?.value.trim()) { errores.push('Escribe el correo para confirmaciones'); marcar('correoConfirmaciones'); }
+        if (!el || !el.value.trim()) { errores.push('Escribe el correo para confirmaciones'); marcar('correoConfirmaciones'); }
       }
     }
     return errores;
+  }
+
+  function esGrafico() {
+    var _chk = document.querySelector('input[name="tipoDiseno"]:checked');
+    return _chk && _chk.value === 'grafico';
+  }
+
+  function siguientePaso(desde) {
+    var n = desde + 1;
+    if (n < pasos.length && pasos[n].id === 'q-fotos' && esGrafico()) n++;
+    return n;
+  }
+
+  function anteriorPaso(desde) {
+    var n = desde - 1;
+    if (n >= 0 && pasos[n].id === 'q-fotos' && esGrafico()) n--;
+    return n;
   }
 
   document.getElementById('btnSiguiente').addEventListener('click', () => {
     document.querySelectorAll('.form-control.error').forEach(el => el.classList.remove('error'));
     const errores = validarPasoActual();
     if (errores.length > 0) { mostrarErrores(errores); return; }
-    if (actual < pasos.length - 1) irA(actual + 1);
+    const sig = siguientePaso(actual);
+    if (sig < pasos.length) irA(sig);
   });
 
   document.getElementById('btnAnterior').addEventListener('click', () => {
-    if (actual > 0) irA(actual - 1);
+    const ant = anteriorPaso(actual);
+    if (ant >= 0) irA(ant);
   });
 
   irA(0);
@@ -846,22 +884,24 @@ function initSubmit(paqueteKey) {
     iniciarMensajesSpinner();
 
     try {
-      const datos       = recopilarDatos(paqueteKey);
-      const archivos    = document.getElementById('fotos').files;
-      const usaIdeas      = document.querySelector('input[name="tieneIdeas"]:checked')?.value === 'tengoIdea';
-      const referencias   = usaIdeas ? document.getElementById('referenciaVisual').files : [];
-      const usaImgAgenda    = document.querySelector('input[name="tipoAgenda"]:checked')?.value === 'imagen';
-      const agendaImg       = usaImgAgenda ? document.getElementById('agendaImagenFile').files : [];
-      const usaDressCodeImg = document.getElementById('cbDressCodeImg')?.checked;
+      const datos    = recopilarDatos(paqueteKey);
+      const archivos = document.getElementById('fotos').files;
+
+      const imgRefEstiloInput = document.getElementById('imagenRefEstilo');
+      const imagenRefEstilo   = imgRefEstiloInput ? imgRefEstiloInput.files : [];
+
+      var _cbDressCode      = document.getElementById('cbDressCodeImg');
+      const usaDressCodeImg = _cbDressCode && _cbDressCode.checked;
       const dressCodeImgs   = usaDressCodeImg ? document.getElementById('dressCodeImgFile').files : [];
-      const folio       = datos.folio;
+
+      const folio = datos.folio;
 
       console.log('🚀 Llamando a enviar()...');
-      const resultado = await enviar(datos, archivos, referencias, agendaImg, dressCodeImgs);
+      await enviar(datos, archivos, imagenRefEstilo, dressCodeImgs);
 
       detenerMensajesSpinner();
       spinner.classList.remove('active');
-      mostrarConfirmacion(folio, resultado?.initPoint);
+      mostrarConfirmacion(folio);
 
     } catch (err) {
       detenerMensajesSpinner();

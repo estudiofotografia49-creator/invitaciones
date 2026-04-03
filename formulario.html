@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=3">
+  <link rel="stylesheet" href="styles.css?v=5">
 </head>
 <body id="top" class="form-page has-navbar">
 
@@ -65,8 +65,15 @@
         <!-- Q2: WhatsApp -->
         <div class="form-step" id="q-whatsapp">
           <div class="form-group">
-            <input type="tel" class="form-control" id="whatsapp" name="whatsapp"
-                   placeholder="+52 686 000 0000" maxlength="15" required>
+            <div class="phone-input-group">
+              <select class="phone-prefix" id="whatsappPrefijo">
+                <option value="+52">🇲🇽 +52</option>
+                <option value="+1">🇺🇸 +1</option>
+              </select>
+              <input type="tel" class="form-control phone-number" id="whatsapp" name="whatsapp"
+                     placeholder="686 000 0000" maxlength="10" required>
+            </div>
+            <p class="form-hint">Solo dígitos, sin espacios ni guiones.</p>
           </div>
         </div>
 
@@ -90,6 +97,12 @@
               <option value="Graduación">Graduación</option>
               <option value="Otro">Otro</option>
             </select>
+          </div>
+          <div id="grupoEventoOtro" style="display:none">
+            <div class="form-group">
+              <input type="text" class="form-control" id="tipoEventoOtro" name="tipoEventoOtro"
+                     placeholder="Describe tu tipo de evento...">
+            </div>
           </div>
         </div>
 
@@ -126,7 +139,7 @@
               <label for="horaCeremonia">Hora de la ceremonia <span class="req">*</span></label>
               <input type="time" class="form-control" id="horaCeremonia" name="horaCeremonia">
             </div>
-            <div class="form-group">
+            <div class="form-group" id="grupoEnlaceCeremonia">
               <label for="ubicacionCeremonia">Enlace de ubicación (opcional)</label>
               <input type="url" class="form-control" id="ubicacionCeremonia" name="ubicacionCeremonia"
                      placeholder="https://maps.google.com/...">
@@ -148,7 +161,7 @@
               <label for="horaRecepcion">Hora de la recepción <span class="req">*</span></label>
               <input type="time" class="form-control" id="horaRecepcion" name="horaRecepcion">
             </div>
-            <div class="form-group">
+            <div class="form-group" id="grupoEnlaceRecepcion">
               <label for="ubicacionRecepcion">Enlace de ubicación (opcional)</label>
               <input type="url" class="form-control" id="ubicacionRecepcion" name="ubicacionRecepcion"
                      placeholder="https://maps.google.com/...">
@@ -156,24 +169,33 @@
           </div>
         </div>
 
-        <!-- Q9: Paleta de colores -->
-        <div class="form-step" id="q-paleta">
-          <div class="form-group">
-            <textarea class="form-control" id="paletaColores" name="paletaColores"
-                      placeholder="Describe los colores que deseas para tu invitación..." required></textarea>
-          </div>
-        </div>
-
-        <!-- Q10: Estilo -->
+        <!-- Q9: Estilo -->
         <div class="form-step" id="q-estilo">
           <div class="form-group">
             <select class="form-control" id="estiloInvitacion" name="estiloInvitacion" required>
               <option value="">— Selecciona un estilo —</option>
-              <option value="Elegante y Clásico">Elegante y Clásico</option>
+              <option value="Elegante / Clásico">Elegante / Clásico</option>
               <option value="Moderno / Minimalista">Moderno / Minimalista</option>
               <option value="Floral / Romántico">Floral / Romántico</option>
-              <option value="Temático (Infantil/Fiesta)">Temático (Infantil/Fiesta)</option>
+              <option value="Temático">Temático</option>
             </select>
+          </div>
+          <div id="grupoEstiloDesc" style="display:none">
+            <div class="form-group">
+              <label>Cuéntanos tu visión <span style="color:#aaa;font-weight:400">(opcional)</span></label>
+              <textarea class="form-control" id="descripcionEstilo" name="descripcionEstilo"
+                        placeholder="Describe tu idea..." rows="3"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Imagen de referencia <span style="color:#aaa;font-weight:400">(opcional, máx. 1)</span></label>
+              <label class="file-label" for="imagenRefEstilo">
+                <span class="file-icon">🖼️</span>
+                <span class="file-texto">Haz clic para subir una imagen</span>
+                <span class="file-min">Máximo 1 imagen</span>
+              </label>
+              <input type="file" id="imagenRefEstilo" name="imagenRefEstilo" accept="image/*">
+              <p class="form-hint" id="refEstiloSeleccionada">Ninguna imagen seleccionada</p>
+            </div>
           </div>
         </div>
 
@@ -222,51 +244,7 @@
           </div>
         </div>
 
-        <!-- Q13: Ideas -->
-        <div class="form-step" id="q-ideas">
-          <div class="form-group">
-            <div class="radio-group">
-              <label class="radio-option">
-                <input type="radio" name="tieneIdeas" value="festali" id="ideasFestali" checked>
-                <span class="radio-label">✨ Se lo dejo al buen gusto de Festali</span>
-                <small class="radio-desc">Nuestro equipo creará algo especial para ti</small>
-              </label>
-              <label class="radio-option">
-                <input type="radio" name="tieneIdeas" value="tengoIdea" id="ideasPropia">
-                <span class="radio-label">💡 Tengo una idea</span>
-                <small class="radio-desc">Cuéntanos o sube referencias de inspiración</small>
-              </label>
-            </div>
-          </div>
-          <div id="grupoIdeas" style="display:none">
-            <div class="form-group">
-              <textarea class="form-control" id="ideasExtra" name="ideasExtra"
-                        placeholder="Describe detalles, colores, elementos que quieras incluir..."></textarea>
-            </div>
-            <div class="form-group">
-              <label>Sube tus referencias (máximo 3 imágenes)</label>
-              <label class="file-label" for="referenciaVisual">
-                <span class="file-icon">🖼️</span>
-                <span class="file-texto">Haz clic para seleccionar referencias</span>
-                <span class="file-min">Máximo 3 imágenes</span>
-              </label>
-              <input type="file" id="referenciaVisual" name="referenciaVisual" multiple accept="image/*">
-              <p class="form-hint" id="refsSeleccionadas">Ninguna referencia seleccionada</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Q14: Enlace -->
-        <div class="form-step" id="q-enlace">
-          <div class="form-group">
-            <input type="text" class="form-control" id="nombreEnlace" name="nombreEnlace"
-                   placeholder="boda-ana-y-luis">
-            <p class="form-hint">Solo letras minúsculas, números y guiones.</p>
-            <span id="previewEnlace" style="display:none"></span>
-          </div>
-        </div>
-
-        <!-- Q15: Mensaje -->
+        <!-- Q13: Mensaje -->
         <div class="form-step" id="q-mensaje">
           <div class="form-group">
             <div class="radio-group">
@@ -411,47 +389,12 @@
           </div>
         </div>
 
-        <!-- Q21: Agenda (premium) -->
-        <div class="form-step" id="q-agenda">
+        <!-- Q20: Hospedaje (pro) -->
+        <div class="form-step" id="q-hospedaje">
           <div class="form-group">
-            <div class="radio-group">
-              <label class="radio-option">
-                <input type="radio" name="tipoAgenda" value="ninguna" id="agendaOpcionNinguna">
-                <span class="radio-label">Sin itinerario</span>
-                <small class="radio-desc">No incluir agenda en la invitación</small>
-              </label>
-              <div>
-                <label class="radio-option">
-                  <input type="radio" name="tipoAgenda" value="texto" id="agendaOpcionTexto">
-                  <span class="radio-label">📝 Describir agenda</span>
-                  <small class="radio-desc">Escribe el programa del evento</small>
-                </label>
-                <div id="grupoAgendaTexto" style="display:none">
-                  <div class="form-group" style="margin-top:10px">
-                    <textarea class="form-control" id="agendaEvento" name="agendaEvento"
-                              placeholder="Ej: 5:00pm Ceremonia / 7:00pm Coctel / 8:00pm Cena..."></textarea>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <label class="radio-option">
-                  <input type="radio" name="tipoAgenda" value="imagen" id="agendaOpcionImagen">
-                  <span class="radio-label">🖼️ Subir imagen de agenda</span>
-                  <small class="radio-desc">Sube una foto o captura del programa</small>
-                </label>
-                <div id="grupoAgendaImagen" style="display:none">
-                  <div class="form-group" style="margin-top:10px">
-                    <label class="file-label" for="agendaImagenFile">
-                      <span class="file-icon">📋</span>
-                      <span class="file-texto">Haz clic para subir la imagen</span>
-                      <span class="file-min">1 imagen del programa</span>
-                    </label>
-                    <input type="file" id="agendaImagenFile" name="agendaImagenFile" accept="image/*">
-                    <p class="form-hint" id="agendaImgSeleccionada">Ninguna imagen seleccionada</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <textarea class="form-control" id="hospedaje" name="hospedaje"
+                      placeholder="Ej: Hotel Misión a 5 min de la iglesia — reserva en hotelxxx.com o al (686) 000-0000..."></textarea>
+            <p class="form-hint">Información útil para invitados que vengan de fuera (opcional).</p>
           </div>
         </div>
 
@@ -472,26 +415,29 @@
       <span class="pan-emoji">🍳</span>
       <p class="cooking-texto">Cocinando tu invitación...</p>
     </div>
-    <h2>¡Tu invitación está en proceso!</h2>
+    <h2>¡Tu solicitud fue recibida!</h2>
     <p class="folio-label">Número de folio:</p>
     <div class="folio-display" id="folioConfirmacion">FEST-000</div>
 
     <p class="confirmacion-pago-instruccion">
-      Para completar tu pedido realiza tu pago. Tu diseñador se contactará contigo a la brevedad.<br>
-      Tu invitación estará lista en 3 días hábiles.
+      Te enviamos un correo con el resumen de tu solicitud y los links de pago.<br>
+      <strong>Revisa tu bandeja de entrada</strong> (y carpeta de spam, por si acaso).
     </p>
 
-    <a id="btnPagoMP" href="#" target="_blank" rel="noopener noreferrer" class="btn-pago-mp">
-      💳 Realizar mi pago
-    </a>
-    <p class="confirmacion-metodos-pago">
-      Acepta tarjeta de crédito/débito, transferencia SPEI y pago en Oxxo
+    <p class="confirmacion-pago-nota">
+      Al completar tu pago recibirás una confirmación automática.<br>
+      Tu invitación estará lista en máximo <strong>3 días hábiles</strong>.
     </p>
 
-    <a href="https://wa.me/526862301280" target="_blank" rel="noopener noreferrer" class="btn-wsp">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:8px"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-      ¿Dudas? Escríbenos, con gusto te atendemos
-    </a>
+    <div class="confirmacion-botones">
+      <a href="https://wa.me/526862301280" target="_blank" rel="noopener noreferrer" class="btn-wsp">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        WhatsApp
+      </a>
+      <a href="mailto:festaliconecta@gmail.com" class="btn-email">
+        ✉ Correo
+      </a>
+    </div>
   </div>
 
   <!-- Volver a inicio (solo móvil) -->
@@ -513,6 +459,6 @@
     <a href="#top" class="fab fab-top" title="Volver arriba">↑</a>
   </div>
 
-  <script src="formulario.js?v=4"></script>
+  <script src="formulario.js?v=7"></script>
 </body>
 </html>
