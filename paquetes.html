@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=4">
+  <link rel="stylesheet" href="styles.css?v=5">
 
   <style>
     /* ── Cocogoose Pro ── */
@@ -276,8 +276,9 @@
   <!-- ==================== NAVBAR ==================== -->
   <nav class="navbar">
     <div class="nav-links">
-      <a href="index.html" class="nav-link">Inicio</a>
-      <a href="paquetes.html" class="nav-link">Invitaciones</a>
+      <a href="index.html" class="nav-link" id="navInicio">Inicio</a>
+      <a href="paquetes.html" class="nav-link" id="navInvitaciones">Invitaciones</a>
+      <button class="lang-toggle" id="langToggle" onclick="toggleLangPaquetes()">🇺🇸 EN</button>
     </div>
   </nav>
 
@@ -293,8 +294,8 @@
 
   <!-- ==================== PAQUETES ==================== -->
   <section class="paquetes" id="paquetes">
-    <h2 class="paquetes-titulo">Elige tu paquete</h2>
-    <p class="paquetes-subtitulo">Tres opciones pensadas para cada tipo de celebración</p>
+    <h2 class="paquetes-titulo" id="paqTitulo">Elige tu paquete</h2>
+    <p class="paquetes-subtitulo" id="paqSubtitulo">Tres opciones pensadas para cada tipo de celebración</p>
 
     <div class="cards-container">
 
@@ -303,19 +304,19 @@
 
         <div class="card" data-aos-delay="0">
           <div class="card-nombre">Digital Quick</div>
-          <div class="card-subtitulo">Práctico, elegante y listo para compartir</div>
-          <div class="card-precio">$650 <span>MXN</span></div>
+          <div class="card-subtitulo" id="sub-quick">Práctico, elegante y listo para compartir</div>
+          <div class="card-precio" data-mxn="650" data-usd="32.50">$650 <span>MXN</span></div>
           <div class="card-divider"></div>
-          <ul class="features-list">
+          <ul class="features-list" id="feat-quick">
             <li>📄 PDF interactivo</li>
-            <li>Diseño personalizado</li>
-            <li>Ubicación GPS (Maps / Waze)</li>
-            <li>Confirmación por WhatsApp</li>
-            <li>Dress code</li>
-            <li>Hasta 3 fotos</li>
-            <li>Entrega en 48–72 hrs</li>
+            <li data-i18n="feat_diseno">Diseño personalizado</li>
+            <li data-i18n="feat_gps">Ubicación GPS (Maps / Waze)</li>
+            <li data-i18n="feat_wsp">Confirmación por WhatsApp</li>
+            <li data-i18n="feat_dress">Dress code</li>
+            <li data-i18n="feat_fotos3">Hasta 3 fotos</li>
+            <li data-i18n="feat_48h">Entrega en 48–72 hrs</li>
           </ul>
-          <a href="formulario.html?paquete=quick" class="btn-contratar">
+          <a href="formulario.html?paquete=quick" class="btn-contratar" data-i18n="btn_contratar">
             ¡Crear mi invitación con un profesional!
           </a>
         </div>
@@ -326,21 +327,21 @@
       <div class="card-col">
 
         <div class="card destacado" data-aos-delay="120">
-          <div class="badge">⭐ Recomendado</div>
+          <div class="badge" data-i18n="badge_rec">⭐ Recomendado</div>
           <div class="card-nombre">Motion Impact</div>
-          <div class="card-subtitulo">Video invitación que genera emoción</div>
-          <div class="card-precio">$950 <span>MXN</span></div>
+          <div class="card-subtitulo" id="sub-motion">Video invitación que genera emoción</div>
+          <div class="card-precio" data-mxn="950" data-usd="47.50">$950 <span>MXN</span></div>
           <div class="card-divider"></div>
-          <ul class="features-list">
+          <ul class="features-list" id="feat-motion">
             <li>🎬 Video invitación MP4</li>
-            <li>Diseño personalizado</li>
-            <li>Animaciones profesionales</li>
-            <li>Tu canción favorita</li>
-            <li>Hasta 3 fotos en el video</li>
-            <li>Tarjeta PDF de regalo</li>
-            <li>Ideal para WhatsApp e Instagram</li>
+            <li data-i18n="feat_diseno">Diseño personalizado</li>
+            <li data-i18n="feat_anim">Animaciones profesionales</li>
+            <li data-i18n="feat_cancion">Tu canción favorita</li>
+            <li data-i18n="feat_fotos3v">Hasta 3 fotos en el video</li>
+            <li data-i18n="feat_pdf">Tarjeta PDF de regalo</li>
+            <li data-i18n="feat_redes">Ideal para WhatsApp e Instagram</li>
           </ul>
-          <a href="formulario.html?paquete=motion" class="btn-contratar">
+          <a href="formulario.html?paquete=motion" class="btn-contratar" data-i18n="btn_contratar">
             ¡Crear mi invitación con un profesional!
           </a>
         </div>
@@ -352,20 +353,20 @@
 
         <div class="card" data-aos-delay="240">
           <div class="card-nombre">Experience Pro</div>
-          <div class="card-subtitulo">La máxima experiencia digital</div>
-          <div class="card-precio">$2,100 <span>MXN</span></div>
+          <div class="card-subtitulo" id="sub-pro">La máxima experiencia digital</div>
+          <div class="card-precio" data-mxn="2100" data-usd="105">$2,100 <span>MXN</span></div>
           <div class="card-divider"></div>
-          <ul class="features-list">
+          <ul class="features-list" id="feat-pro">
             <li>🌐 Sitio web interactivo</li>
-            <li>Diseño personalizado</li>
-            <li>Confirmaciones automáticas (RSVP)</li>
-            <li>Cuenta regresiva en tiempo real</li>
-            <li>Galería hasta 10 fotos</li>
-            <li>Mesa de regalos</li>
-            <li>Dress code visual</li>
-            <li>Activo 3 meses</li>
+            <li data-i18n="feat_diseno">Diseño personalizado</li>
+            <li data-i18n="feat_rsvp">Confirmaciones automáticas (RSVP)</li>
+            <li data-i18n="feat_countdown">Cuenta regresiva en tiempo real</li>
+            <li data-i18n="feat_fotos10">Galería hasta 10 fotos</li>
+            <li data-i18n="feat_regalos">Mesa de regalos</li>
+            <li data-i18n="feat_dress">Dress code visual</li>
+            <li data-i18n="feat_3meses">Activo 3 meses</li>
           </ul>
-          <a href="formulario.html?paquete=pro" class="btn-contratar">
+          <a href="formulario.html?paquete=pro" class="btn-contratar" data-i18n="btn_contratar">
             ¡Crear mi invitación con un profesional!
           </a>
         </div>
@@ -397,6 +398,120 @@
   </div>
 
   <script src="landing.js?v=3"></script>
+  <script>
+    var PAQ_T = {
+      es: {
+        navInicio: 'Inicio', navInvitaciones: 'Invitaciones',
+        paqTitulo: 'Elige tu paquete',
+        paqSubtitulo: 'Tres opciones pensadas para cada tipo de celebración',
+        'sub-quick':  'Práctico, elegante y listo para compartir',
+        'sub-motion': 'Video invitación que genera emoción',
+        'sub-pro':    'La máxima experiencia digital',
+        badge_rec: '⭐ Recomendado',
+        feat_diseno: 'Diseño personalizado',
+        feat_gps: 'Ubicación GPS (Maps / Waze)',
+        feat_wsp: 'Confirmación por WhatsApp',
+        feat_dress: 'Dress code',
+        feat_fotos3: 'Hasta 3 fotos',
+        feat_48h: 'Entrega en 48–72 hrs',
+        feat_anim: 'Animaciones profesionales',
+        feat_cancion: 'Tu canción favorita',
+        feat_fotos3v: 'Hasta 3 fotos en el video',
+        feat_pdf: 'Tarjeta PDF de regalo',
+        feat_redes: 'Ideal para WhatsApp e Instagram',
+        feat_rsvp: 'Confirmaciones automáticas (RSVP)',
+        feat_countdown: 'Cuenta regresiva en tiempo real',
+        feat_fotos10: 'Galería hasta 10 fotos',
+        feat_regalos: 'Mesa de regalos',
+        feat_dress_visual: 'Dress code visual',
+        feat_3meses: 'Activo 3 meses',
+        btn_contratar: '¡Crear mi invitación con un profesional!',
+        lang_btn: '🇺🇸 EN', currency: 'MXN'
+      },
+      en: {
+        navInicio: 'Home', navInvitaciones: 'Invitations',
+        paqTitulo: 'Choose your package',
+        paqSubtitulo: 'Three options designed for every type of celebration',
+        'sub-quick':  'Practical, elegant and ready to share',
+        'sub-motion': 'Video invitation that creates excitement',
+        'sub-pro':    'The ultimate digital experience',
+        badge_rec: '⭐ Recommended',
+        feat_diseno: 'Custom design',
+        feat_gps: 'GPS location (Maps / Waze)',
+        feat_wsp: 'RSVP via WhatsApp',
+        feat_dress: 'Dress code',
+        feat_fotos3: 'Up to 3 photos',
+        feat_48h: 'Delivery in 48–72 hrs',
+        feat_anim: 'Professional animations',
+        feat_cancion: 'Your favorite song',
+        feat_fotos3v: 'Up to 3 photos in the video',
+        feat_pdf: 'PDF card included',
+        feat_redes: 'Perfect for WhatsApp & Instagram',
+        feat_rsvp: 'Automatic RSVP',
+        feat_countdown: 'Real-time countdown',
+        feat_fotos10: 'Gallery up to 10 photos',
+        feat_regalos: 'Gift registry',
+        feat_dress_visual: 'Visual dress code',
+        feat_3meses: 'Active for 3 months',
+        btn_contratar: 'Create my invitation with a professional!',
+        lang_btn: '🇲🇽 ES', currency: 'USD'
+      }
+    };
+
+    function getPaqLang() {
+      var saved = localStorage.getItem('festali_lang');
+      if (saved) return saved;
+      return navigator.language.startsWith('en') ? 'en' : 'es';
+    }
+
+    function applyPaqLang() {
+      var lang = getPaqLang();
+      var T = PAQ_T[lang];
+
+      // Navbar
+      var ni = document.getElementById('navInicio');
+      var nv = document.getElementById('navInvitaciones');
+      var tb = document.getElementById('langToggle');
+      if (ni) ni.textContent = T.navInicio;
+      if (nv) nv.textContent = T.navInvitaciones;
+      if (tb) tb.textContent = T.lang_btn;
+
+      // Títulos sección
+      var pt = document.getElementById('paqTitulo');
+      var ps = document.getElementById('paqSubtitulo');
+      if (pt) pt.textContent = T.paqTitulo;
+      if (ps) ps.textContent = T.paqSubtitulo;
+
+      // Subtítulos cards
+      ['quick','motion','pro'].forEach(function(id) {
+        var el = document.getElementById('sub-' + id);
+        if (el) el.textContent = T['sub-' + id];
+      });
+
+      // Precios
+      document.querySelectorAll('.card-precio[data-mxn]').forEach(function(el) {
+        var amount = lang === 'en' ? el.dataset.usd : el.dataset.mxn;
+        var num    = parseFloat(amount);
+        var fmt    = lang === 'en' ? '$' + num.toFixed(2) : '$' + Number(el.dataset.mxn).toLocaleString('es-MX');
+        el.innerHTML = fmt + ' <span>' + T.currency + '</span>';
+      });
+
+      // data-i18n elements
+      document.querySelectorAll('[data-i18n]').forEach(function(el) {
+        var key = el.getAttribute('data-i18n');
+        if (T[key]) el.textContent = T[key];
+      });
+    }
+
+    function toggleLangPaquetes() {
+      var current = getPaqLang();
+      var next    = current === 'es' ? 'en' : 'es';
+      localStorage.setItem('festali_lang', next);
+      applyPaqLang();
+    }
+
+    document.addEventListener('DOMContentLoaded', applyPaqLang);
+  </script>
 
   <script>
     /* ═══════════════════════════════════════════════════

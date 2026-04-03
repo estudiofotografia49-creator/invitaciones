@@ -14,6 +14,355 @@ const FESTALI_TOKEN = 'festali-2026-xK9mP';
 // Tipos de archivo permitidos para subir
 const TIPOS_VALIDOS = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif'];
 
+// ==================== IDIOMA ====================
+
+const TRANSLATIONS = {
+  es: {
+    lang_btn: '🇺🇸 EN',
+    nav_inicio: 'Inicio', nav_inv: 'Invitaciones',
+    form_titulo: 'Cuéntanos sobre tu evento',
+    paquete_banner: 'Completando formulario para el paquete',
+    btn_siguiente: 'Siguiente →', btn_anterior: '← Anterior', btn_enviar: '✨ Enviar mi solicitud',
+    // Paso títulos
+    step_nombre: '¿Cuál es tu nombre?',
+    step_whatsapp: 'Tu número de WhatsApp',
+    step_correo: 'Tu correo electrónico',
+    step_evento: '¿Qué tipo de evento es?',
+    step_fecha: '¿Cuándo es el evento?',
+    step_festejados: '¿Quién o quiénes son los festejados?',
+    step_ubicacion: '¿Dónde será el evento?',
+    step_estilo: '¿Qué estilo te gusta?',
+    step_diseno: '¿Cómo quieres el diseño?',
+    step_fotos: 'Tus fotos',
+    step_mensaje: 'Mensaje especial para tus invitados',
+    step_dresscode: '¿Hay dress code?',
+    step_confirmacion: '¿Cómo confirmarán asistencia?',
+    step_asistencia: '¿Qué quieres saber de tus invitados?',
+    step_regalos: 'Mesa de regalos',
+    step_musica: '¿Canción para el video/invitación?',
+    step_hospedaje: 'Información de hospedaje',
+    // Placeholders
+    ph_nombre: 'Tu nombre completo',
+    ph_correo: 'ejemplo@correo.com',
+    ph_festejados: 'Ej: Ana y Luis',
+    ph_wsp_hint: 'Solo dígitos, sin espacios ni guiones.',
+    ph_lugar_cer: 'Nombre del lugar', ph_lugar_rec: 'Nombre del lugar',
+    ph_enlace_cer: 'https://maps.google.com/...', ph_enlace_rec: 'https://maps.google.com/...',
+    ph_otro_evento: 'Describe tu tipo de evento...',
+    ph_estilo_desc: 'Describe tu idea...',
+    ph_dresscode: 'Ej: Formal, Blanco y dorado, Casual...',
+    ph_wsp_conf: '+52 686 000 0000', ph_correo_conf: 'ejemplo@correo.com',
+    ph_asistencia: 'Ej: ¿Vas con acompañante? / ¿Tienes alguna alergia?...',
+    ph_mesa: 'Ej: Liverpool mesa #12345 o https://mesaderegalos...',
+    ph_banco: 'Banco (ej: BBVA, Banamex...)', ph_titular: 'Nombre del titular', ph_clabe: 'CLABE interbancaria (18 dígitos)',
+    ph_musica: 'Artista - Canción o enlace de YouTube / Spotify',
+    ph_hospedaje: 'Ej: Hotel Misión a 5 min de la iglesia...', hint_hospedaje: 'Información útil para invitados que vengan de fuera (opcional).',
+    ph_mensaje: 'Un mensaje para tus invitados...',
+    // Ubicación labels
+    lbl_hay_cer: '¿Hay ceremonia?', lbl_lugar_cer: 'Lugar de la ceremonia', lbl_hora_cer: 'Hora de la ceremonia', lbl_enlace_cer: 'Enlace de ubicación (opcional)',
+    lbl_hay_rec: '¿Hay recepción?', lbl_lugar_rec: 'Lugar de la recepción', lbl_hora_rec: 'Hora de la recepción', lbl_enlace_rec: 'Enlace de ubicación (opcional)',
+    // Estilo
+    est_select: '— Selecciona un estilo —', est_elegante: 'Elegante / Clásico', est_moderno: 'Moderno / Minimalista', est_floral: 'Floral / Romántico', est_tematico: 'Temático',
+    est_vision_lbl: 'Cuéntanos tu visión', est_vision_opt: '(opcional)',
+    est_img_lbl: 'Imagen de referencia', est_img_opt: '(opcional, máx. 1)',
+    est_img_click: 'Haz clic para subir una imagen', est_img_max: 'Máximo 1 imagen', est_img_none: 'Ninguna imagen seleccionada',
+    est_ph: { 'Elegante / Clásico': 'Ej: Tonos dorados con blanco, tipografía cursiva fina, flores de peonías o rosas...', 'Moderno / Minimalista': 'Ej: Algo muy limpio, blanco y negro o con un color de acento, sin muchos adornos...', 'Floral / Romántico': 'Ej: Colores pastel como rosa o lila, muchas flores, algo delicado y femenino...', 'Temático': '¿Cuál es tu tema? Ej: Vintage, Disney, deportivo, jardín encantado...' },
+    // Tipo de evento
+    ev_select: '— Selecciona —', ev_boda: 'Boda', ev_xv: 'XV Años', ev_bautizo: 'Bautizo', ev_cumple: 'Cumpleaños', ev_grad: 'Graduación', ev_otro: 'Otro',
+    // Tipo diseño
+    dis_fotos_lbl: '📸 Mis fotos', dis_fotos_desc: 'Subir mis fotos para que sean parte del diseño',
+    dis_grafico_lbl: '🎨 Diseño gráfico', dis_grafico_desc: 'Ilustraciones creadas por Festali (sin fotos)',
+    // Fotos
+    fotos_si_lbl: '📸 Tengo mis fotos', fotos_si_desc: 'Las subo ahora',
+    fotos_no_lbl: '⏳ Aún no las tengo', fotos_no_desc: 'Las enviaré después por WhatsApp',
+    fotos_click: 'Haz clic para seleccionar tus fotos', fotos_none: 'Ninguna foto seleccionada',
+    // Mensaje
+    msg_propio_lbl: '✍️ Yo escribo el mensaje', msg_propio_desc: 'Redacta el mensaje para tus invitados',
+    msg_festali_lbl: '✨ Que Festali me escriba algo bonito', msg_festali_desc: 'Nuestro equipo redactará algo especial',
+    // Dress code
+    dc_img_cb: 'Quiero subir ejemplos de vestimenta', dc_img_click: 'Haz clic para subir ejemplos', dc_img_hint: 'Imágenes de referencia', dc_img_none: 'Ninguna imagen seleccionada',
+    // Confirmación
+    conf_wsp_lbl: '📱 WhatsApp', conf_wsp_desc: 'Los invitados confirman por WhatsApp',
+    conf_email_lbl: '✉️ Correo electrónico', conf_email_desc: 'Los invitados confirman por email',
+    // Asistencia
+    asist_adultos: 'Evento solo para adultos (no se permiten niños)',
+    // Regalos
+    reg_ninguno: 'No incluir', reg_mesa: 'Mesa de regalos', reg_transf: 'Transferencia bancaria',
+    // Confirmación pantalla
+    confirm_titulo: '¡Tu solicitud fue recibida!', confirm_folio: 'Número de folio:',
+    confirm_instruccion: 'Te enviamos un correo con el resumen de tu solicitud y los links de pago.',
+    confirm_spam: '<strong>Revisa tu bandeja de entrada</strong> (y carpeta de spam, por si acaso).',
+    confirm_nota: 'Al completar tu pago recibirás una confirmación automática.',
+    confirm_dias: 'Tu invitación estará lista en máximo <strong>3 días hábiles</strong>.',
+    confirm_wsp: 'WhatsApp', confirm_correo_btn: '✉ Correo',
+  },
+  en: {
+    lang_btn: '🇲🇽 ES',
+    nav_inicio: 'Home', nav_inv: 'Invitations',
+    form_titulo: 'Tell us about your event',
+    paquete_banner: 'Completing form for package',
+    btn_siguiente: 'Next →', btn_anterior: '← Back', btn_enviar: '✨ Submit my request',
+    step_nombre: "What's your name?",
+    step_whatsapp: 'Your WhatsApp number',
+    step_correo: 'Your email address',
+    step_evento: 'What type of event is it?',
+    step_fecha: 'When is the event?',
+    step_festejados: 'Who is being celebrated?',
+    step_ubicacion: 'Where will the event take place?',
+    step_estilo: 'What style do you like?',
+    step_diseno: 'How do you want the design?',
+    step_fotos: 'Your photos',
+    step_mensaje: 'Special message for your guests',
+    step_dresscode: 'Is there a dress code?',
+    step_confirmacion: 'How will guests confirm attendance?',
+    step_asistencia: 'What do you want to know from your guests?',
+    step_regalos: 'Gift registry',
+    step_musica: 'Song for your video/invitation?',
+    step_hospedaje: 'Accommodation information',
+    ph_nombre: 'Your full name',
+    ph_correo: 'example@email.com',
+    ph_festejados: 'E.g.: Ana and Luis',
+    ph_wsp_hint: 'Digits only, no spaces or dashes.',
+    ph_lugar_cer: 'Venue name', ph_lugar_rec: 'Venue name',
+    ph_enlace_cer: 'https://maps.google.com/...', ph_enlace_rec: 'https://maps.google.com/...',
+    ph_otro_evento: 'Describe your event type...',
+    ph_estilo_desc: 'Describe your vision...',
+    ph_dresscode: 'E.g.: Black tie, White and gold, Casual...',
+    ph_wsp_conf: '+1 686 000 0000', ph_correo_conf: 'example@email.com',
+    ph_asistencia: 'E.g.: Are you bringing a plus one? / Any allergies?...',
+    ph_mesa: 'E.g.: Amazon registry or https://giftregistry...',
+    ph_banco: 'Bank (e.g.: Chase, Wells Fargo...)', ph_titular: 'Account holder name', ph_clabe: 'Account / routing number',
+    ph_musica: 'Artist - Song or YouTube / Spotify link',
+    ph_hospedaje: 'E.g.: Hotel Mission 5 min from the church...', hint_hospedaje: 'Useful info for out-of-town guests (optional).',
+    ph_mensaje: 'A message for your guests...',
+    lbl_hay_cer: 'Is there a ceremony?', lbl_lugar_cer: 'Ceremony venue', lbl_hora_cer: 'Ceremony time', lbl_enlace_cer: 'Location link (optional)',
+    lbl_hay_rec: 'Is there a reception?', lbl_lugar_rec: 'Reception venue', lbl_hora_rec: 'Reception time', lbl_enlace_rec: 'Location link (optional)',
+    est_select: '— Select a style —', est_elegante: 'Elegant / Classic', est_moderno: 'Modern / Minimalist', est_floral: 'Floral / Romantic', est_tematico: 'Themed',
+    est_vision_lbl: 'Tell us your vision', est_vision_opt: '(optional)',
+    est_img_lbl: 'Reference image', est_img_opt: '(optional, max. 1)',
+    est_img_click: 'Click to upload an image', est_img_max: 'Maximum 1 image', est_img_none: 'No image selected',
+    est_ph: { 'Elegant / Classic': 'E.g.: Gold and ivory tones, script typography, peonies or roses...', 'Modern / Minimalist': 'E.g.: Very clean, black and white with an accent color, minimal...', 'Floral / Romantic': 'E.g.: Pastel colors like pink or lilac, lots of flowers, delicate...', 'Themed': 'What is your theme? E.g.: Vintage, Disney, sports, enchanted garden...' },
+    ev_select: '— Select —', ev_boda: 'Wedding', ev_xv: 'Quinceañera', ev_bautizo: 'Baptism', ev_cumple: 'Birthday', ev_grad: 'Graduation', ev_otro: 'Other',
+    dis_fotos_lbl: '📸 My photos', dis_fotos_desc: 'Upload my photos to be part of the design',
+    dis_grafico_lbl: '🎨 Graphic design', dis_grafico_desc: 'Illustrations created by Festali (no photos)',
+    fotos_si_lbl: '📸 I have my photos', fotos_si_desc: "I'll upload them now",
+    fotos_no_lbl: "⏳ I don't have them yet", fotos_no_desc: "I'll send them later via WhatsApp",
+    fotos_click: 'Click to select your photos', fotos_none: 'No photos selected',
+    msg_propio_lbl: '✍️ I\'ll write the message', msg_propio_desc: 'Write the message for your guests',
+    msg_festali_lbl: '✨ Let Festali write something beautiful', msg_festali_desc: 'Our team will write something special',
+    dc_img_cb: 'I want to upload outfit examples', dc_img_click: 'Click to upload examples', dc_img_hint: 'Reference images', dc_img_none: 'No image selected',
+    conf_wsp_lbl: '📱 WhatsApp', conf_wsp_desc: 'Guests confirm via WhatsApp',
+    conf_email_lbl: '✉️ Email', conf_email_desc: 'Guests confirm via email',
+    asist_adultos: 'Adults only event (no children allowed)',
+    reg_ninguno: 'Do not include', reg_mesa: 'Gift registry', reg_transf: 'Bank transfer',
+    confirm_titulo: 'Your request was received!', confirm_folio: 'Reference number:',
+    confirm_instruccion: 'We sent you an email with your request summary and payment links.',
+    confirm_spam: '<strong>Check your inbox</strong> (and spam folder, just in case).',
+    confirm_nota: 'Once your payment is confirmed, you\'ll receive an automatic notification.',
+    confirm_dias: 'Your invitation will be ready in max. <strong>3 business days</strong>.',
+    confirm_wsp: 'WhatsApp', confirm_correo_btn: '✉ Email',
+  }
+};
+
+function getLang() {
+  var saved = localStorage.getItem('festali_lang');
+  if (saved === 'en' || saved === 'es') return saved;
+  return navigator.language.startsWith('en') ? 'en' : 'es';
+}
+
+function t(key) {
+  var lang = getLang();
+  return (TRANSLATIONS[lang] && TRANSLATIONS[lang][key] !== undefined)
+    ? TRANSLATIONS[lang][key]
+    : (TRANSLATIONS['es'][key] !== undefined ? TRANSLATIONS['es'][key] : key);
+}
+
+function toggleLang() {
+  var next = getLang() === 'es' ? 'en' : 'es';
+  localStorage.setItem('festali_lang', next);
+  applyLang();
+}
+
+function _setText(id, text) { var el = document.getElementById(id); if (el) el.textContent = text; }
+function _setHTML(id, html) { var el = document.getElementById(id); if (el) el.innerHTML = html; }
+function _setPH(id, ph)     { var el = document.getElementById(id); if (el) el.placeholder = ph; }
+function _setSelectOpts(id, opts) {
+  var sel = document.getElementById(id);
+  if (!sel) return;
+  opts.forEach(function(o, i) { if (sel.options[i]) { sel.options[i].value = o.v; sel.options[i].text = o.t; } });
+}
+function _setRadioOption(inputId, labelKey, descKey) {
+  var inp = document.getElementById(inputId);
+  if (!inp) return;
+  var opt = inp.closest('.radio-option');
+  if (!opt) return;
+  var lbl = opt.querySelector('.radio-label');
+  var dsc = opt.querySelector('.radio-desc');
+  if (lbl) lbl.textContent = t(labelKey);
+  if (dsc) dsc.textContent = t(descKey);
+}
+function _setCBSpan(inputId, textKey) {
+  var inp = document.getElementById(inputId);
+  if (!inp) return;
+  var span = inp.closest('.checkbox-option') ? inp.closest('.checkbox-option').querySelector('span') : null;
+  if (span) span.textContent = t(textKey);
+}
+
+function applyLang() {
+  // Toggle btn + nav
+  _setText('langToggle', t('lang_btn'));
+  _setText('navInicio', t('nav_inicio'));
+  _setText('navInvitaciones', t('nav_inv'));
+
+  // Form title + banner
+  var formTit = document.querySelector('.form-titulo');
+  if (formTit) formTit.textContent = t('form_titulo');
+  var bannerTxt = document.querySelector('.paquete-banner');
+  if (bannerTxt) {
+    var paqEl = document.getElementById('paqueteNombre');
+    var paqNombre = paqEl ? paqEl.textContent : '';
+    bannerTxt.innerHTML = t('paquete_banner') + ' <span class="paquete-nombre" id="paqueteNombre">' + paqNombre + '</span>';
+  }
+
+  // Botones
+  _setText('btnSiguiente', t('btn_siguiente'));
+  _setText('btnAnterior',  t('btn_anterior'));
+  _setText('btnEnviar',    t('btn_enviar'));
+
+  // Placeholders inputs
+  _setPH('nombreCompleto', t('ph_nombre'));
+  _setPH('correo',         t('ph_correo'));
+  _setPH('nombresFestejados', t('ph_festejados'));
+  _setPH('tipoEventoOtro', t('ph_otro_evento'));
+  _setPH('lugarCeremonia', t('ph_lugar_cer'));
+  _setPH('lugarRecepcion', t('ph_lugar_rec'));
+  _setPH('ubicacionCeremonia', t('ph_enlace_cer'));
+  _setPH('ubicacionRecepcion', t('ph_enlace_rec'));
+  _setPH('descripcionEstilo', t('ph_estilo_desc'));
+  _setPH('dressCode',      t('ph_dresscode'));
+  _setPH('whatsappConfirmaciones', t('ph_wsp_conf'));
+  _setPH('correoConfirmaciones',   t('ph_correo_conf'));
+  _setPH('datosAsistencia', t('ph_asistencia'));
+  _setPH('mesaRegalosLink', t('ph_mesa'));
+  _setPH('bancoCuenta',    t('ph_banco'));
+  _setPH('titularCuenta',  t('ph_titular'));
+  _setPH('clabeCuenta',    t('ph_clabe'));
+  _setPH('musica',         t('ph_musica'));
+  _setPH('hospedaje',      t('ph_hospedaje'));
+  _setPH('mensajeEspecial', t('ph_mensaje'));
+
+  // WhatsApp hint
+  var wspHint = document.querySelector('#q-whatsapp .form-hint');
+  if (wspHint) wspHint.textContent = t('ph_wsp_hint');
+
+  // Hospedaje hint
+  var hospHint = document.querySelector('#q-hospedaje .form-hint');
+  if (hospHint) hospHint.textContent = t('hint_hospedaje');
+
+  // Select: tipo evento
+  _setSelectOpts('tipoEvento', [
+    { v: '',              t: t('ev_select') },
+    { v: t('ev_boda'),   t: t('ev_boda')   },
+    { v: t('ev_xv'),     t: t('ev_xv')     },
+    { v: t('ev_bautizo'),t: t('ev_bautizo') },
+    { v: t('ev_cumple'), t: t('ev_cumple') },
+    { v: t('ev_grad'),   t: t('ev_grad')   },
+    { v: t('ev_otro'),   t: t('ev_otro')   }
+  ]);
+
+  // Select: estilo
+  _setSelectOpts('estiloInvitacion', [
+    { v: '',                  t: t('est_select')   },
+    { v: t('est_elegante'),   t: t('est_elegante') },
+    { v: t('est_moderno'),    t: t('est_moderno')  },
+    { v: t('est_floral'),     t: t('est_floral')   },
+    { v: t('est_tematico'),   t: t('est_tematico') }
+  ]);
+
+  // Ubicacion labels
+  _setCBSpan('hayCeremonia', 'lbl_hay_cer');
+  _setCBSpan('hayRecepcion', 'lbl_hay_rec');
+  var lugarCerLabel = document.querySelector('label[for="lugarCeremonia"]');
+  var horaCerLabel  = document.querySelector('label[for="horaCeremonia"]');
+  var enlaceCerLabel= document.querySelector('label[for="ubicacionCeremonia"]');
+  var lugarRecLabel = document.querySelector('label[for="lugarRecepcion"]');
+  var horaRecLabel  = document.querySelector('label[for="horaRecepcion"]');
+  var enlaceRecLabel= document.querySelector('label[for="ubicacionRecepcion"]');
+  if (lugarCerLabel) lugarCerLabel.childNodes[0].nodeValue = t('lbl_lugar_cer') + ' ';
+  if (horaCerLabel)  horaCerLabel.childNodes[0].nodeValue  = t('lbl_hora_cer')  + ' ';
+  if (enlaceCerLabel)enlaceCerLabel.textContent            = t('lbl_enlace_cer');
+  if (lugarRecLabel) lugarRecLabel.childNodes[0].nodeValue = t('lbl_lugar_rec') + ' ';
+  if (horaRecLabel)  horaRecLabel.childNodes[0].nodeValue  = t('lbl_hora_rec')  + ' ';
+  if (enlaceRecLabel)enlaceRecLabel.textContent            = t('lbl_enlace_rec');
+
+  // Estilo labels
+  var estVisionLbl = document.querySelector('#grupoEstiloDesc label:first-of-type');
+  if (estVisionLbl) estVisionLbl.innerHTML = t('est_vision_lbl') + ' <span style="color:#aaa;font-weight:400">' + t('est_vision_opt') + '</span>';
+  var estImgLbl = document.querySelectorAll('#grupoEstiloDesc label');
+  if (estImgLbl[1]) estImgLbl[1].innerHTML = t('est_img_lbl') + ' <span style="color:#aaa;font-weight:400">' + t('est_img_opt') + '</span>';
+  var estImgClick = document.querySelector('#grupoEstiloDesc .file-texto');
+  var estImgMax   = document.querySelector('#grupoEstiloDesc .file-min');
+  if (estImgClick) estImgClick.textContent = t('est_img_click');
+  if (estImgMax)   estImgMax.textContent   = t('est_img_max');
+  var estImgNone = document.getElementById('refEstiloSeleccionada');
+  if (estImgNone && estImgNone.textContent === TRANSLATIONS['es'].est_img_none || estImgNone && estImgNone.textContent === TRANSLATIONS['en'].est_img_none) {
+    estImgNone.textContent = t('est_img_none');
+  }
+
+  // Tipo diseño
+  _setRadioOption('tipoDisenoFotos',   'dis_fotos_lbl',   'dis_fotos_desc');
+  _setRadioOption('tipoDisenoGrafico', 'dis_grafico_lbl', 'dis_grafico_desc');
+
+  // Fotos
+  _setRadioOption('fotosDisponibles', 'fotos_si_lbl', 'fotos_si_desc');
+  _setRadioOption('fotosPendientes',  'fotos_no_lbl', 'fotos_no_desc');
+  var fotosClick = document.querySelector('#grupoSubirFotos .file-texto');
+  if (fotosClick) fotosClick.textContent = t('fotos_click');
+  var fotosNone = document.getElementById('fotosSeleccionadas');
+  if (fotosNone && (fotosNone.textContent === TRANSLATIONS['es'].fotos_none || fotosNone.textContent === TRANSLATIONS['en'].fotos_none)) {
+    fotosNone.textContent = t('fotos_none');
+  }
+
+  // Mensaje
+  _setRadioOption('mensajePropio',   'msg_propio_lbl',   'msg_propio_desc');
+  _setRadioOption('mensajeFestali',  'msg_festali_lbl',  'msg_festali_desc');
+
+  // Dress code img
+  _setCBSpan('cbDressCodeImg', 'dc_img_cb');
+  var dcClick = document.querySelector('#grupoDressCodeImg .file-texto');
+  var dcHint  = document.querySelector('#grupoDressCodeImg .file-min');
+  if (dcClick) dcClick.textContent = t('dc_img_click');
+  if (dcHint)  dcHint.textContent  = t('dc_img_hint');
+
+  // Confirmaciones
+  _setRadioOption('confWsp',    'conf_wsp_lbl',   'conf_wsp_desc');
+  _setRadioOption('confCorreo', 'conf_email_lbl', 'conf_email_desc');
+
+  // Asistencia
+  _setCBSpan('soloAdultos', 'asist_adultos');
+
+  // Regalos
+  _setRadioOption('regalosNinguno',     'reg_ninguno', 'reg_ninguno');
+  _setRadioOption('regalosMesa',        'reg_mesa',    'reg_mesa');
+  _setRadioOption('regalosTransferencia','reg_transf', 'reg_transf');
+
+  // Confirmación pantalla
+  var confirmTit = document.querySelector('.confirmacion h2');
+  var folioLbl   = document.querySelector('.folio-label');
+  var instrEl    = document.querySelector('.confirmacion-pago-instruccion');
+  var notaEl     = document.querySelector('.confirmacion-pago-nota');
+  var correoBtn  = document.querySelector('.btn-email');
+  if (confirmTit) confirmTit.textContent = t('confirm_titulo');
+  if (folioLbl)   folioLbl.textContent   = t('confirm_folio');
+  if (instrEl)    instrEl.innerHTML      = t('confirm_instruccion') + '<br>' + t('confirm_spam');
+  if (notaEl)     notaEl.innerHTML       = t('confirm_nota') + '<br>' + t('confirm_dias');
+  if (correoBtn)  correoBtn.textContent  = t('confirm_correo_btn');
+
+  // Wizard title (si está activo)
+  var wizTitle = document.getElementById('wizardStepTitle');
+  if (wizTitle && wizTitle._i18nKey) wizTitle.textContent = t(wizTitle._i18nKey);
+}
+
 // ==================== CONFIGURACIÓN DE PAQUETES ====================
 
 const PAQUETES = {
@@ -39,6 +388,7 @@ const PAQUETES = {
 document.addEventListener('DOMContentLoaded', () => {
   const paqueteKey = detectarPaquete();
 
+  applyLang();
   setFechaAutomatica();
   setFolio();
   configurarPaquete(paqueteKey);
@@ -267,12 +617,7 @@ function initEstiloToggle() {
   const input     = document.getElementById('imagenRefEstilo');
   const hint      = document.getElementById('refEstiloSeleccionada');
 
-  const placeholders = {
-    'Elegante / Clásico':    'Ej: Tonos dorados con blanco, tipografía cursiva fina, flores de peonías o rosas...',
-    'Moderno / Minimalista': 'Ej: Algo muy limpio, blanco y negro o con un color de acento, sin muchos adornos...',
-    'Floral / Romántico':    'Ej: Colores pastel como rosa o lila, muchas flores, algo delicado y femenino...',
-    'Temático':              '¿Cuál es tu tema? Ej: Vintage, Disney, deportivo, jardín encantado, mexicano...'
-  };
+  // Placeholders defined in TRANSLATIONS[lang].est_ph
 
   if (!select || !grupoDesc) return;
 
@@ -280,7 +625,8 @@ function initEstiloToggle() {
     const val = select.value;
     if (val) {
       grupoDesc.style.display = 'block';
-      if (textarea && placeholders[val]) textarea.placeholder = placeholders[val];
+      const estPh = t('est_ph');
+      if (textarea && estPh && estPh[val]) textarea.placeholder = estPh[val];
     } else {
       grupoDesc.style.display = 'none';
     }
@@ -519,6 +865,7 @@ function recopilarDatos(paqueteKey) {
     descripcionEstilo:   val('descripcionEstilo'),
     dressCode:           val('dressCode'),
     token:               FESTALI_TOKEN,
+    lang:                getLang(),
   };
 
   const extras = PAQUETES[paqueteKey].extras;
@@ -659,23 +1006,23 @@ function initWizard(paqueteKey) {
   const P  = ['pro'];
 
   const todosLosPasos = [
-    { id: 'q-nombre',      titulo: '¿Cuál es tu nombre?',                    paquetes: A  },
-    { id: 'q-whatsapp',    titulo: 'Tu número de WhatsApp',                   paquetes: A  },
-    { id: 'q-correo',      titulo: 'Tu correo electrónico',                   paquetes: A  },
-    { id: 'q-evento',      titulo: '¿Qué tipo de evento es?',                 paquetes: A  },
-    { id: 'q-fecha',       titulo: '¿Cuándo es el evento?',                   paquetes: A  },
-    { id: 'q-festejados',  titulo: '¿Quién o quiénes son los festejados?',    paquetes: A  },
-    { id: 'q-ubicacion',   titulo: '¿Dónde será el evento?',                  paquetes: A  },
-    { id: 'q-estilo',      titulo: '¿Qué estilo te gusta?',                   paquetes: A  },
-    { id: 'q-diseno',      titulo: '¿Cómo quieres el diseño?',                paquetes: QP },
-    { id: 'q-fotos',       titulo: 'Tus fotos',                               paquetes: A  },
-    { id: 'q-mensaje',     titulo: 'Mensaje especial para tus invitados',     paquetes: QP },
-    { id: 'q-dresscode',   titulo: '¿Hay dress code?',                        paquetes: A  },
-    { id: 'q-confirmacion',titulo: '¿Cómo confirmarán asistencia?',           paquetes: QP },
-    { id: 'q-asistencia',  titulo: '¿Qué quieres saber de tus invitados?',   paquetes: P  },
-    { id: 'q-regalos',     titulo: 'Mesa de regalos',                         paquetes: QP },
-    { id: 'q-musica',      titulo: '¿Canción para el video/invitación?',      paquetes: MP },
-    { id: 'q-hospedaje',   titulo: 'Información de hospedaje',                paquetes: P  },
+    { id: 'q-nombre',      tituloKey: 'step_nombre',       paquetes: A  },
+    { id: 'q-whatsapp',    tituloKey: 'step_whatsapp',     paquetes: A  },
+    { id: 'q-correo',      tituloKey: 'step_correo',       paquetes: A  },
+    { id: 'q-evento',      tituloKey: 'step_evento',       paquetes: A  },
+    { id: 'q-fecha',       tituloKey: 'step_fecha',        paquetes: A  },
+    { id: 'q-festejados',  tituloKey: 'step_festejados',   paquetes: A  },
+    { id: 'q-ubicacion',   tituloKey: 'step_ubicacion',    paquetes: A  },
+    { id: 'q-estilo',      tituloKey: 'step_estilo',       paquetes: A  },
+    { id: 'q-diseno',      tituloKey: 'step_diseno',       paquetes: QP },
+    { id: 'q-fotos',       tituloKey: 'step_fotos',        paquetes: A  },
+    { id: 'q-mensaje',     tituloKey: 'step_mensaje',      paquetes: QP },
+    { id: 'q-dresscode',   tituloKey: 'step_dresscode',    paquetes: A  },
+    { id: 'q-confirmacion',tituloKey: 'step_confirmacion', paquetes: QP },
+    { id: 'q-asistencia',  tituloKey: 'step_asistencia',   paquetes: P  },
+    { id: 'q-regalos',     tituloKey: 'step_regalos',      paquetes: QP },
+    { id: 'q-musica',      tituloKey: 'step_musica',       paquetes: MP },
+    { id: 'q-hospedaje',   tituloKey: 'step_hospedaje',    paquetes: P  },
   ];
 
   const pasos = todosLosPasos.filter(p => p.paquetes.includes(paqueteKey));
@@ -685,7 +1032,9 @@ function initWizard(paqueteKey) {
     document.querySelectorAll('.form-step').forEach(s => s.style.display = 'none');
     actual = n;
     document.getElementById(pasos[n].id).style.display = 'block';
-    document.getElementById('wizardStepTitle').textContent = pasos[n].titulo;
+    const titleEl = document.getElementById('wizardStepTitle');
+    titleEl.textContent  = t(pasos[n].tituloKey);
+    titleEl._i18nKey     = pasos[n].tituloKey;
     // Progreso
     const pct = Math.round(((n + 1) / pasos.length) * 100);
     document.getElementById('wizardProgressBar').style.width = pct + '%';

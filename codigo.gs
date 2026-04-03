@@ -60,7 +60,8 @@ const ENCABEZADOS = [
   'Música',                       // 34
   'Hospedaje',                    // 35
   'Referencias Estilo',           // 36
-  'Timestamp Servidor'            // 37
+  'Idioma',                       // 37
+  'Timestamp Servidor'            // 38
 ];
 
 // ============================================================
@@ -413,8 +414,9 @@ function escribirFila(hoja, d, linksFotos, urlCarpeta, linksRefs, linksDressCode
     s(mesaRegalos),                     // 33 Mesa de Regalos
     s(d.musica                 || ''),  // 34 Música
     s(d.hospedaje              || ''),  // 35 Hospedaje
-    (linksRefs || []).length,           // 36 Referencias Estilo (mismo conteo que col 23)
-    Utilities.formatDate(ahora, Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm:ss')  // 37
+    (linksRefs || []).length,           // 36 Referencias Estilo
+    s(d.lang                   || 'es'),// 37 Idioma (es/en)
+    Utilities.formatDate(ahora, Session.getScriptTimeZone(), 'dd/MM/yyyy HH:mm:ss')  // 38
   ];
 
   hoja.appendRow(fila);
@@ -611,9 +613,10 @@ function actualizarEstadoPago(folio, nuevoEstado) {
             );
           }
 
-          // Email al cliente
+          // Email al cliente con idioma guardado en col 37
           if (correoCliente) {
-            enviarCorreoPagoConfirmado(folio, nombre, correoCliente, paquete);
+            const langCliente = datos[i][36] === 'en' ? 'en' : 'es'; // col 37 = index 36
+            enviarCorreoPagoConfirmado(folio, nombre, correoCliente, paquete, langCliente);
           }
         } catch (_) {}
       }
@@ -673,6 +676,9 @@ function enviarCorreoConfirmacion(datos, initPoint) {
   try {
     if (!datos.correo) return;
 
+    const lang       = (datos.lang === 'en') ? 'en' : 'es';
+    const isEN       = lang === 'en';
+
     const props      = PropertiesService.getScriptProperties();
     const tipoCambio = parseFloat(props.getProperty('TIPO_CAMBIO') || '20');
     const paypalBase = props.getProperty('PAYPAL_LINK') || 'https://paypal.me/estudio49';
@@ -687,63 +693,88 @@ function enviarCorreoConfirmacion(datos, initPoint) {
     const paypalLink = paypalBase + '/' + precioUSD;
     const mpLink     = initPoint || _linkFallbackMP(paqueteLower);
 
-    const nombre = datos.nombreCompleto || 'Cliente';
+    const nombre = datos.nombreCompleto || (isEN ? 'Customer' : 'Cliente');
     const folio  = datos.folio || '';
 
-    const asunto = 'FESTALI — Recibimos tu solicitud ' + folio;
+    const asunto = isEN
+      ? 'FESTALI — We received your request ' + folio
+      : 'FESTALI — Recibimos tu solicitud ' + folio;
+
+    const lbl = isEN ? {
+      slogan:    'Connecting your best moments',
+      greeting:  'Hello, ' + nombre + '! 🎉',
+      intro:     'We received your request. Review the summary below and complete your payment to start your design.',
+      summary:   'Request Summary',
+      package:   'Package', event: 'Event type', date: 'Event date', celebrated: 'Celebrated',
+      price_how: 'How would you like to pay?',
+      mp_sub:    'Mexico — Card, OXXO, SPEI',
+      pp_sub:    'USA / International — $' + precioUSD + ' USD',
+      mp_btn:    '💳 Pay with MercadoPago',
+      pp_btn:    '💰 Pay with PayPal',
+      note:      'Once your payment is confirmed, you\'ll receive an automatic notification. Your invitation will be ready in max. <strong>3 business days</strong>.',
+      doubt:     'Have questions or want to make a change?'
+    } : {
+      slogan:    'Conectando tus mejores momentos',
+      greeting:  '¡Hola, ' + nombre + '! 🎉',
+      intro:     'Recibimos tu solicitud correctamente. Revisa el resumen y realiza tu pago para comenzar con tu diseño.',
+      summary:   'Resumen de tu solicitud',
+      package:   'Paquete', event: 'Tipo de evento', date: 'Fecha del evento', celebrated: 'Festejados',
+      price_how: '¿Cómo deseas pagar?',
+      mp_sub:    'México — Tarjeta, OXXO, SPEI',
+      pp_sub:    'USA / Internacional — $' + precioUSD + ' USD',
+      mp_btn:    '💳 Pagar con MercadoPago',
+      pp_btn:    '💰 Pagar con PayPal',
+      note:      'Al completar tu pago recibirás una confirmación automática. Tu invitación estará lista en máximo <strong>3 días hábiles</strong>.',
+      doubt:     '¿Tienes dudas o quieres hacer un cambio?'
+    };
+    const precioDisplay = isEN
+      ? '$' + precioUSD + ' <span style="font-size:.9rem;color:#e72268;">USD</span>'
+      : '$' + precioMXN.toLocaleString() + ' <span style="font-size:.9rem;color:#e72268;">MXN</span>';
+    const precioSub = isEN ? '/ $' + precioMXN.toLocaleString() + ' MXN' : '/ $' + precioUSD + ' USD';
 
     const htmlBody =
       '<!DOCTYPE html><html><head><meta charset="UTF-8"></head>' +
       '<body style="font-family:Arial,sans-serif;background:#f8f6ff;margin:0;padding:20px;">' +
       '<div style="max-width:580px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(75,68,149,.12);">' +
-      // Header
       '<div style="background:linear-gradient(135deg,#e72268,#4b4495);padding:32px;text-align:center;">' +
       '<h1 style="color:#fff;font-size:1.6rem;margin:0;font-weight:700;letter-spacing:2px;">FESTALI</h1>' +
-      '<p style="color:rgba(255,255,255,.85);font-size:.85rem;margin:6px 0 0;font-style:italic;">Conectando tus mejores momentos</p>' +
+      '<p style="color:rgba(255,255,255,.85);font-size:.85rem;margin:6px 0 0;font-style:italic;">' + lbl.slogan + '</p>' +
       '</div>' +
-      // Body
       '<div style="padding:32px;">' +
-      '<h2 style="color:#4b4495;font-size:1.2rem;margin:0 0 10px;">¡Hola, ' + nombre + '! 🎉</h2>' +
-      '<p style="color:#555;font-size:.93rem;line-height:1.6;margin:0 0 22px;">Recibimos tu solicitud correctamente. Revisa el resumen y realiza tu pago para comenzar con tu diseño.</p>' +
-      // Folio
+      '<h2 style="color:#4b4495;font-size:1.2rem;margin:0 0 10px;">' + lbl.greeting + '</h2>' +
+      '<p style="color:#555;font-size:.93rem;line-height:1.6;margin:0 0 22px;">' + lbl.intro + '</p>' +
       '<div style="text-align:center;margin:0 0 22px;">' +
       '<span style="display:inline-block;background:linear-gradient(135deg,#e72268,#4b4495);color:#fff;font-size:1.1rem;font-weight:700;letter-spacing:4px;padding:10px 30px;border-radius:50px;">' + folio + '</span>' +
       '</div>' +
-      // Resumen
       '<div style="background:#f8f6ff;border-radius:12px;padding:18px;margin:0 0 24px;">' +
-      '<p style="color:#4b4495;font-size:.75rem;text-transform:uppercase;letter-spacing:2px;margin:0 0 14px;font-weight:700;">Resumen de tu solicitud</p>' +
+      '<p style="color:#4b4495;font-size:.75rem;text-transform:uppercase;letter-spacing:2px;margin:0 0 14px;font-weight:700;">' + lbl.summary + '</p>' +
       '<table style="width:100%;border-collapse:collapse;">' +
-      '<tr><td style="color:#999;font-size:.82rem;padding:5px 0;">Paquete</td><td style="color:#333;font-size:.82rem;font-weight:700;text-align:right;">' + nombrePaq + '</td></tr>' +
-      '<tr style="border-top:1px solid #eee;"><td style="color:#999;font-size:.82rem;padding:5px 0;">Tipo de evento</td><td style="color:#333;font-size:.82rem;font-weight:700;text-align:right;">' + (datos.tipoEvento || '') + '</td></tr>' +
-      '<tr style="border-top:1px solid #eee;"><td style="color:#999;font-size:.82rem;padding:5px 0;">Fecha del evento</td><td style="color:#333;font-size:.82rem;font-weight:700;text-align:right;">' + (datos.fechaEvento || '') + '</td></tr>' +
-      '<tr style="border-top:1px solid #eee;"><td style="color:#999;font-size:.82rem;padding:5px 0;">Festejados</td><td style="color:#333;font-size:.82rem;font-weight:700;text-align:right;">' + (datos.nombresFestejados || '') + '</td></tr>' +
+      '<tr><td style="color:#999;font-size:.82rem;padding:5px 0;">' + lbl.package + '</td><td style="color:#333;font-size:.82rem;font-weight:700;text-align:right;">' + nombrePaq + '</td></tr>' +
+      '<tr style="border-top:1px solid #eee;"><td style="color:#999;font-size:.82rem;padding:5px 0;">' + lbl.event + '</td><td style="color:#333;font-size:.82rem;font-weight:700;text-align:right;">' + (datos.tipoEvento || '') + '</td></tr>' +
+      '<tr style="border-top:1px solid #eee;"><td style="color:#999;font-size:.82rem;padding:5px 0;">' + lbl.date + '</td><td style="color:#333;font-size:.82rem;font-weight:700;text-align:right;">' + (datos.fechaEvento || '') + '</td></tr>' +
+      '<tr style="border-top:1px solid #eee;"><td style="color:#999;font-size:.82rem;padding:5px 0;">' + lbl.celebrated + '</td><td style="color:#333;font-size:.82rem;font-weight:700;text-align:right;">' + (datos.nombresFestejados || '') + '</td></tr>' +
       '</table></div>' +
-      // Precio
       '<div style="text-align:center;margin:0 0 22px;">' +
-      '<p style="color:#4b4495;font-size:1.5rem;font-weight:700;margin:0;">$' + precioMXN.toLocaleString() + ' <span style="font-size:.9rem;color:#e72268;">MXN</span></p>' +
-      '<p style="color:#aaa;font-size:.78rem;margin:4px 0 0;">/ $' + precioUSD + ' USD</p>' +
+      '<p style="color:#4b4495;font-size:1.5rem;font-weight:700;margin:0;">' + precioDisplay + '</p>' +
+      '<p style="color:#aaa;font-size:.78rem;margin:4px 0 0;">' + precioSub + '</p>' +
       '</div>' +
-      // Pago
-      '<p style="color:#333;font-size:.88rem;text-align:center;margin:0 0 14px;font-weight:600;">¿Cómo deseas pagar?</p>' +
+      '<p style="color:#333;font-size:.88rem;text-align:center;margin:0 0 14px;font-weight:600;">' + lbl.price_how + '</p>' +
       '<div style="text-align:center;margin:0 0 12px;">' +
-      '<a href="' + mpLink + '" style="display:inline-block;background:#009ee3;color:#fff;text-decoration:none;padding:12px 26px;border-radius:50px;font-weight:700;font-size:.88rem;">💳 Pagar con MercadoPago</a>' +
-      '<p style="color:#bbb;font-size:.73rem;margin:5px 0 0;">México — Tarjeta, OXXO, SPEI</p>' +
+      '<a href="' + mpLink + '" style="display:inline-block;background:#009ee3;color:#fff;text-decoration:none;padding:12px 26px;border-radius:50px;font-weight:700;font-size:.88rem;">' + lbl.mp_btn + '</a>' +
+      '<p style="color:#bbb;font-size:.73rem;margin:5px 0 0;">' + lbl.mp_sub + '</p>' +
       '</div>' +
       '<div style="text-align:center;margin:0 0 24px;">' +
-      '<a href="' + paypalLink + '" style="display:inline-block;background:#003087;color:#fff;text-decoration:none;padding:12px 26px;border-radius:50px;font-weight:700;font-size:.88rem;">💰 Pagar con PayPal</a>' +
-      '<p style="color:#bbb;font-size:.73rem;margin:5px 0 0;">USA / Internacional — $' + precioUSD + ' USD</p>' +
+      '<a href="' + paypalLink + '" style="display:inline-block;background:#003087;color:#fff;text-decoration:none;padding:12px 26px;border-radius:50px;font-weight:700;font-size:.88rem;">' + lbl.pp_btn + '</a>' +
+      '<p style="color:#bbb;font-size:.73rem;margin:5px 0 0;">' + lbl.pp_sub + '</p>' +
       '</div>' +
-      // Nota
       '<div style="background:#fffbeb;border-left:3px solid #f59e0b;padding:12px 14px;border-radius:0 8px 8px 0;margin:0 0 24px;">' +
-      '<p style="color:#92400e;font-size:.8rem;margin:0;line-height:1.55;">Al completar tu pago recibirás una confirmación automática. Tu invitación estará lista en máximo <strong>3 días hábiles</strong>.</p>' +
+      '<p style="color:#92400e;font-size:.8rem;margin:0;line-height:1.55;">' + lbl.note + '</p>' +
       '</div>' +
-      // Contacto
-      '<p style="color:#555;font-size:.86rem;text-align:center;margin:0 0 14px;">¿Tienes dudas o quieres hacer un cambio?</p>' +
+      '<p style="color:#555;font-size:.86rem;text-align:center;margin:0 0 14px;">' + lbl.doubt + '</p>' +
       '<div style="text-align:center;">' +
       '<a href="https://wa.me/526862301280" style="display:inline-block;background:#25d366;color:#fff;text-decoration:none;padding:10px 20px;border-radius:50px;font-weight:700;font-size:.84rem;margin:4px;">💬 WhatsApp</a>' +
-      '<a href="mailto:festaliconecta@gmail.com" style="display:inline-block;background:#4b4495;color:#fff;text-decoration:none;padding:10px 20px;border-radius:50px;font-weight:700;font-size:.84rem;margin:4px;">✉ Correo</a>' +
+      '<a href="mailto:festaliconecta@gmail.com" style="display:inline-block;background:#4b4495;color:#fff;text-decoration:none;padding:10px 20px;border-radius:50px;font-weight:700;font-size:.84rem;margin:4px;">✉ festaliconecta@gmail.com</a>' +
       '</div></div>' +
-      // Footer
       '<div style="background:#f8f6ff;padding:18px;text-align:center;border-top:1px solid #eee;">' +
       '<p style="color:#aaa;font-size:.72rem;margin:0;">© 2026 FESTALI · festaliconecta@gmail.com</p>' +
       '<p style="color:#ccc;font-size:.68rem;margin:4px 0 0;">Folio: ' + folio + '</p>' +
@@ -761,11 +792,32 @@ function enviarCorreoConfirmacion(datos, initPoint) {
   }
 }
 
-function enviarCorreoPagoConfirmado(folio, nombre, correo, paquete) {
+function enviarCorreoPagoConfirmado(folio, nombre, correo, paquete, lang) {
   try {
     if (!correo) return;
 
-    const asunto = 'FESTALI — ¡Pago confirmado! ' + folio;
+    const isEN = (lang === 'en');
+    const asunto = isEN
+      ? 'FESTALI — Payment confirmed! ' + folio
+      : 'FESTALI — ¡Pago confirmado! ' + folio;
+
+    const lbl = isEN ? {
+      slogan:    'Connecting your best moments',
+      titulo:    'Payment confirmed, ' + nombre + '!',
+      intro:     'We received your payment successfully. Our team is already working on your invitation.',
+      paid:      'Payment received', paid_sub: 'Your request is confirmed — ' + paquete,
+      design:    'In design',        design_sub: 'Your invitation is being created',
+      delivery:  'Delivery in max. 3 business days', delivery_sub: "We'll be in touch soon",
+      doubt:     'Have questions or want to make a change?'
+    } : {
+      slogan:    'Conectando tus mejores momentos',
+      titulo:    '¡Pago confirmado, ' + nombre + '!',
+      intro:     'Recibimos tu pago correctamente. Nuestro equipo ya está trabajando en tu invitación.',
+      paid:      'Pago recibido',    paid_sub: 'Tu solicitud está confirmada — ' + paquete,
+      design:    'En diseño',        design_sub: 'Tu invitación está siendo creada',
+      delivery:  'Entrega en máx. 3 días hábiles', delivery_sub: 'Te contactaremos a la brevedad',
+      doubt:     '¿Tienes dudas o quieres hacer algún cambio?'
+    };
 
     const htmlBody =
       '<!DOCTYPE html><html><head><meta charset="UTF-8"></head>' +
@@ -773,30 +825,30 @@ function enviarCorreoPagoConfirmado(folio, nombre, correo, paquete) {
       '<div style="max-width:580px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(75,68,149,.12);">' +
       '<div style="background:linear-gradient(135deg,#e72268,#4b4495);padding:32px;text-align:center;">' +
       '<h1 style="color:#fff;font-size:1.6rem;margin:0;font-weight:700;letter-spacing:2px;">FESTALI</h1>' +
-      '<p style="color:rgba(255,255,255,.85);font-size:.85rem;margin:6px 0 0;font-style:italic;">Conectando tus mejores momentos</p>' +
+      '<p style="color:rgba(255,255,255,.85);font-size:.85rem;margin:6px 0 0;font-style:italic;">' + lbl.slogan + '</p>' +
       '</div>' +
       '<div style="padding:32px;text-align:center;">' +
       '<div style="font-size:3.2rem;margin-bottom:14px;">✅</div>' +
-      '<h2 style="color:#4b4495;font-size:1.25rem;margin:0 0 10px;">¡Pago confirmado, ' + nombre + '!</h2>' +
-      '<p style="color:#555;font-size:.93rem;line-height:1.6;max-width:400px;margin:0 auto 22px;">Recibimos tu pago correctamente. Nuestro equipo ya está trabajando en tu invitación.</p>' +
+      '<h2 style="color:#4b4495;font-size:1.25rem;margin:0 0 10px;">' + lbl.titulo + '</h2>' +
+      '<p style="color:#555;font-size:.93rem;line-height:1.6;max-width:400px;margin:0 auto 22px;">' + lbl.intro + '</p>' +
       '<div style="text-align:center;margin:0 0 22px;">' +
       '<span style="display:inline-block;background:linear-gradient(135deg,#e72268,#4b4495);color:#fff;font-size:1.1rem;font-weight:700;letter-spacing:4px;padding:10px 30px;border-radius:50px;">' + folio + '</span>' +
       '</div>' +
       '<div style="background:#f8f6ff;border-radius:12px;padding:18px;margin:0 0 24px;text-align:left;">' +
       '<div style="display:flex;gap:10px;align-items:flex-start;padding:6px 0;">' +
       '<span style="font-size:1.1rem;">✅</span>' +
-      '<div><p style="margin:0;font-weight:700;color:#333;font-size:.86rem;">Pago recibido</p><p style="margin:2px 0 0;color:#999;font-size:.76rem;">Tu solicitud está confirmada — ' + paquete + '</p></div></div>' +
+      '<div><p style="margin:0;font-weight:700;color:#333;font-size:.86rem;">' + lbl.paid + '</p><p style="margin:2px 0 0;color:#999;font-size:.76rem;">' + lbl.paid_sub + '</p></div></div>' +
       '<div style="display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-top:1px solid #eee;">' +
       '<span style="font-size:1.1rem;">🎨</span>' +
-      '<div><p style="margin:0;font-weight:700;color:#333;font-size:.86rem;">En diseño</p><p style="margin:2px 0 0;color:#999;font-size:.76rem;">Tu invitación está siendo creada</p></div></div>' +
+      '<div><p style="margin:0;font-weight:700;color:#333;font-size:.86rem;">' + lbl.design + '</p><p style="margin:2px 0 0;color:#999;font-size:.76rem;">' + lbl.design_sub + '</p></div></div>' +
       '<div style="display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-top:1px solid #eee;">' +
       '<span style="font-size:1.1rem;">🚀</span>' +
-      '<div><p style="margin:0;font-weight:700;color:#333;font-size:.86rem;">Entrega en máx. 3 días hábiles</p><p style="margin:2px 0 0;color:#999;font-size:.76rem;">Te contactaremos a la brevedad</p></div></div>' +
+      '<div><p style="margin:0;font-weight:700;color:#333;font-size:.86rem;">' + lbl.delivery + '</p><p style="margin:2px 0 0;color:#999;font-size:.76rem;">' + lbl.delivery_sub + '</p></div></div>' +
       '</div>' +
-      '<p style="color:#555;font-size:.86rem;margin:0 0 14px;">¿Tienes dudas o quieres hacer algún cambio?</p>' +
+      '<p style="color:#555;font-size:.86rem;margin:0 0 14px;">' + lbl.doubt + '</p>' +
       '<div>' +
       '<a href="https://wa.me/526862301280" style="display:inline-block;background:#25d366;color:#fff;text-decoration:none;padding:10px 20px;border-radius:50px;font-weight:700;font-size:.84rem;margin:4px;">💬 WhatsApp</a>' +
-      '<a href="mailto:festaliconecta@gmail.com" style="display:inline-block;background:#4b4495;color:#fff;text-decoration:none;padding:10px 20px;border-radius:50px;font-weight:700;font-size:.84rem;margin:4px;">✉ Correo</a>' +
+      '<a href="mailto:festaliconecta@gmail.com" style="display:inline-block;background:#4b4495;color:#fff;text-decoration:none;padding:10px 20px;border-radius:50px;font-weight:700;font-size:.84rem;margin:4px;">✉ festaliconecta@gmail.com</a>' +
       '</div></div>' +
       '<div style="background:#f8f6ff;padding:18px;text-align:center;border-top:1px solid #eee;">' +
       '<p style="color:#aaa;font-size:.72rem;margin:0;">© 2026 FESTALI · festaliconecta@gmail.com</p>' +
@@ -843,14 +895,15 @@ function onEdit(e) {
     const fila    = e.range.getRow();
     if (fila <= 1) return; // ignorar encabezado
 
-    const datos   = hoja.getRange(fila, 1, 1, 37).getValues()[0];
+    const datos   = hoja.getRange(fila, 1, 1, 38).getValues()[0];
     const folio   = datos[0];   // col 1
     const paquete = datos[2];   // col 3
     const nombre  = datos[4];   // col 5
     const correo  = datos[6];   // col 7
+    const lang    = datos[36] === 'en' ? 'en' : 'es'; // col 37
 
     if (correo) {
-      enviarCorreoPagoConfirmado(folio, nombre, correo, paquete);
+      enviarCorreoPagoConfirmado(folio, nombre, correo, paquete, lang);
     }
 
     Logger.log('onEdit — Email enviado por Pagado PayPal ✓: ' + folio);

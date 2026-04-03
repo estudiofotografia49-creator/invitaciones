@@ -1166,6 +1166,36 @@ body.form-page .navbar {
 .nav-links {
   display: flex;
   gap: 36px;
+  align-items: center;
+}
+
+/* ==================== LANG TOGGLE ==================== */
+.lang-toggle {
+  background: transparent;
+  border: 1.5px solid rgba(255,255,255,0.55);
+  color: #fff;
+  border-radius: 20px;
+  padding: 5px 13px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Montserrat', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  transition: all 0.2s;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.lang-toggle:hover {
+  background: rgba(255,255,255,0.18);
+}
+
+body.form-page .lang-toggle {
+  border-color: rgba(75,68,149,0.4);
+  color: var(--morado);
+}
+
+body.form-page .lang-toggle:hover {
+  background: rgba(75,68,149,0.08);
 }
 
 .nav-link {
