@@ -207,8 +207,10 @@ function validarPayload(d) {
   // Límites de tamaño por campo de texto
   const limites = {
     nombreCompleto: 200, whatsapp: 50, correo: 254,
-    nombresFestejados: 300, paletaColores: 500, mensajeEspecial: 2000,
-    datosAsistencia: 1000, ideasExtra: 2000, nombreEnlace: 100
+    nombresFestejados: 300, mensajeEspecial: 2000,
+    datosAsistencia: 1000, hospedaje: 1000,
+    descripcionEstilo: 1000, tipoEventoOtro: 200,
+    musica: 300, dressCode: 300, lang: 5
   };
   for (const [campo, max] of Object.entries(limites)) {
     if (d[campo] && String(d[campo]).length > max) {
