@@ -600,7 +600,7 @@ async function enviar(datos, archivos, imagenRefEstilo, dressCodeImgs) {
 
   // ── MODO PRODUCCIÓN ── Enviar JSON a Google Apps Script
   // Content-Type: text/plain evita el preflight CORS que bloquea Apps Script.
-  console.log(`📎 Archivos: ${fotosBase64.length} foto(s), ${refsBase64.length} ref(s), ${agendaBase64.length} agenda, ${dressCodeBase64.length} dressCode`);
+  console.log(`📎 Archivos: ${fotosBase64.length} foto(s), ${refsBase64.length} ref estilo, ${dressCodeBase64.length} dressCode`);
 
   let resultado;
   try {
