@@ -6,7 +6,7 @@
 
 // Dejar vacío hasta configurar Google Apps Script.
 // En modo vacío, los datos se imprimen en consola y se simula éxito.
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz957yBhCCOLfEIQSwN-uczZ3j1W49sZbQxgDjmaROBGHPtmPky_GoGb5Ewh0koFOvt/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyl_j80q7WeJ7zNgoux_v3PgbiMUNiYrEN3OLsWqMPXisdtjDV-lntJSotfbQ4BZ51e/exec';
 
 // Token de acceso — debe coincidir con FESTALI_TOKEN en Script Properties de Apps Script
 const FESTALI_TOKEN = 'festali-2026-xK9mP';
