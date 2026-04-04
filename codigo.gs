@@ -717,14 +717,15 @@ function enviarCorreoConfirmacion(datos, initPoint) {
   try {
     if (!datos.correo) return;
 
-    // Límite: máximo 1 correo de confirmación por dirección cada 30 minutos
+    // Límite: máximo 1 correo de confirmación por combinación correo+folio
+    // Una segunda solicitud con el mismo correo pero distinto folio sí recibe su correo.
     const cache    = CacheService.getScriptCache();
-    const cacheKey = 'email_conf_' + datos.correo.toLowerCase().replace(/[^a-z0-9]/g, '_').substring(0, 80);
+    const cacheKey = 'email_conf_' + (datos.folio || '').replace(/[^a-z0-9]/gi, '_') + '_' + datos.correo.toLowerCase().replace(/[^a-z0-9]/g, '_').substring(0, 60);
     if (cache.get(cacheKey)) {
-      Logger.log('⚠️ Correo de confirmación omitido (enviado recientemente): ' + datos.correo);
+      Logger.log('⚠️ Correo de confirmación omitido (ya enviado para este folio): ' + datos.correo + ' | ' + datos.folio);
       return;
     }
-    cache.put(cacheKey, '1', 1800); // 30 minutos
+    cache.put(cacheKey, '1', 86400); // 24 horas por folio
 
     const lang       = (datos.lang === 'en') ? 'en' : 'es';
     const isEN       = lang === 'en';
