@@ -257,6 +257,9 @@ function guardarFotosEnSub(fotos, carpetaPadre, nombreSub) {
   return guardarFotos(fotos, sub);
 }
 
+// Tamaño máximo por archivo: 8 MB en base64 (~10.9 MB de string)
+const MAX_BASE64_CHARS = Math.ceil(8 * 1024 * 1024 * 4 / 3);
+
 function guardarFotos(fotos, carpeta) {
   const links = [];
 
@@ -264,7 +267,12 @@ function guardarFotos(fotos, carpeta) {
     try {
       if (!MIME_PERMITIDOS.includes(foto.mimeType)) {
         Logger.log('Archivo rechazado — MIME no permitido: ' + foto.mimeType);
-        links.push('Archivo rechazado');
+        links.push('Archivo rechazado — tipo no permitido');
+        return;
+      }
+      if (!foto.data || foto.data.length > MAX_BASE64_CHARS) {
+        Logger.log('Archivo rechazado — tamaño excede 8 MB: ' + (foto.nombre || i));
+        links.push('Archivo rechazado — supera 8 MB');
         return;
       }
       const bytes = Utilities.base64Decode(foto.data);
