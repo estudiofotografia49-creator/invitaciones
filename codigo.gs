@@ -151,6 +151,15 @@ function doPost(e) {
 
 function doGet(e) {
   if (e && e.parameter && e.parameter.action === 'folio') {
+    // Verificar token antes de generar folio
+    const tokenEsperado = PropertiesService.getScriptProperties().getProperty('FESTALI_TOKEN');
+    const tokenRecibido = (e.parameter.token || '').trim();
+    if (tokenEsperado && tokenRecibido !== tokenEsperado) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ ok: false, error: 'No autorizado' }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
     const lock = LockService.getScriptLock();
     try {
       lock.waitLock(10000);
@@ -260,6 +269,23 @@ function guardarFotosEnSub(fotos, carpetaPadre, nombreSub) {
 // Tamaño máximo por archivo: 8 MB en base64 (~10.9 MB de string)
 const MAX_BASE64_CHARS = Math.ceil(8 * 1024 * 1024 * 4 / 3);
 
+// Valida los primeros bytes del archivo para confirmar que es realmente una imagen.
+// HEIC/HEIF se omite por firma variable — se confía solo en el MIME para ese formato.
+function validarMagicBytes(bytes, mimeType) {
+  if (!bytes || bytes.length < 12) return false;
+  if (mimeType === 'image/heic' || mimeType === 'image/heif') return true;
+  if (mimeType === 'image/jpeg')
+    return bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF;
+  if (mimeType === 'image/png')
+    return bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47;
+  if (mimeType === 'image/webp')
+    return bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 &&
+           bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50;
+  if (mimeType === 'image/gif')
+    return bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x38;
+  return false;
+}
+
 function guardarFotos(fotos, carpeta) {
   const links = [];
 
@@ -276,9 +302,14 @@ function guardarFotos(fotos, carpeta) {
         return;
       }
       const bytes = Utilities.base64Decode(foto.data);
-      const blob  = Utilities.newBlob(bytes, foto.mimeType, foto.nombre || ('archivo_' + (i + 1)));
-      const file  = carpeta.createFile(blob);
-      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      if (!validarMagicBytes(bytes, foto.mimeType)) {
+        Logger.log('Archivo rechazado — magic bytes inválidos: ' + (foto.nombre || i) + ' | ' + foto.mimeType);
+        links.push('Archivo rechazado — contenido no es una imagen válida');
+        return;
+      }
+      const blob = Utilities.newBlob(bytes, foto.mimeType, foto.nombre || ('archivo_' + (i + 1)));
+      const file = carpeta.createFile(blob);
+      // Archivos privados — solo accesibles desde tu cuenta de Google
       links.push(file.getUrl());
     } catch (err) {
       Logger.log('Error al guardar archivo ' + i + ': ' + err.message);
@@ -685,6 +716,15 @@ function autorizarFetch() {
 function enviarCorreoConfirmacion(datos, initPoint) {
   try {
     if (!datos.correo) return;
+
+    // Límite: máximo 1 correo de confirmación por dirección cada 30 minutos
+    const cache    = CacheService.getScriptCache();
+    const cacheKey = 'email_conf_' + datos.correo.toLowerCase().replace(/[^a-z0-9]/g, '_').substring(0, 80);
+    if (cache.get(cacheKey)) {
+      Logger.log('⚠️ Correo de confirmación omitido (enviado recientemente): ' + datos.correo);
+      return;
+    }
+    cache.put(cacheKey, '1', 1800); // 30 minutos
 
     const lang       = (datos.lang === 'en') ? 'en' : 'es';
     const isEN       = lang === 'en';

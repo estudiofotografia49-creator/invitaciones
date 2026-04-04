@@ -507,7 +507,7 @@ async function setFolio() {
 
   for (let intento = 1; intento <= 3; intento++) {
     try {
-      const res  = await fetch(SCRIPT_URL + '?action=folio');
+      const res  = await fetch(SCRIPT_URL + '?action=folio&token=' + encodeURIComponent(FESTALI_TOKEN));
       const data = await res.json();
       if (data.folio && /^FEST-\d+$/.test(data.folio)) {
         input.value = data.folio;
@@ -603,6 +603,35 @@ function initAcumulador(input, onUpdate) {
   });
 }
 
+// ==================== MAGIC BYTES — VALIDACIÓN DE CONTENIDO ====================
+
+function leerPrimerosBytesArchivo(file) {
+  return new Promise(function(resolve) {
+    var reader = new FileReader();
+    reader.onload = function(e) { resolve(new Uint8Array(e.target.result)); };
+    reader.onerror = function() { resolve(null); };
+    reader.readAsArrayBuffer(file.slice(0, 12));
+  });
+}
+
+async function esImagenReal(file) {
+  // HEIC/HEIF: firma variable, confiar solo en MIME
+  if (file.type === 'image/heic' || file.type === 'image/heif') return true;
+  var b = await leerPrimerosBytesArchivo(file);
+  if (!b || b.length < 4) return false;
+  if (file.type === 'image/jpeg')
+    return b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF;
+  if (file.type === 'image/png')
+    return b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4E && b[3] === 0x47;
+  if (file.type === 'image/webp')
+    return b.length >= 12 &&
+           b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x46 &&
+           b[8] === 0x57 && b[9] === 0x45 && b[10] === 0x42 && b[11] === 0x50;
+  if (file.type === 'image/gif')
+    return b[0] === 0x47 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x38;
+  return false;
+}
+
 // ==================== PREVIEW DE IMÁGENES ====================
 
 // Inicializa un campo de archivo con vista previa y botón de eliminar por imagen.
@@ -663,22 +692,32 @@ function crearPreviewPanel(inputEl, previewId, maxFiles, hintEl, labelSingular, 
     });
   }
 
-  inputEl.addEventListener('change', function() {
+  inputEl.addEventListener('change', async function() {
     var tooLarge = [];
-    Array.from(inputEl.files).forEach(function(f) {
+    var invalidContent = [];
+    for (var i = 0; i < inputEl.files.length; i++) {
+      var f = inputEl.files[i];
       if (f.size > MAX_BYTES) {
         tooLarge.push(f.name + ' (' + (f.size / 1024 / 1024).toFixed(1) + 'MB)');
-        return;
+        continue;
+      }
+      var esReal = await esImagenReal(f);
+      if (!esReal) {
+        invalidContent.push(f.name);
+        continue;
       }
       if (!Array.from(dt.files).some(function(e) { return e.name === f.name && e.size === f.size; })) {
         dt.items.add(f);
       }
-    });
+    }
     inputEl.files = dt.files;
     renderPreviews();
     actualizarHint();
     if (tooLarge.length) {
       alert('Las siguientes imágenes superan el límite de ' + MAX_MB_IMAGEN + 'MB y no fueron agregadas:\n\n' + tooLarge.join('\n'));
+    }
+    if (invalidContent.length) {
+      alert('Los siguientes archivos no son imágenes válidas y no fueron agregados:\n\n' + invalidContent.join('\n'));
     }
   });
 
