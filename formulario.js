@@ -1236,19 +1236,34 @@ function initWizard(paqueteKey) {
   irA(0);
 }
 
-const SPINNER_MENSAJES = [
-  'Enviando tu información... 📤',
-  'No cierres ni actualices la página 🙏',
-  'Ya casi... 💫',
-  'Un poquitito más... 🎉',
-  'La magia tarda un momento... 🪄',
-  'Casi lista, prometemos que vale la pena ⭐',
-  'Guardando tus fotos con cuidado... 📸',
-  'Un segundo, estamos trabajando en ello 🛠️',
-  '¡Gracias por tu paciencia, ya mero! 🙌',
-  'Un diseñador profesional recibirá tu pedido en breve 🖌️',
-  'Esto es más rápido que la fila del banco, te lo prometemos 😂'
-];
+const SPINNER_MENSAJES = {
+  es: [
+    'Enviando tu información... 📤',
+    'No cierres ni actualices la página 🙏',
+    'Ya casi... 💫',
+    'Un poquitito más... 🎉',
+    'La magia tarda un momento... 🪄',
+    'Casi lista, prometemos que vale la pena ⭐',
+    'Guardando tus fotos con cuidado... 📸',
+    'Un segundo, estamos trabajando en ello 🛠️',
+    '¡Gracias por tu paciencia, ya mero! 🙌',
+    'Un diseñador profesional recibirá tu pedido en breve 🖌️',
+    'Esto es más rápido que la fila del banco, te lo prometemos 😂'
+  ],
+  en: [
+    'Sending your information... 📤',
+    "Please don't close or refresh the page 🙏",
+    'Almost there... 💫',
+    'Just a little more... 🎉',
+    'Magic takes a moment... 🪄',
+    'Almost done, we promise it\'s worth it ⭐',
+    'Saving your photos carefully... 📸',
+    'One second, we\'re working on it 🛠️',
+    'Thank you for your patience! 🙌',
+    'A professional designer will receive your order shortly 🖌️',
+    'This is faster than the DMV line, we promise 😂'
+  ]
+};
 
 let _spinnerInterval = null;
 
@@ -1256,12 +1271,13 @@ function iniciarMensajesSpinner() {
   const texto = document.querySelector('.spinner-texto');
   if (!texto) return;
 
+  const mensajes = SPINNER_MENSAJES[getLang()] || SPINNER_MENSAJES.es;
   let i = 0;
-  texto.textContent = SPINNER_MENSAJES[0];
+  texto.textContent = mensajes[0];
 
   _spinnerInterval = setInterval(() => {
-    i = (i + 1) % SPINNER_MENSAJES.length;
-    texto.textContent = SPINNER_MENSAJES[i];
+    i = (i + 1) % mensajes.length;
+    texto.textContent = mensajes[i];
   }, 3000);
 }
 
