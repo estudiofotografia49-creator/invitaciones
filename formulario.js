@@ -96,7 +96,7 @@ const TRANSLATIONS = {
     confirm_instruccion: 'Te enviamos un correo con el resumen de tu solicitud y los links de pago.',
     confirm_spam: 'Revisa tu bandeja de entrada — <strong>¡no olvides checar tu carpeta de SPAM!</strong>',
     confirm_nota: 'Al completar tu pago recibirás una confirmación automática.',
-    confirm_dias: 'Tu invitación estará lista en máximo <strong>3 días hábiles</strong>.',
+    confirm_dias: 'Tu invitación estará lista en máximo <strong>48 a 72 horas</strong> después de realizar el pago.',
     confirm_wsp: 'WhatsApp', confirm_correo_btn: '✉ Correo',
     // Validación — mensajes de error
     val_alert_header: 'Por favor completa los siguientes campos:',
@@ -195,7 +195,7 @@ const TRANSLATIONS = {
     confirm_instruccion: 'We sent you an email with your request summary and payment links.',
     confirm_spam: 'Check your inbox — <strong>don\'t forget to check your SPAM folder!</strong>',
     confirm_nota: 'Once your payment is confirmed, you\'ll receive an automatic notification.',
-    confirm_dias: 'Your invitation will be ready in max. <strong>3 business days</strong>.',
+    confirm_dias: 'Your invitation will be ready in max. <strong>48 to 72 hours</strong> after payment is confirmed.',
     confirm_wsp: 'WhatsApp', confirm_correo_btn: '✉ Email',
     // Validation — error messages
     val_alert_header: 'Please complete the following fields:',

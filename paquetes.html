@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="stylesheet" href="styles.css?v=9">
 
   <style>
     /* ── Cocogoose Pro ── */
@@ -261,6 +261,23 @@
       font-size:.48rem; font-weight:700; width:100%; box-sizing:border-box;
     }
 
+    /* ══ Formato destacado (PDF / Video / Sitio web) ══ */
+    .feat-formato {
+      font-size: 1.05rem !important;
+      font-weight: 700 !important;
+      color: #4b4495 !important;
+      background: #f0eeff;
+      border-radius: 8px;
+      padding: 8px 10px !important;
+      margin-bottom: 6px;
+      border-bottom: none !important;
+      letter-spacing: 0.01em;
+    }
+    .card.destacado .feat-formato {
+      color: #e72268 !important;
+      background: #fff0f5;
+    }
+
     /* ══ Responsive ══ */
     .movil-mobile-premium { display:none; }
     @media (max-width:900px) {
@@ -312,13 +329,12 @@
           <div class="card-precio" data-mxn="650" data-usd="32.50">$650 <span>MXN</span></div>
           <div class="card-divider"></div>
           <ul class="features-list" id="feat-quick">
-            <li data-i18n="feat_pdf_quick">📄 PDF interactivo</li>
+            <li data-i18n="feat_pdf_quick" class="feat-formato">📄 PDF interactivo</li>
             <li data-i18n="feat_diseno">Diseño personalizado</li>
             <li data-i18n="feat_gps">Ubicación GPS (Maps / Waze)</li>
             <li data-i18n="feat_wsp">Confirmación por WhatsApp</li>
             <li data-i18n="feat_dress">Dress code</li>
             <li data-i18n="feat_fotos3">Hasta 3 fotos</li>
-            <li data-i18n="feat_48h">Entrega en 48–72 hrs</li>
           </ul>
           <a href="formulario.html?paquete=quick" class="btn-contratar" data-i18n="btn_contratar">
             ¡Crear mi invitación con un profesional!
@@ -337,7 +353,7 @@
           <div class="card-precio" data-mxn="950" data-usd="47.50">$950 <span>MXN</span></div>
           <div class="card-divider"></div>
           <ul class="features-list" id="feat-motion">
-            <li data-i18n="feat_video">🎬 Video invitación MP4</li>
+            <li data-i18n="feat_video" class="feat-formato">🎬 Video invitación MP4</li>
             <li data-i18n="feat_diseno">Diseño personalizado</li>
             <li data-i18n="feat_anim">Animaciones profesionales</li>
             <li data-i18n="feat_cancion">Tu canción favorita</li>
@@ -361,7 +377,7 @@
           <div class="card-precio" data-mxn="2100" data-usd="105">$2,100 <span>MXN</span></div>
           <div class="card-divider"></div>
           <ul class="features-list" id="feat-pro">
-            <li data-i18n="feat_web">🌐 Sitio web interactivo</li>
+            <li data-i18n="feat_web" class="feat-formato">🌐 Sitio web interactivo</li>
             <li data-i18n="feat_diseno">Diseño personalizado</li>
             <li data-i18n="feat_rsvp">Confirmaciones automáticas (RSVP)</li>
             <li data-i18n="feat_countdown">Cuenta regresiva en tiempo real</li>

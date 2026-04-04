@@ -762,7 +762,7 @@ function enviarCorreoConfirmacion(datos, initPoint) {
       pp_sub:    'USA / International — $' + precioUSD + ' USD',
       mp_btn:    '💳 Pay with MercadoPago',
       pp_btn:    '💰 Pay with PayPal',
-      note:      'Once your payment is confirmed, you\'ll receive an automatic notification. Your invitation will be ready in max. <strong>3 business days</strong>.',
+      note:      'Once your payment is confirmed, you\'ll receive an automatic notification. Your invitation will be ready in max. <strong>48 to 72 hours</strong> after payment is confirmed.',
       doubt:     'Have questions or want to make a change?'
     } : {
       slogan:    'Conectando tus mejores momentos',
@@ -775,7 +775,7 @@ function enviarCorreoConfirmacion(datos, initPoint) {
       pp_sub:    'USA / Internacional — $' + precioUSD + ' USD',
       mp_btn:    '💳 Pagar con MercadoPago',
       pp_btn:    '💰 Pagar con PayPal',
-      note:      'Al completar tu pago recibirás una confirmación automática. Tu invitación estará lista en máximo <strong>3 días hábiles</strong>.',
+      note:      'Al completar tu pago recibirás una confirmación automática. Tu invitación estará lista en máximo <strong>48 a 72 horas</strong> después de realizar el pago.',
       doubt:     '¿Tienes dudas o quieres hacer un cambio?'
     };
     const precioDisplay = isEN
@@ -858,7 +858,7 @@ function enviarCorreoPagoConfirmado(folio, nombre, correo, paquete, lang) {
       intro:     'We received your payment successfully. Our team is already working on your invitation.',
       paid:      'Payment received', paid_sub: 'Your request is confirmed — ' + paquete,
       design:    'In design',        design_sub: 'Your invitation is being created',
-      delivery:  'Delivery in max. 3 business days', delivery_sub: "We'll be in touch soon",
+      delivery:  'Delivery in max. 48 to 72 hours', delivery_sub: "We'll be in touch soon",
       doubt:     'Have questions or want to make a change?'
     } : {
       slogan:    'Conectando tus mejores momentos',
@@ -866,7 +866,7 @@ function enviarCorreoPagoConfirmado(folio, nombre, correo, paquete, lang) {
       intro:     'Recibimos tu pago correctamente. Nuestro equipo ya está trabajando en tu invitación.',
       paid:      'Pago recibido',    paid_sub: 'Tu solicitud está confirmada — ' + paquete,
       design:    'En diseño',        design_sub: 'Tu invitación está siendo creada',
-      delivery:  'Entrega en máx. 3 días hábiles', delivery_sub: 'Te contactaremos a la brevedad',
+      delivery:  'Entrega en máx. 48 a 72 horas', delivery_sub: 'Te contactaremos a la brevedad',
       doubt:     '¿Tienes dudas o quieres hacer algún cambio?'
     };
 
