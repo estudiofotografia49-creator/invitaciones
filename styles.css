@@ -501,6 +501,7 @@ body.form-page {
 
 .form-group {
   margin-bottom: 22px;
+  overflow: hidden;
 }
 
 .form-group label {
@@ -532,7 +533,12 @@ body.form-page {
   appearance: auto;
 }
 
-input[type="date"].form-control {
+input[type="date"].form-control,
+input[type="time"].form-control {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   min-height: 48px;
 }
 
