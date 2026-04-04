@@ -14,6 +14,9 @@ const FESTALI_TOKEN = 'festali-2026-xK9mP';
 // Tipos de archivo permitidos para subir
 const TIPOS_VALIDOS = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif'];
 
+// Peso máximo por imagen (en MB)
+const MAX_MB_IMAGEN = 8;
+
 // ==================== IDIOMA ====================
 
 const TRANSLATIONS = {
@@ -91,7 +94,7 @@ const TRANSLATIONS = {
     // Confirmación pantalla
     confirm_titulo: '¡Tu solicitud fue recibida!', confirm_folio: 'Número de folio:',
     confirm_instruccion: 'Te enviamos un correo con el resumen de tu solicitud y los links de pago.',
-    confirm_spam: '<strong>Revisa tu bandeja de entrada</strong> (y carpeta de spam, por si acaso).',
+    confirm_spam: 'Revisa tu bandeja de entrada — <strong>¡no olvides checar tu carpeta de SPAM!</strong>',
     confirm_nota: 'Al completar tu pago recibirás una confirmación automática.',
     confirm_dias: 'Tu invitación estará lista en máximo <strong>3 días hábiles</strong>.',
     confirm_wsp: 'WhatsApp', confirm_correo_btn: '✉ Correo',
@@ -157,7 +160,7 @@ const TRANSLATIONS = {
     reg_ninguno: 'Do not include', reg_mesa: 'Gift registry', reg_transf: 'Bank transfer',
     confirm_titulo: 'Your request was received!', confirm_folio: 'Reference number:',
     confirm_instruccion: 'We sent you an email with your request summary and payment links.',
-    confirm_spam: '<strong>Check your inbox</strong> (and spam folder, just in case).',
+    confirm_spam: 'Check your inbox — <strong>don\'t forget to check your SPAM folder!</strong>',
     confirm_nota: 'Once your payment is confirmed, you\'ll receive an automatic notification.',
     confirm_dias: 'Your invitation will be ready in max. <strong>3 business days</strong>.',
     confirm_wsp: 'WhatsApp', confirm_correo_btn: '✉ Email',
@@ -307,16 +310,6 @@ function applyLang() {
   // Estilo labels
   var estVisionLbl = document.querySelector('#grupoEstiloDesc label:first-of-type');
   if (estVisionLbl) estVisionLbl.innerHTML = t('est_vision_lbl') + ' <span style="color:#aaa;font-weight:400">' + t('est_vision_opt') + '</span>';
-  var estImgLbl = document.querySelectorAll('#grupoEstiloDesc label');
-  if (estImgLbl[1]) estImgLbl[1].innerHTML = t('est_img_lbl') + ' <span style="color:#aaa;font-weight:400">' + t('est_img_opt') + '</span>';
-  var estImgClick = document.querySelector('#grupoEstiloDesc .file-texto');
-  var estImgMax   = document.querySelector('#grupoEstiloDesc .file-min');
-  if (estImgClick) estImgClick.textContent = t('est_img_click');
-  if (estImgMax)   estImgMax.textContent   = t('est_img_max');
-  var estImgNone = document.getElementById('refEstiloSeleccionada');
-  if (estImgNone && estImgNone.textContent === TRANSLATIONS['es'].est_img_none || estImgNone && estImgNone.textContent === TRANSLATIONS['en'].est_img_none) {
-    estImgNone.textContent = t('est_img_none');
-  }
 
   // Tipo diseño
   _setRadioOption('tipoDisenoFotos',   'dis_fotos_lbl',   'dis_fotos_desc');
@@ -359,11 +352,13 @@ function applyLang() {
   var confirmTit = document.querySelector('.confirmacion h2');
   var folioLbl   = document.querySelector('.folio-label');
   var instrEl    = document.querySelector('.confirmacion-pago-instruccion');
+  var spamEl     = document.getElementById('spamAviso');
   var notaEl     = document.querySelector('.confirmacion-pago-nota');
   var correoBtn  = document.querySelector('.btn-email');
   if (confirmTit) confirmTit.textContent = t('confirm_titulo');
   if (folioLbl)   folioLbl.textContent   = t('confirm_folio');
-  if (instrEl)    instrEl.innerHTML      = t('confirm_instruccion') + '<br>' + t('confirm_spam');
+  if (instrEl)    instrEl.textContent    = t('confirm_instruccion');
+  if (spamEl)     spamEl.innerHTML       = '📧 ' + t('confirm_spam');
   if (notaEl)     notaEl.innerHTML       = t('confirm_nota') + '<br>' + t('confirm_dias');
   if (correoBtn)  correoBtn.textContent  = t('confirm_correo_btn');
 
@@ -534,6 +529,89 @@ function initAcumulador(input, onUpdate) {
   });
 }
 
+// ==================== PREVIEW DE IMÁGENES ====================
+
+// Inicializa un campo de archivo con vista previa y botón de eliminar por imagen.
+// inputEl     — el <input type="file">
+// previewId   — id del div .foto-preview-grid donde se renderizan las miniaturas
+// maxFiles    — límite de archivos permitidos (solo muestra error en hint, no bloquea avance)
+// hintEl      — el <p class="form-hint"> donde se muestra el conteo
+// labelSingular / labelPlural — palabra para el tipo de archivo (ej. 'foto'/'fotos')
+function crearPreviewPanel(inputEl, previewId, maxFiles, hintEl, labelSingular, labelPlural) {
+  var sing = labelSingular || 'imagen';
+  var plur = labelPlural   || 'imágenes';
+  const MAX_BYTES = MAX_MB_IMAGEN * 1024 * 1024;
+  const container = document.getElementById(previewId);
+  const dt = new DataTransfer();
+
+  function actualizarHint() {
+    if (!hintEl) return;
+    const n = dt.files.length;
+    if (n === 0) {
+      hintEl.textContent = 'Ninguna ' + sing + ' seleccionada';
+      hintEl.style.color = '';
+    } else if (n > maxFiles) {
+      hintEl.textContent = n + ' ' + plur + ' — máximo ' + maxFiles + ' permitida' + (maxFiles > 1 ? 's' : '');
+      hintEl.style.color = '#e72268';
+    } else {
+      hintEl.textContent = n + ' ' + (n > 1 ? plur : sing) + ' seleccionada' + (n > 1 ? 's' : '');
+      hintEl.style.color = '#4b4495';
+    }
+  }
+
+  function renderPreviews() {
+    if (!container) return;
+    container.innerHTML = '';
+    Array.from(dt.files).forEach(function(file, idx) {
+      var url = URL.createObjectURL(file);
+      var item = document.createElement('div');
+      item.className = 'foto-preview-item';
+      var img = document.createElement('img');
+      img.src = url;
+      img.alt = file.name;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'foto-preview-remove';
+      btn.title = 'Eliminar';
+      btn.textContent = '✕';
+      btn.addEventListener('click', function() {
+        var newDt = new DataTransfer();
+        Array.from(dt.files).forEach(function(f, i) { if (i !== idx) newDt.items.add(f); });
+        while (dt.items.length) dt.items.remove(0);
+        Array.from(newDt.files).forEach(function(f) { dt.items.add(f); });
+        inputEl.files = dt.files;
+        renderPreviews();
+        actualizarHint();
+      });
+      item.appendChild(img);
+      item.appendChild(btn);
+      container.appendChild(item);
+    });
+  }
+
+  inputEl.addEventListener('change', function() {
+    var tooLarge = [];
+    Array.from(inputEl.files).forEach(function(f) {
+      if (f.size > MAX_BYTES) {
+        tooLarge.push(f.name + ' (' + (f.size / 1024 / 1024).toFixed(1) + 'MB)');
+        return;
+      }
+      if (!Array.from(dt.files).some(function(e) { return e.name === f.name && e.size === f.size; })) {
+        dt.items.add(f);
+      }
+    });
+    inputEl.files = dt.files;
+    renderPreviews();
+    actualizarHint();
+    if (tooLarge.length) {
+      alert('Las siguientes imágenes superan el límite de ' + MAX_MB_IMAGEN + 'MB y no fueron agregadas:\n\n' + tooLarge.join('\n'));
+    }
+  });
+
+  // Exponer dt para que la validación del wizard pueda acceder a .files
+  return dt;
+}
+
 function initFileInput(paqueteKey) {
   const config        = PAQUETES[paqueteKey];
   const input         = document.getElementById('fotos');
@@ -541,27 +619,16 @@ function initFileInput(paqueteKey) {
   const seleccionadas = document.getElementById('fotosSeleccionadas');
   const grupoSubir    = document.getElementById('grupoSubirFotos');
 
-  hint.textContent = `Máximo ${config.maxFotos} foto${config.maxFotos > 1 ? 's' : ''}`;
+  hint.textContent = 'Máximo ' + config.maxFotos + ' foto' + (config.maxFotos > 1 ? 's' : '');
 
   // Toggle mostrar/ocultar el input de fotos según la selección
-  document.querySelectorAll('input[name="tienesFotos"]').forEach(r => {
-    r.addEventListener('change', () => {
+  document.querySelectorAll('input[name="tienesFotos"]').forEach(function(r) {
+    r.addEventListener('change', function() {
       grupoSubir.style.display = r.value === 'si' ? 'block' : 'none';
     });
   });
 
-  initAcumulador(input, n => {
-    if (n === 0) {
-      seleccionadas.textContent = 'Ninguna foto seleccionada';
-      seleccionadas.style.color = '';
-    } else if (n > config.maxFotos) {
-      seleccionadas.textContent = `${n} fotos — máximo ${config.maxFotos} permitidas`;
-      seleccionadas.style.color = '#e72268';
-    } else {
-      seleccionadas.textContent = `${n} foto${n > 1 ? 's' : ''} seleccionada${n > 1 ? 's' : ''}`;
-      seleccionadas.style.color = '#4b4495';
-    }
-  });
+  crearPreviewPanel(input, 'fotosPreview', config.maxFotos, seleccionadas, 'foto', 'fotos');
 }
 
 // ==================== TIPO DE DISEÑO ====================
@@ -587,16 +654,12 @@ function initDressCodeImg() {
 
   if (!cb || !grupo) return;
 
-  cb.addEventListener('change', () => {
+  cb.addEventListener('change', function() {
     grupo.style.display = cb.checked ? 'block' : 'none';
   });
 
   if (input && hint) {
-    initAcumulador(input, n => {
-      hint.textContent = n
-        ? `${n} imagen${n > 1 ? 'es' : ''} seleccionada${n > 1 ? 's' : ''}`
-        : 'Ninguna imagen seleccionada';
-    });
+    crearPreviewPanel(input, 'dressCodePreview', 3, hint);
   }
 }
 
@@ -623,14 +686,10 @@ function initEstiloToggle() {
   const select    = document.getElementById('estiloInvitacion');
   const grupoDesc = document.getElementById('grupoEstiloDesc');
   const textarea  = document.getElementById('descripcionEstilo');
-  const input     = document.getElementById('imagenRefEstilo');
-  const hint      = document.getElementById('refEstiloSeleccionada');
-
-  // Placeholders defined in TRANSLATIONS[lang].est_ph
 
   if (!select || !grupoDesc) return;
 
-  select.addEventListener('change', () => {
+  select.addEventListener('change', function() {
     const val = select.value;
     if (val) {
       grupoDesc.style.display = 'block';
@@ -640,26 +699,6 @@ function initEstiloToggle() {
       grupoDesc.style.display = 'none';
     }
   });
-
-  if (input && hint) {
-    input.addEventListener('change', () => {
-      const n = input.files.length;
-      if (n === 0) {
-        hint.textContent = 'Ninguna imagen seleccionada';
-        hint.style.color = '';
-      } else if (n > 1) {
-        // Si selecciona más de 1, conservar solo la primera
-        const dt = new DataTransfer();
-        dt.items.add(input.files[0]);
-        input.files = dt.files;
-        hint.textContent = '1 imagen seleccionada';
-        hint.style.color = '#4b4495';
-      } else {
-        hint.textContent = '1 imagen seleccionada';
-        hint.style.color = '#4b4495';
-      }
-    });
-  }
 }
 
 // ==================== EVENTO OTRO ====================
@@ -988,6 +1027,16 @@ function mostrarConfirmacion(folio) {
   document.getElementById('confirmacion').classList.add('active');
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Confeti desde ambos lados durante 3 segundos
+  if (typeof confetti === 'function') {
+    var fin = Date.now() + 3000;
+    (function frame() {
+      confetti({ particleCount: 6, angle: 60, spread: 55, origin: { x: 0 } });
+      confetti({ particleCount: 6, angle: 120, spread: 55, origin: { x: 1 } });
+      if (Date.now() < fin) requestAnimationFrame(frame);
+    })();
+  }
 }
 
 // ==================== MOSTRAR ERRORES ====================

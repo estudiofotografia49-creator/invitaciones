@@ -1141,6 +1141,16 @@ input[type="file"] {
     font-size: 1.3rem;
     letter-spacing: 2px;
   }
+
+  .spinner-texto {
+    font-size: 1.25rem;
+    padding: 0 20px;
+    text-align: center;
+  }
+
+  .spam-aviso {
+    font-size: 1.05rem;
+  }
 }
 
 /* ==================== NAVBAR ==================== */
@@ -1368,30 +1378,67 @@ body.has-navbar {
   opacity: 0.45;
 }
 
-/* ==================== ANIMACIÓN SARTÉN ==================== */
-@keyframes panRock {
-  0%, 100% { transform: rotate(-14deg) translateY(0); }
-  25%       { transform: rotate(12deg) translateY(-7px); }
-  50%       { transform: rotate(-6deg) translateY(-3px); }
-  75%       { transform: rotate(11deg) translateY(-9px); }
+/* ==================== FOTO PREVIEW GRID ==================== */
+.foto-preview-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
 }
 
-.cooking-anim {
-  margin: 18px 0 6px;
+.foto-preview-item {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  flex-shrink: 0;
 }
 
-.pan-emoji {
-  display: inline-block;
-  font-size: 3rem;
-  animation: panRock 1.3s ease-in-out infinite;
-  transform-origin: bottom center;
+.foto-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
-.cooking-texto {
-  font-size: 0.88rem;
-  color: var(--gris-texto);
-  margin-top: 8px;
-  font-style: italic;
-  opacity: 0.82;
+.foto-preview-remove {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  background: rgba(231,34,104,0.92);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+}
+
+.foto-preview-remove:hover {
+  background: #c01060;
+}
+
+/* ==================== SPAM AVISO ==================== */
+.spam-aviso {
+  background: #fff3cd;
+  border: 1.5px solid #f0c040;
+  border-radius: 10px;
+  color: #7a5000;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 12px 18px;
+  margin: 12px auto 20px;
+  max-width: 400px;
+  line-height: 1.5;
+  font-family: 'Montserrat', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
 }
 

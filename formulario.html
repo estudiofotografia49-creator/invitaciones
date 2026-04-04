@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=6">
+  <link rel="stylesheet" href="styles.css?v=7">
 </head>
 <body id="top" class="form-page has-navbar">
 
@@ -191,16 +191,6 @@
               <textarea class="form-control" id="descripcionEstilo" name="descripcionEstilo"
                         placeholder="Describe tu idea..." rows="3"></textarea>
             </div>
-            <div class="form-group">
-              <label>Imagen de referencia <span style="color:#aaa;font-weight:400">(opcional, máx. 1)</span></label>
-              <label class="file-label" for="imagenRefEstilo">
-                <span class="file-icon">🖼️</span>
-                <span class="file-texto">Haz clic para subir una imagen</span>
-                <span class="file-min">Máximo 1 imagen</span>
-              </label>
-              <input type="file" id="imagenRefEstilo" name="imagenRefEstilo" accept="image/*">
-              <p class="form-hint" id="refEstiloSeleccionada">Ninguna imagen seleccionada</p>
-            </div>
           </div>
         </div>
 
@@ -245,6 +235,7 @@
               </label>
               <input type="file" id="fotos" name="fotos" multiple accept="image/*">
               <p class="form-hint" id="fotosSeleccionadas">Ninguna foto seleccionada</p>
+              <div class="foto-preview-grid" id="fotosPreview"></div>
             </div>
           </div>
         </div>
@@ -290,10 +281,11 @@
               <label class="file-label" for="dressCodeImgFile">
                 <span class="file-icon">👗</span>
                 <span class="file-texto">Haz clic para subir ejemplos</span>
-                <span class="file-min">Imágenes de referencia</span>
+                <span class="file-min">Máximo 3 imágenes</span>
               </label>
               <input type="file" id="dressCodeImgFile" name="dressCodeImgFile" multiple accept="image/*">
               <p class="form-hint" id="dressCodeImgHint">Ninguna imagen seleccionada</p>
+              <div class="foto-preview-grid" id="dressCodePreview"></div>
             </div>
           </div>
         </div>
@@ -416,18 +408,17 @@
 
   <!-- ==================== CONFIRMACIÓN ==================== -->
   <div class="confirmacion" id="confirmacion">
-    <div class="cooking-anim">
-      <span class="pan-emoji">🍳</span>
-      <p class="cooking-texto">Cocinando tu invitación...</p>
-    </div>
     <h2>¡Tu solicitud fue recibida!</h2>
     <p class="folio-label">Número de folio:</p>
     <div class="folio-display" id="folioConfirmacion">FEST-000</div>
 
     <p class="confirmacion-pago-instruccion">
-      Te enviamos un correo con el resumen de tu solicitud y los links de pago.<br>
-      <strong>Revisa tu bandeja de entrada</strong> (y carpeta de spam, por si acaso).
+      Te enviamos un correo con el resumen de tu solicitud y los links de pago.
     </p>
+    <div class="spam-aviso" id="spamAviso">
+      📧 Revisa tu bandeja de entrada —
+      <strong>¡no olvides checar tu carpeta de SPAM!</strong>
+    </div>
 
     <p class="confirmacion-pago-nota">
       Al completar tu pago recibirás una confirmación automática.<br>
@@ -464,6 +455,7 @@
     <a href="#top" class="fab fab-top" title="Volver arriba">↑</a>
   </div>
 
-  <script src="formulario.js?v=7"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <script src="formulario.js?v=8"></script>
 </body>
 </html>
