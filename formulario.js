@@ -98,6 +98,39 @@ const TRANSLATIONS = {
     confirm_nota: 'Al completar tu pago recibirás una confirmación automática.',
     confirm_dias: 'Tu invitación estará lista en máximo <strong>3 días hábiles</strong>.',
     confirm_wsp: 'WhatsApp', confirm_correo_btn: '✉ Correo',
+    // Validación — mensajes de error
+    val_alert_header: 'Por favor completa los siguientes campos:',
+    val_nombre: 'Nombre completo', val_correo: 'Correo electrónico',
+    val_evento: 'Tipo de evento', val_fecha: 'Fecha del evento',
+    val_festejados: 'Nombres de los festejados', val_estilo: 'Estilo de invitación',
+    val_nombre_req: 'Escribe tu nombre completo',
+    val_correo_req: 'Escribe tu correo electrónico',
+    val_correo_fmt: 'Formato de correo inválido',
+    val_fecha_req: 'Selecciona la fecha del evento',
+    val_fecha_pasada: 'La fecha no puede ser en el pasado',
+    val_festejados_req: 'Escribe los nombres de los festejados',
+    val_ubicacion: 'Selecciona al menos una ubicación (ceremonia o recepción)',
+    val_lugar_cer: 'Escribe el lugar de la ceremonia',
+    val_hora_cer: 'Escribe la hora de la ceremonia',
+    val_lugar_rec: 'Escribe el lugar de la recepción',
+    val_hora_rec: 'Escribe la hora de la recepción',
+    val_estilo_req: 'Selecciona un estilo de invitación',
+    val_diseno_req: 'Selecciona el tipo de diseño',
+    val_evento_req: 'Selecciona el tipo de evento',
+    val_otro_evento: 'Describe tu tipo de evento',
+    val_wsp_req: 'Escribe tu número de WhatsApp',
+    val_wsp_digitos: 'El número debe tener exactamente 10 dígitos',
+    val_mensaje_req: 'Selecciona una opción para el mensaje',
+    val_fotos_max: 'Fotos — máximo permitido: ',
+    val_img_invalida: 'no es una imagen válida',
+    val_conf_req: 'Selecciona el método de confirmación de asistencia',
+    val_conf_wsp: 'Escribe el WhatsApp para confirmaciones',
+    val_conf_correo: 'Escribe el correo para confirmaciones',
+    val_mesa_req: 'Escribe el enlace o número de mesa de regalos',
+    val_banco_req: 'Escribe el nombre del banco',
+    val_titular_req: 'Escribe el nombre del titular',
+    val_clabe_req: 'Escribe la CLABE interbancaria',
+    val_folio_error: 'No se pudo generar tu número de folio. Verifica tu conexión y recarga la página.',
   },
   en: {
     lang_btn: '🇲🇽 ES',
@@ -164,6 +197,39 @@ const TRANSLATIONS = {
     confirm_nota: 'Once your payment is confirmed, you\'ll receive an automatic notification.',
     confirm_dias: 'Your invitation will be ready in max. <strong>3 business days</strong>.',
     confirm_wsp: 'WhatsApp', confirm_correo_btn: '✉ Email',
+    // Validation — error messages
+    val_alert_header: 'Please complete the following fields:',
+    val_nombre: 'Full name', val_correo: 'Email address',
+    val_evento: 'Event type', val_fecha: 'Event date',
+    val_festejados: 'Celebrated names', val_estilo: 'Invitation style',
+    val_nombre_req: 'Enter your full name',
+    val_correo_req: 'Enter your email address',
+    val_correo_fmt: 'Invalid email format',
+    val_fecha_req: 'Select the event date',
+    val_fecha_pasada: 'The date cannot be in the past',
+    val_festejados_req: 'Enter the names of the celebrated',
+    val_ubicacion: 'Select at least one location (ceremony or reception)',
+    val_lugar_cer: 'Enter the ceremony venue',
+    val_hora_cer: 'Enter the ceremony time',
+    val_lugar_rec: 'Enter the reception venue',
+    val_hora_rec: 'Enter the reception time',
+    val_estilo_req: 'Select an invitation style',
+    val_diseno_req: 'Select the design type',
+    val_evento_req: 'Select the event type',
+    val_otro_evento: 'Describe your event type',
+    val_wsp_req: 'Enter your WhatsApp number',
+    val_wsp_digitos: 'The number must have exactly 10 digits',
+    val_mensaje_req: 'Select a message option',
+    val_fotos_max: 'Photos — maximum allowed: ',
+    val_img_invalida: 'is not a valid image',
+    val_conf_req: 'Select the attendance confirmation method',
+    val_conf_wsp: 'Enter the WhatsApp number for confirmations',
+    val_conf_correo: 'Enter the email for confirmations',
+    val_mesa_req: 'Enter the gift registry link or number',
+    val_banco_req: 'Enter the bank name',
+    val_titular_req: 'Enter the account holder name',
+    val_clabe_req: 'Enter the CLABE / account number',
+    val_folio_error: 'Could not generate your reference number. Check your connection and reload the page.',
   }
 };
 
@@ -756,22 +822,22 @@ function initMesaRegalos() {
 
 function validar(paqueteKey) {
   const camposRequeridos = [
-    { id: 'nombreCompleto',    label: 'Nombre completo' },
-    { id: 'correo',            label: 'Correo electrónico' },
-    { id: 'tipoEvento',        label: 'Tipo de evento' },
-    { id: 'fechaEvento',       label: 'Fecha del evento' },
-    { id: 'nombresFestejados', label: 'Nombres de los festejados' },
-    { id: 'estiloInvitacion',  label: 'Estilo de invitación' },
+    { id: 'nombreCompleto',    label: t('val_nombre')     },
+    { id: 'correo',            label: t('val_correo')     },
+    { id: 'tipoEvento',        label: t('val_evento')     },
+    { id: 'fechaEvento',       label: t('val_fecha')      },
+    { id: 'nombresFestejados', label: t('val_festejados') },
+    { id: 'estiloInvitacion',  label: t('val_estilo')     },
   ];
 
   document.querySelectorAll('.form-control.error').forEach(el => el.classList.remove('error'));
 
   const errores = [];
 
-  camposRequeridos.forEach(({ id, label }) => {
-    const el = document.getElementById(id);
+  camposRequeridos.forEach(function(campo) {
+    const el = document.getElementById(campo.id);
     if (!el || !el.value.trim()) {
-      errores.push(label);
+      errores.push(campo.label);
       if (el) el.classList.add('error');
     }
   });
@@ -780,24 +846,24 @@ function validar(paqueteKey) {
   const tipoEventoEl = document.getElementById('tipoEvento');
   if (tipoEventoEl && tipoEventoEl.value === 'Otro') {
     const otroEl = document.getElementById('tipoEventoOtro');
-    if (!otroEl || !otroEl.value.trim()) { errores.push('Describe tu tipo de evento'); if (otroEl) otroEl.classList.add('error'); }
+    if (!otroEl || !otroEl.value.trim()) { errores.push(t('val_otro_evento')); if (otroEl) otroEl.classList.add('error'); }
   }
 
   // WhatsApp — solo dígitos, 10 caracteres
   const wspEl     = document.getElementById('whatsapp');
   const wspDigits = ((wspEl ? wspEl.value : '') || '').replace(/\D/g, '');
   if (!wspDigits) {
-    errores.push('WhatsApp (número requerido)');
+    errores.push('WhatsApp (' + t('val_wsp_req') + ')');
     if (wspEl) wspEl.classList.add('error');
   } else if (wspDigits.length !== 10) {
-    errores.push('WhatsApp (debe tener exactamente 10 dígitos)');
+    errores.push('WhatsApp — ' + t('val_wsp_digitos'));
     if (wspEl) wspEl.classList.add('error');
   }
 
   // Correo — formato
   const correoEl = document.getElementById('correo');
   if (correoEl && correoEl.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correoEl.value.trim())) {
-    if (!errores.includes('Correo electrónico')) errores.push('Correo electrónico (formato inválido)');
+    if (!errores.includes(t('val_correo'))) errores.push(t('val_correo') + ' — ' + t('val_correo_fmt'));
     correoEl.classList.add('error');
   }
 
@@ -806,7 +872,7 @@ function validar(paqueteKey) {
   if (fechaEl && fechaEl.value) {
     const hoy = new Date(); hoy.setHours(0, 0, 0, 0);
     if (new Date(fechaEl.value + 'T00:00:00') < hoy) {
-      errores.push('Fecha del evento (no puede ser en el pasado)');
+      errores.push(t('val_fecha_pasada'));
       fechaEl.classList.add('error');
     }
   }
@@ -817,28 +883,28 @@ function validar(paqueteKey) {
   const tieneCeremonia = cbCeremonia && cbCeremonia.checked;
   const tieneRecepcion = cbRecepcion && cbRecepcion.checked;
   if (!tieneCeremonia && !tieneRecepcion) {
-    errores.push('Selecciona al menos una ubicación (ceremonia o recepción)');
+    errores.push(t('val_ubicacion'));
   }
   if (tieneCeremonia) {
     const el = document.getElementById('lugarCeremonia');
-    if (!el || !el.value.trim()) { errores.push('Lugar de la ceremonia'); if (el) el.classList.add('error'); }
+    if (!el || !el.value.trim()) { errores.push(t('val_lugar_cer')); if (el) el.classList.add('error'); }
   }
   if (tieneRecepcion) {
     const el = document.getElementById('lugarRecepcion');
-    if (!el || !el.value.trim()) { errores.push('Lugar de la recepción'); if (el) el.classList.add('error'); }
+    if (!el || !el.value.trim()) { errores.push(t('val_lugar_rec')); if (el) el.classList.add('error'); }
   }
 
   // Mensaje — obligatorio seleccionar opción (Quick y Pro)
   if (paqueteKey !== 'motion') {
     if (!document.querySelector('input[name="tipoMensaje"]:checked')) {
-      errores.push('Selecciona una opción para el mensaje de invitados');
+      errores.push(t('val_mensaje_req'));
     }
   }
 
   // Tipo de diseño — Quick y Pro
   if (paqueteKey !== 'motion') {
     if (!document.querySelector('input[name="tipoDiseno"]:checked')) {
-      errores.push('Selecciona el tipo de diseño (Mis fotos / Diseño gráfico)');
+      errores.push(t('val_diseno_req'));
     }
   }
 
@@ -850,11 +916,11 @@ function validar(paqueteKey) {
   const tipoDisenoChecked = document.querySelector('input[name="tipoDiseno"]:checked');
   if (tieneFotosDisp && (paqueteKey === 'motion' || !tipoDisenoChecked || tipoDisenoChecked.value === 'fotos')) {
     if (fotosInput && fotosInput.files.length > maxFotos) {
-      errores.push(`Fotos (máximo ${maxFotos} permitidas)`);
+      errores.push(t('val_fotos_max') + maxFotos);
     }
   }
-  Array.from((fotosInput ? fotosInput.files : []) || []).forEach(f => {
-    if (!TIPOS_VALIDOS.includes(f.type)) errores.push(`"${f.name}" no es una imagen válida`);
+  Array.from((fotosInput ? fotosInput.files : []) || []).forEach(function(f) {
+    if (!TIPOS_VALIDOS.includes(f.type)) errores.push('"' + f.name + '" ' + t('val_img_invalida'));
   });
 
   // Confirmaciones — Quick (solo WSP), Pro (WSP o Correo)
@@ -862,20 +928,20 @@ function validar(paqueteKey) {
     var _chkConf = document.querySelector('input[name="tipoConfirmacion"]:checked');
     const tipoConf = _chkConf ? _chkConf.value : undefined;
     if (!tipoConf) {
-      errores.push('Selecciona el método de confirmación de asistencia');
+      errores.push(t('val_conf_req'));
     } else if (tipoConf === 'wsp') {
       const el = document.getElementById('whatsappConfirmaciones');
-      if (!el || !el.value.trim()) { errores.push('WhatsApp para confirmaciones'); if (el) el.classList.add('error'); }
+      if (!el || !el.value.trim()) { errores.push(t('val_conf_wsp')); if (el) el.classList.add('error'); }
     } else if (tipoConf === 'correo') {
       const el = document.getElementById('correoConfirmaciones');
-      if (!el || !el.value.trim()) { errores.push('Correo para confirmaciones'); if (el) el.classList.add('error'); }
+      if (!el || !el.value.trim()) { errores.push(t('val_conf_correo')); if (el) el.classList.add('error'); }
     }
   }
 
   // Folio listo
   const folioVal = (document.getElementById('numeroFolio') || {value: ''}).value || '';
   if (!folioVal || folioVal === 'Cargando...' || !/^FEST-\d+$/.test(folioVal)) {
-    errores.push('No se pudo generar tu número de folio. Verifica tu conexión y recarga la página. Si el problema persiste, contáctanos por WhatsApp.');
+    errores.push(t('val_folio_error'));
   }
 
   return errores;
@@ -1057,8 +1123,8 @@ function mostrarErrores(errores) {
     setTimeout(() => primerError.focus(), 400);
   }
 
-  const lista = errores.map(e => `• ${e}`).join('\n');
-  alert(`Por favor completa los siguientes campos obligatorios:\n\n${lista}`);
+  const lista = errores.map(e => '• ' + e).join('\n');
+  alert(t('val_alert_header') + '\n\n' + lista);
 }
 
 // ==================== SPINNER — ROTACIÓN DE MENSAJES ====================
@@ -1119,68 +1185,68 @@ function initWizard(paqueteKey) {
 
     if (id === 'q-nombre') {
       const el = document.getElementById('nombreCompleto');
-      if (!el || !el.value.trim()) { errores.push('Escribe tu nombre completo'); marcar('nombreCompleto'); }
+      if (!el || !el.value.trim()) { errores.push(t('val_nombre_req')); marcar('nombreCompleto'); }
     }
     if (id === 'q-correo') {
       const el = document.getElementById('correo');
-      if (!el || !el.value.trim()) { errores.push('Escribe tu correo'); marcar('correo'); }
-      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim())) { errores.push('Formato de correo inválido'); marcar('correo'); }
+      if (!el || !el.value.trim()) { errores.push(t('val_correo_req')); marcar('correo'); }
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value.trim())) { errores.push(t('val_correo_fmt')); marcar('correo'); }
     }
     if (id === 'q-fecha') {
       const el = document.getElementById('fechaEvento');
-      if (!el || !el.value) { errores.push('Selecciona la fecha del evento'); marcar('fechaEvento'); }
+      if (!el || !el.value) { errores.push(t('val_fecha_req')); marcar('fechaEvento'); }
       else {
         const hoy = new Date(); hoy.setHours(0,0,0,0);
-        if (new Date(el.value + 'T00:00:00') < hoy) { errores.push('La fecha no puede ser en el pasado'); marcar('fechaEvento'); }
+        if (new Date(el.value + 'T00:00:00') < hoy) { errores.push(t('val_fecha_pasada')); marcar('fechaEvento'); }
       }
     }
     if (id === 'q-festejados') {
       const el = document.getElementById('nombresFestejados');
-      if (!el || !el.value.trim()) { errores.push('Escribe los nombres de los festejados'); marcar('nombresFestejados'); }
+      if (!el || !el.value.trim()) { errores.push(t('val_festejados_req')); marcar('nombresFestejados'); }
     }
     if (id === 'q-ubicacion') {
       const cbCer = document.getElementById('hayCeremonia');
       const cbRec = document.getElementById('hayRecepcion');
       if (!cbCer.checked && !cbRec.checked) {
-        errores.push('Selecciona al menos una ubicación (ceremonia o recepción)');
+        errores.push(t('val_ubicacion'));
       }
       if (cbCer && cbCer.checked) {
         const el = document.getElementById('lugarCeremonia');
-        if (!el || !el.value.trim()) { errores.push('Escribe el lugar de la ceremonia'); marcar('lugarCeremonia'); }
+        if (!el || !el.value.trim()) { errores.push(t('val_lugar_cer')); marcar('lugarCeremonia'); }
         const elHora = document.getElementById('horaCeremonia');
-        if (!elHora || !elHora.value) { errores.push('Escribe la hora de la ceremonia'); marcar('horaCeremonia'); }
+        if (!elHora || !elHora.value) { errores.push(t('val_hora_cer')); marcar('horaCeremonia'); }
       }
       if (cbRec && cbRec.checked) {
         const el = document.getElementById('lugarRecepcion');
-        if (!el || !el.value.trim()) { errores.push('Escribe el lugar de la recepción'); marcar('lugarRecepcion'); }
+        if (!el || !el.value.trim()) { errores.push(t('val_lugar_rec')); marcar('lugarRecepcion'); }
         const elHora = document.getElementById('horaRecepcion');
-        if (!elHora || !elHora.value) { errores.push('Escribe la hora de la recepción'); marcar('horaRecepcion'); }
+        if (!elHora || !elHora.value) { errores.push(t('val_hora_rec')); marcar('horaRecepcion'); }
       }
     }
     if (id === 'q-estilo') {
       const el = document.getElementById('estiloInvitacion');
-      if (!el || !el.value) { errores.push('Selecciona un estilo de invitación'); marcar('estiloInvitacion'); }
+      if (!el || !el.value) { errores.push(t('val_estilo_req')); marcar('estiloInvitacion'); }
     }
     if (id === 'q-diseno') {
-      if (!document.querySelector('input[name="tipoDiseno"]:checked')) errores.push('Selecciona el tipo de diseño');
+      if (!document.querySelector('input[name="tipoDiseno"]:checked')) errores.push(t('val_diseno_req'));
     }
     if (id === 'q-evento') {
       const el = document.getElementById('tipoEvento');
-      if (!el || !el.value) { errores.push('Selecciona el tipo de evento'); marcar('tipoEvento'); }
+      if (!el || !el.value) { errores.push(t('val_evento_req')); marcar('tipoEvento'); }
       else if (el.value === 'Otro') {
         const otroEl = document.getElementById('tipoEventoOtro');
-        if (!otroEl || !otroEl.value.trim()) { errores.push('Describe tu tipo de evento'); marcar('tipoEventoOtro'); }
+        if (!otroEl || !otroEl.value.trim()) { errores.push(t('val_otro_evento')); marcar('tipoEventoOtro'); }
       }
     }
     if (id === 'q-whatsapp') {
       const el     = document.getElementById('whatsapp');
       const digits = ((el ? el.value : '') || '').replace(/\D/g, '');
-      if (!digits) { errores.push('Escribe tu número de WhatsApp'); marcar('whatsapp'); }
-      else if (digits.length !== 10) { errores.push('El número debe tener 10 dígitos'); marcar('whatsapp'); }
+      if (!digits) { errores.push(t('val_wsp_req')); marcar('whatsapp'); }
+      else if (digits.length !== 10) { errores.push(t('val_wsp_digitos')); marcar('whatsapp'); }
     }
     if (id === 'q-mensaje') {
       if (!document.querySelector('input[name="tipoMensaje"]:checked')) {
-        errores.push('Selecciona una opción para el mensaje');
+        errores.push(t('val_mensaje_req'));
       }
     }
     if (id === 'q-fotos') {
@@ -1190,22 +1256,22 @@ function initWizard(paqueteKey) {
       const maxFotos     = PAQUETES[paqueteKey].maxFotos;
       const fotosFiles   = document.getElementById('fotos').files;
       if (tieneFotos && (paqueteKey === 'motion' || !tipoDis || tipoDis.value === 'fotos')) {
-        if (fotosFiles.length > maxFotos) errores.push(`Máximo ${maxFotos} foto${maxFotos > 1 ? 's' : ''} permitidas`);
+        if (fotosFiles.length > maxFotos) errores.push(t('val_fotos_max') + maxFotos);
       }
-      Array.from(fotosFiles || []).forEach(f => {
-        if (!TIPOS_VALIDOS.includes(f.type)) errores.push(`"${f.name}" no es una imagen válida`);
+      Array.from(fotosFiles || []).forEach(function(f) {
+        if (!TIPOS_VALIDOS.includes(f.type)) errores.push('"' + f.name + '" ' + t('val_img_invalida'));
       });
     }
     if (id === 'q-confirmacion') {
       var _chkTipoConf = document.querySelector('input[name="tipoConfirmacion"]:checked');
       const tipoConf = _chkTipoConf ? _chkTipoConf.value : undefined;
-      if (!tipoConf) { errores.push('Selecciona el método de confirmación'); }
+      if (!tipoConf) { errores.push(t('val_conf_req')); }
       else if (tipoConf === 'wsp') {
         const el = document.getElementById('whatsappConfirmaciones');
-        if (!el || !el.value.trim()) { errores.push('Escribe el WhatsApp para confirmaciones'); marcar('whatsappConfirmaciones'); }
+        if (!el || !el.value.trim()) { errores.push(t('val_conf_wsp')); marcar('whatsappConfirmaciones'); }
       } else if (tipoConf === 'correo') {
         const el = document.getElementById('correoConfirmaciones');
-        if (!el || !el.value.trim()) { errores.push('Escribe el correo para confirmaciones'); marcar('correoConfirmaciones'); }
+        if (!el || !el.value.trim()) { errores.push(t('val_conf_correo')); marcar('correoConfirmaciones'); }
       }
     }
     if (id === 'q-regalos') {
@@ -1213,14 +1279,14 @@ function initWizard(paqueteKey) {
       const tipoReg = _chkRegalos ? _chkRegalos.value : 'ninguno';
       if (tipoReg === 'mesa') {
         const el = document.getElementById('mesaRegalosLink');
-        if (!el || !el.value.trim()) { errores.push('Escribe el enlace o número de mesa de regalos'); marcar('mesaRegalosLink'); }
+        if (!el || !el.value.trim()) { errores.push(t('val_mesa_req')); marcar('mesaRegalosLink'); }
       } else if (tipoReg === 'transferencia') {
         const elBanco = document.getElementById('bancoCuenta');
         const elTitular = document.getElementById('titularCuenta');
         const elClabe = document.getElementById('clabeCuenta');
-        if (!elBanco || !elBanco.value.trim()) { errores.push('Escribe el banco'); marcar('bancoCuenta'); }
-        if (!elTitular || !elTitular.value.trim()) { errores.push('Escribe el nombre del titular'); marcar('titularCuenta'); }
-        if (!elClabe || !elClabe.value.trim()) { errores.push('Escribe la CLABE interbancaria'); marcar('clabeCuenta'); }
+        if (!elBanco || !elBanco.value.trim()) { errores.push(t('val_banco_req')); marcar('bancoCuenta'); }
+        if (!elTitular || !elTitular.value.trim()) { errores.push(t('val_titular_req')); marcar('titularCuenta'); }
+        if (!elClabe || !elClabe.value.trim()) { errores.push(t('val_clabe_req')); marcar('clabeCuenta'); }
       }
     }
     return errores;
