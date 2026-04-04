@@ -519,6 +519,7 @@ body.form-page {
 
 .form-control {
   width: 100%;
+  box-sizing: border-box;
   padding: 12px 16px;
   border: 1.5px solid #ddd9f0;
   border-radius: 11px;
@@ -529,6 +530,10 @@ body.form-page {
   transition: var(--transicion);
   outline: none;
   appearance: auto;
+}
+
+input[type="date"].form-control {
+  min-height: 48px;
 }
 
 .form-control:focus {

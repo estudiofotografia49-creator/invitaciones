@@ -438,13 +438,21 @@ function setFechaAutomatica() {
 async function setFolio() {
   const input = document.getElementById('numeroFolio');
   input.value = 'Cargando...';
-  try {
-    const res  = await fetch(SCRIPT_URL + '?action=folio');
-    const data = await res.json();
-    input.value = data.folio || 'FEST-???';
-  } catch (_) {
-    input.value = 'FEST-???';
+
+  for (let intento = 1; intento <= 3; intento++) {
+    try {
+      const res  = await fetch(SCRIPT_URL + '?action=folio');
+      const data = await res.json();
+      if (data.folio && /^FEST-\d+$/.test(data.folio)) {
+        input.value = data.folio;
+        return;
+      }
+    } catch (_) {}
+    if (intento < 3) await new Promise(r => setTimeout(r, 2000));
   }
+
+  // Tras 3 intentos fallidos, marcar para que el usuario reintente
+  input.value = 'FEST-???';
 }
 
 // ==================== CONFIGURAR PAQUETE ====================
@@ -867,7 +875,7 @@ function validar(paqueteKey) {
   // Folio listo
   const folioVal = (document.getElementById('numeroFolio') || {value: ''}).value || '';
   if (!folioVal || folioVal === 'Cargando...' || !/^FEST-\d+$/.test(folioVal)) {
-    errores.push('El folio no está listo, espera un momento y recarga la página');
+    errores.push('No se pudo generar tu número de folio. Verifica tu conexión y recarga la página. Si el problema persiste, contáctanos por WhatsApp.');
   }
 
   return errores;
@@ -1198,6 +1206,21 @@ function initWizard(paqueteKey) {
       } else if (tipoConf === 'correo') {
         const el = document.getElementById('correoConfirmaciones');
         if (!el || !el.value.trim()) { errores.push('Escribe el correo para confirmaciones'); marcar('correoConfirmaciones'); }
+      }
+    }
+    if (id === 'q-regalos') {
+      var _chkRegalos = document.querySelector('input[name="tipoRegalos"]:checked');
+      const tipoReg = _chkRegalos ? _chkRegalos.value : 'ninguno';
+      if (tipoReg === 'mesa') {
+        const el = document.getElementById('mesaRegalosLink');
+        if (!el || !el.value.trim()) { errores.push('Escribe el enlace o número de mesa de regalos'); marcar('mesaRegalosLink'); }
+      } else if (tipoReg === 'transferencia') {
+        const elBanco = document.getElementById('bancoCuenta');
+        const elTitular = document.getElementById('titularCuenta');
+        const elClabe = document.getElementById('clabeCuenta');
+        if (!elBanco || !elBanco.value.trim()) { errores.push('Escribe el banco'); marcar('bancoCuenta'); }
+        if (!elTitular || !elTitular.value.trim()) { errores.push('Escribe el nombre del titular'); marcar('titularCuenta'); }
+        if (!elClabe || !elClabe.value.trim()) { errores.push('Escribe la CLABE interbancaria'); marcar('clabeCuenta'); }
       }
     }
     return errores;
