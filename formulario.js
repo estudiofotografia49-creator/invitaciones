@@ -6,7 +6,7 @@
 
 // Dejar vacío hasta configurar Google Apps Script.
 // En modo vacío, los datos se imprimen en consola y se simula éxito.
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzOLXmXWMnWjo3SosvhnmQETNnvUtA8DmYCCGNONYJ_fvbHGszrvBfGMbrxfhreCjQ/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwI50dqprEbMyVyTS7Sn2fd5h39WzBszZKZdGRTmSbJYUthEgGxkYqdh-gqI3m55CrZ/exec';
 
 // Token de acceso — debe coincidir con FESTALI_TOKEN en Script Properties de Apps Script
 const FESTALI_TOKEN = 'festali-2026-xK9mP';
@@ -115,6 +115,7 @@ const TRANSLATIONS = {
     val_lugar_rec: 'Escribe el lugar de la recepción',
     val_hora_rec: 'Escribe la hora de la recepción',
     val_estilo_req: 'Selecciona un estilo de invitación',
+    val_tema_req: 'Describe el tema de tu evento (ej: Disney, Vintage, jardín encantado...)',
     val_diseno_req: 'Selecciona el tipo de diseño',
     val_evento_req: 'Selecciona el tipo de evento',
     val_otro_evento: 'Describe tu tipo de evento',
@@ -214,6 +215,7 @@ const TRANSLATIONS = {
     val_lugar_rec: 'Enter the reception venue',
     val_hora_rec: 'Enter the reception time',
     val_estilo_req: 'Select an invitation style',
+    val_tema_req: 'Describe your event theme (e.g.: Disney, Vintage, enchanted garden...)',
     val_diseno_req: 'Select the design type',
     val_evento_req: 'Select the event type',
     val_otro_evento: 'Describe your event type',
@@ -441,10 +443,10 @@ const PAQUETES = {
     maxFotos: 3,
     extras: ['quick']
   },
-  motion: {
-    nombre: 'Motion Impact',
-    maxFotos: 3,
-    extras: ['motion']
+  smart: {
+    nombre: 'Smart',
+    maxFotos: 4,
+    extras: ['quick']
   },
   pro: {
     nombre: 'Experience Pro',
@@ -567,14 +569,6 @@ function initUbicaciones(paqueteKey) {
   const cbRecepcion    = document.getElementById('hayRecepcion');
   const grupoCeremonia = document.getElementById('grupoCeremonia');
   const grupoRecepcion = document.getElementById('grupoRecepcion');
-
-  // Motion Impact: no necesita enlaces GPS, solo lugar y hora
-  if (paqueteKey === 'motion') {
-    const gEnlCer = document.getElementById('grupoEnlaceCeremonia');
-    const gEnlRec = document.getElementById('grupoEnlaceRecepcion');
-    if (gEnlCer) gEnlCer.style.display = 'none';
-    if (gEnlRec) gEnlRec.style.display = 'none';
-  }
 
   cbCeremonia.addEventListener('change', () => {
     grupoCeremonia.style.display = cbCeremonia.checked ? 'block' : 'none';
@@ -741,7 +735,7 @@ function initFileInput(paqueteKey) {
     });
   });
 
-  crearPreviewPanel(input, 'fotosPreview', config.maxFotos, seleccionadas, 'foto', 'fotos');
+  _fotosDt = crearPreviewPanel(input, 'fotosPreview', config.maxFotos, seleccionadas, 'foto', 'fotos');
 }
 
 // ==================== TIPO DE DISEÑO ====================
@@ -933,18 +927,14 @@ function validar(paqueteKey) {
     if (!el || !el.value.trim()) { errores.push(t('val_lugar_rec')); if (el) el.classList.add('error'); }
   }
 
-  // Mensaje — obligatorio seleccionar opción (Quick y Pro)
-  if (paqueteKey !== 'motion') {
-    if (!document.querySelector('input[name="tipoMensaje"]:checked')) {
-      errores.push(t('val_mensaje_req'));
-    }
+  // Mensaje — obligatorio seleccionar opción
+  if (!document.querySelector('input[name="tipoMensaje"]:checked')) {
+    errores.push(t('val_mensaje_req'));
   }
 
-  // Tipo de diseño — Quick y Pro
-  if (paqueteKey !== 'motion') {
-    if (!document.querySelector('input[name="tipoDiseno"]:checked')) {
-      errores.push(t('val_diseno_req'));
-    }
+  // Tipo de diseño
+  if (!document.querySelector('input[name="tipoDiseno"]:checked')) {
+    errores.push(t('val_diseno_req'));
   }
 
   // Fotos — validar cantidad máxima
@@ -953,7 +943,7 @@ function validar(paqueteKey) {
   var _chkFotos    = document.querySelector('input[name="tienesFotos"]:checked');
   const tieneFotosDisp = (_chkFotos ? _chkFotos.value : '') !== 'no';
   const tipoDisenoChecked = document.querySelector('input[name="tipoDiseno"]:checked');
-  if (tieneFotosDisp && (paqueteKey === 'motion' || !tipoDisenoChecked || tipoDisenoChecked.value === 'fotos')) {
+  if (tieneFotosDisp && (!tipoDisenoChecked || tipoDisenoChecked.value === 'fotos')) {
     if (fotosInput && fotosInput.files.length > maxFotos) {
       errores.push(t('val_fotos_max') + maxFotos);
     }
@@ -962,8 +952,8 @@ function validar(paqueteKey) {
     if (!TIPOS_VALIDOS.includes(f.type)) errores.push('"' + f.name + '" ' + t('val_img_invalida'));
   });
 
-  // Confirmaciones — Quick (solo WSP), Pro (WSP o Correo)
-  if (paqueteKey === 'quick' || paqueteKey === 'pro') {
+  // Confirmaciones — Quick, Smart y Pro
+  if (paqueteKey === 'quick' || paqueteKey === 'smart' || paqueteKey === 'pro') {
     var _chkConf = document.querySelector('input[name="tipoConfirmacion"]:checked');
     const tipoConf = _chkConf ? _chkConf.value : undefined;
     if (!tipoConf) {
@@ -975,6 +965,21 @@ function validar(paqueteKey) {
       const el = document.getElementById('correoConfirmaciones');
       if (!el || !el.value.trim()) { errores.push(t('val_conf_correo')); if (el) el.classList.add('error'); }
     }
+  }
+
+  // Mesa de regalos — validar datos según opción seleccionada
+  var _chkRegalos = document.querySelector('input[name="tipoRegalos"]:checked');
+  const tipoReg = _chkRegalos ? _chkRegalos.value : 'ninguno';
+  if (tipoReg === 'mesa') {
+    const el = document.getElementById('mesaRegalosLink');
+    if (!el || !el.value.trim()) { errores.push(t('val_mesa_req')); if (el) el.classList.add('error'); }
+  } else if (tipoReg === 'transferencia') {
+    const elBanco   = document.getElementById('bancoCuenta');
+    const elTitular = document.getElementById('titularCuenta');
+    const elClabe   = document.getElementById('clabeCuenta');
+    if (!elBanco   || !elBanco.value.trim())   { errores.push(t('val_banco_req'));   if (elBanco)   elBanco.classList.add('error'); }
+    if (!elTitular || !elTitular.value.trim()) { errores.push(t('val_titular_req')); if (elTitular) elTitular.classList.add('error'); }
+    if (!elClabe   || !elClabe.value.trim())   { errores.push(t('val_clabe_req'));   if (elClabe)   elClabe.classList.add('error'); }
   }
 
   // Folio listo
@@ -1017,11 +1022,11 @@ function recopilarDatos(paqueteKey) {
     hayCeremonia:        hayCeremonia ? 'Sí' : 'No',
     lugarCeremonia:      hayCeremonia ? val('lugarCeremonia')     : '',
     horaCeremonia:       hayCeremonia ? val('horaCeremonia')      : '',
-    ubicacionCeremonia:  (hayCeremonia && paqueteKey !== 'motion') ? val('ubicacionCeremonia') : '',
+    ubicacionCeremonia:  hayCeremonia ? val('ubicacionCeremonia') : '',
     hayRecepcion:        hayRecepcion ? 'Sí' : 'No',
     lugarRecepcion:      hayRecepcion ? val('lugarRecepcion')     : '',
     horaRecepcion:       hayRecepcion ? val('horaRecepcion')      : '',
-    ubicacionRecepcion:  (hayRecepcion && paqueteKey !== 'motion') ? val('ubicacionRecepcion') : '',
+    ubicacionRecepcion:  hayRecepcion ? val('ubicacionRecepcion') : '',
     estiloInvitacion:    val('estiloInvitacion'),
     descripcionEstilo:   val('descripcionEstilo'),
     dressCode:           val('dressCode'),
@@ -1046,11 +1051,6 @@ function recopilarDatos(paqueteKey) {
     datos.bancoCuenta     = val('bancoCuenta');
     datos.titularCuenta   = val('titularCuenta');
     datos.clabeCuenta     = val('clabeCuenta');
-  }
-
-  // Motion: solo música (no confirmaciones ni regalos)
-  if (extras.includes('motion') && !extras.includes('quick')) {
-    datos.musica = val('musica');
   }
 
   // Pro: todo + música + asistencia + hospedaje
@@ -1171,9 +1171,8 @@ function mostrarErrores(errores) {
 // ==================== WIZARD ====================
 
 function initWizard(paqueteKey) {
-  const A  = ['quick','motion','pro'];
-  const QP = ['quick','pro'];
-  const MP = ['motion','pro'];
+  const A  = ['quick','smart','pro'];
+  const QP = ['quick','smart','pro'];
   const P  = ['pro'];
 
   const todosLosPasos = [
@@ -1192,7 +1191,7 @@ function initWizard(paqueteKey) {
     { id: 'q-confirmacion',tituloKey: 'step_confirmacion', paquetes: QP },
     { id: 'q-asistencia',  tituloKey: 'step_asistencia',   paquetes: P  },
     { id: 'q-regalos',     tituloKey: 'step_regalos',      paquetes: QP },
-    { id: 'q-musica',      tituloKey: 'step_musica',       paquetes: MP },
+    { id: 'q-musica',      tituloKey: 'step_musica',       paquetes: P  },
     { id: 'q-hospedaje',   tituloKey: 'step_hospedaje',    paquetes: P  },
   ];
 
@@ -1265,6 +1264,11 @@ function initWizard(paqueteKey) {
     if (id === 'q-estilo') {
       const el = document.getElementById('estiloInvitacion');
       if (!el || !el.value) { errores.push(t('val_estilo_req')); marcar('estiloInvitacion'); }
+      const esTematico = el && el.value !== '' && el.value === t('est_tematico');
+      if (esTematico) {
+        const desc = document.getElementById('descripcionEstilo');
+        if (!desc || !desc.value.trim()) { errores.push(t('val_tema_req')); marcar('descripcionEstilo'); }
+      }
     }
     if (id === 'q-diseno') {
       if (!document.querySelector('input[name="tipoDiseno"]:checked')) errores.push(t('val_diseno_req'));
@@ -1294,7 +1298,7 @@ function initWizard(paqueteKey) {
       const tipoDis      = document.querySelector('input[name="tipoDiseno"]:checked');
       const maxFotos     = PAQUETES[paqueteKey].maxFotos;
       const fotosFiles   = document.getElementById('fotos').files;
-      if (tieneFotos && (paqueteKey === 'motion' || !tipoDis || tipoDis.value === 'fotos')) {
+      if (tieneFotos && (!tipoDis || tipoDis.value === 'fotos')) {
         if (fotosFiles.length > maxFotos) errores.push(t('val_fotos_max') + maxFotos);
       }
       Array.from(fotosFiles || []).forEach(function(f) {
@@ -1394,6 +1398,7 @@ const SPINNER_MENSAJES = {
 };
 
 let _spinnerInterval = null;
+let _fotosDt = null; // Referencia al DataTransfer de fotos para envío confiable
 
 function iniciarMensajesSpinner() {
   const texto = document.querySelector('.spinner-texto');
@@ -1436,7 +1441,9 @@ function initSubmit(paqueteKey) {
 
     try {
       const datos    = recopilarDatos(paqueteKey);
-      const archivos = document.getElementById('fotos').files;
+      const archivos = (_fotosDt && _fotosDt.files.length > 0)
+                       ? _fotosDt.files
+                       : document.getElementById('fotos').files;
 
       const imgRefEstiloInput = document.getElementById('imagenRefEstilo');
       const imagenRefEstilo   = imgRefEstiloInput ? imgRefEstiloInput.files : [];
@@ -1447,8 +1454,15 @@ function initSubmit(paqueteKey) {
 
       const folio = datos.folio;
 
+      console.log('📸 _fotosDt:', _fotosDt ? _fotosDt.files.length + ' archivo(s)' : 'null');
+      console.log('📸 input.files:', document.getElementById('fotos').files.length + ' archivo(s)');
+      console.log('📸 archivos a enviar:', archivos.length + ' archivo(s)');
       console.log('🚀 Llamando a enviar()...');
-      await enviar(datos, archivos, imagenRefEstilo, dressCodeImgs);
+      const resultado = await enviar(datos, archivos, imagenRefEstilo, dressCodeImgs);
+
+      if (!resultado || resultado.ok === false) {
+        throw new Error(resultado && resultado.error ? resultado.error : 'Sin respuesta del servidor');
+      }
 
       detenerMensajesSpinner();
       spinner.classList.remove('active');

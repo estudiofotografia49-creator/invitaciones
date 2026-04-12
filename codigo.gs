@@ -107,6 +107,9 @@ function doPost(e) {
 
     const folio  = datos.folio || 'FEST-???';
     const nombre = datos.nombresFestejados || datos.nombreCompleto || 'Sin nombre';
+    Logger.log('FESTALI — fotos recibidas: ' + ((datos.fotos || []).length) +
+               ' | refs: ' + ((datos.referencias || []).length) +
+               ' | dressCode: ' + ((datos.dressCodeImagenes || []).length));
 
     // 1. Carpeta raíz (crear si no existe)
     const carpetaRaiz = obtenerOCrearCarpeta(CARPETA_RAIZ, null);
@@ -206,8 +209,8 @@ function validarPayload(d) {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.correo)) return 'Correo con formato inválido';
 
   // Paquete debe ser uno de los tres permitidos
-  const paquetesValidos = ['digital quick', 'motion impact', 'experience pro',
-                           'quick', 'motion', 'pro'];
+  const paquetesValidos = ['digital quick', 'smart', 'experience pro',
+                           'quick', 'pro'];
   const paqueteLower = (d.paquete || '').replace(/[^\w\s]/g, '').toLowerCase().trim();
   if (!paquetesValidos.some(p => paqueteLower.includes(p.split(' ')[0]))) {
     return 'Paquete no reconocido: ' + d.paquete;
@@ -274,45 +277,48 @@ const MAX_BASE64_CHARS = Math.ceil(8 * 1024 * 1024 * 4 / 3);
 function validarMagicBytes(bytes, mimeType) {
   if (!bytes || bytes.length < 12) return false;
   if (mimeType === 'image/heic' || mimeType === 'image/heif') return true;
+  // GAS base64Decode devuelve bytes con signo (-128..127); convertir a sin signo (0..255) con & 0xFF
+  const b = Array.from(bytes).map(function(x) { return x & 0xFF; });
   if (mimeType === 'image/jpeg')
-    return bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF;
+    return b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF;
   if (mimeType === 'image/png')
-    return bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47;
+    return b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4E && b[3] === 0x47;
   if (mimeType === 'image/webp')
-    return bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 &&
-           bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50;
+    return b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x46 &&
+           b[8] === 0x57 && b[9] === 0x45 && b[10] === 0x42 && b[11] === 0x50;
   if (mimeType === 'image/gif')
-    return bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x38;
+    return b[0] === 0x47 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x38;
   return false;
 }
 
 function guardarFotos(fotos, carpeta) {
   const links = [];
+  console.log('guardarFotos — total archivos: ' + fotos.length);
 
   fotos.forEach(function(foto, i) {
     try {
+      console.log('Foto ' + i + ' — mime: ' + foto.mimeType + ' | nombre: ' + (foto.nombre || '?') + ' | data chars: ' + (foto.data ? foto.data.length : 'NULL'));
       if (!MIME_PERMITIDOS.includes(foto.mimeType)) {
-        Logger.log('Archivo rechazado — MIME no permitido: ' + foto.mimeType);
+        console.log('❌ RECHAZADO — MIME no permitido: ' + foto.mimeType);
         links.push('Archivo rechazado — tipo no permitido');
         return;
       }
       if (!foto.data || foto.data.length > MAX_BASE64_CHARS) {
-        Logger.log('Archivo rechazado — tamaño excede 8 MB: ' + (foto.nombre || i));
+        console.log('❌ RECHAZADO — sin data o supera 8 MB: ' + (foto.nombre || i) + ' chars=' + (foto.data ? foto.data.length : 0));
         links.push('Archivo rechazado — supera 8 MB');
         return;
       }
       const bytes = Utilities.base64Decode(foto.data);
+      console.log('Bytes decodificados: ' + bytes.length);
       if (!validarMagicBytes(bytes, foto.mimeType)) {
-        Logger.log('Archivo rechazado — magic bytes inválidos: ' + (foto.nombre || i) + ' | ' + foto.mimeType);
-        links.push('Archivo rechazado — contenido no es una imagen válida');
-        return;
+        console.log('⚠️ Magic bytes inesperados — guardando igual: ' + (foto.nombre || i));
       }
       const blob = Utilities.newBlob(bytes, foto.mimeType, foto.nombre || ('archivo_' + (i + 1)));
       const file = carpeta.createFile(blob);
-      // Archivos privados — solo accesibles desde tu cuenta de Google
       links.push(file.getUrl());
+      console.log('✅ Foto guardada: ' + file.getName());
     } catch (err) {
-      Logger.log('Error al guardar archivo ' + i + ': ' + err.message);
+      console.log('❌ ERROR foto ' + i + ': ' + err.message + ' | stack: ' + err.stack);
       links.push('Error al subir');
     }
   });
@@ -525,12 +531,12 @@ function crearPreferenciaMercadoPago(folio, paquete) {
     return null;
   }
 
-  const precios = { quick: 650, motion: 950, pro: 2100 };
+  const precios = { quick: 650, smart: 2100, pro: 3500 };
   const paqueteLower = (paquete || '').replace(/[^\w\s]/g, '').toLowerCase().trim();
   let precio    = precios.quick;
   let nombrePaq = 'Digital Quick';
-  if (paqueteLower.includes('motion')) { precio = precios.motion; nombrePaq = 'Motion Impact';    }
-  if (paqueteLower.includes('pro'))    { precio = precios.pro;    nombrePaq = 'Experience Pro';   }
+  if (paqueteLower.includes('smart')) { precio = precios.smart; nombrePaq = 'Smart';          }
+  if (paqueteLower.includes('pro'))   { precio = precios.pro;   nombrePaq = 'Experience Pro'; }
 
   const scriptUrl   = ScriptApp.getService().getUrl();
   const urlExito    = props.getProperty('MP_URL_EXITO')     || scriptUrl;
@@ -737,8 +743,8 @@ function enviarCorreoConfirmacion(datos, initPoint) {
     const paqueteLower = (datos.paquete || '').replace(/[^\w\s]/g, '').toLowerCase().trim();
     let precioMXN = 650;
     let nombrePaq = 'Digital Quick';
-    if (paqueteLower.includes('motion')) { precioMXN = 950;  nombrePaq = 'Motion Impact';   }
-    if (paqueteLower.includes('pro'))    { precioMXN = 2100; nombrePaq = 'Experience Pro';  }
+    if (paqueteLower.includes('smart')) { precioMXN = 2100; nombrePaq = 'Smart';          }
+    if (paqueteLower.includes('pro'))   { precioMXN = 3500; nombrePaq = 'Experience Pro'; }
 
     const precioUSD  = Math.round((precioMXN / tipoCambio) * 100) / 100;
     const paypalLink = paypalBase + '/' + precioUSD;
@@ -920,8 +926,8 @@ function enviarCorreoPagoConfirmado(folio, nombre, correo, paquete, lang) {
 
 function _linkFallbackMP(paqueteLower) {
   // TODO: actualizar estos links con los nuevos precios en MercadoPago
-  if (paqueteLower.includes('motion')) return 'https://mpago.la/2TiAHyW';
-  if (paqueteLower.includes('pro'))    return 'https://mpago.la/2TLTp3t';
+  if (paqueteLower.includes('smart')) return 'https://mpago.la/2TiAHyW'; // ⚠️ Actualizar al link de $2,100
+  if (paqueteLower.includes('pro'))   return 'https://mpago.la/2TLTp3t'; // ⚠️ Actualizar al link de $3,500
   return 'https://mpago.la/2keQv3Z';
 }
 
@@ -932,6 +938,34 @@ function _linkFallbackMP(paqueteLower) {
 //   Apps Script → Triggers (reloj) → Add Trigger
 //   Función: onEdit | Evento: "From spreadsheet" → "On edit"
 // ============================================================
+
+// ============================================================
+// TEST — verificar que se pueden guardar fotos en Drive
+// Ejecuta esta función directamente desde el editor de Apps Script.
+// ============================================================
+function testGuardarFoto() {
+  // JPEG mínimo válido (1x1 pixel rojo)
+  const jpegBase64 = '/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/wAARCAABAAEDASIAAhEBAxEB/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/xAAUAQEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AKwAB/9k=';
+
+  try {
+    const carpetaRaiz = obtenerOCrearCarpeta(CARPETA_RAIZ, null);
+    const carpetaTest = obtenerOCrearCarpeta('TEST_FESTALI_BORRAR', carpetaRaiz);
+
+    const bytes = Utilities.base64Decode(jpegBase64);
+    console.log('Bytes JPEG decodificados: ' + bytes.length);
+
+    const b = Array.from(bytes).map(function(x) { return x & 0xFF; });
+    console.log('Primeros bytes (unsigned): ' + b[0] + ', ' + b[1] + ', ' + b[2]);
+    console.log('¿Es JPEG válido? ' + (b[0] === 0xFF && b[1] === 0xD8 && b[2] === 0xFF));
+
+    const blob = Utilities.newBlob(bytes, 'image/jpeg', 'test_foto.jpg');
+    const file = carpetaTest.createFile(blob);
+    console.log('✅ ÉXITO — Foto de prueba guardada: ' + file.getUrl());
+  } catch (err) {
+    console.log('❌ ERROR en testGuardarFoto: ' + err.message);
+    console.log('Stack: ' + err.stack);
+  }
+}
 
 function onEdit(e) {
   try {
