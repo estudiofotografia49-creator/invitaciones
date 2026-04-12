@@ -50,6 +50,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
@@ -482,6 +483,7 @@ body.form-page {
   border-radius: var(--radio);
   box-shadow: var(--sombra);
   padding: 42px 38px;
+  overflow: hidden;
 }
 
 .form-section-title {
@@ -687,6 +689,8 @@ input[type="file"] {
 /* ==================== CHECKBOX TOGGLE ==================== */
 .checkbox-option {
   display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
@@ -708,12 +712,11 @@ input[type="file"] {
 }
 
 .checkbox-option input[type="checkbox"] {
-  display: block;
   width: 18px;
   height: 18px;
   min-width: 18px;
-  accent-color: var(--morado);
   flex-shrink: 0;
+  accent-color: var(--morado);
   cursor: pointer;
 }
 
@@ -908,11 +911,14 @@ input[type="file"] {
 .confirmacion {
   display: none;
   text-align: center;
-  padding: 60px 24px 40px;
+  padding: 60px 20px 40px;
   max-width: 520px;
+  width: 100%;
   margin: 0 auto;
   position: relative;
   z-index: 1;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .confirmacion.active {
@@ -1126,12 +1132,25 @@ input[type="file"] {
   }
 
   .form-card {
-    padding: 28px 20px;
+    padding: 28px 16px;
+  }
+
+  input[type="date"].form-control,
+  input[type="time"].form-control {
+    font-size: 0.9rem;
+    padding: 12px 10px;
   }
 
   .confirmacion-botones {
     flex-direction: column;
     align-items: center;
+  }
+
+  .folio-display {
+    font-size: 1.35rem;
+    padding: 10px 20px;
+    max-width: 100%;
+    word-break: break-all;
   }
 }
 
@@ -1149,8 +1168,11 @@ input[type="file"] {
   }
 
   .folio-display {
-    font-size: 1.3rem;
+    font-size: 1.15rem;
     letter-spacing: 2px;
+    padding: 10px 16px;
+    max-width: 100%;
+    word-break: break-all;
   }
 
   .spinner-texto {

@@ -122,6 +122,7 @@ const TRANSLATIONS = {
     val_wsp_req: 'Escribe tu número de WhatsApp',
     val_wsp_digitos: 'El número debe tener exactamente 10 dígitos',
     val_mensaje_req: 'Selecciona una opción para el mensaje',
+    val_mensaje_texto_req: 'Escribe el mensaje para tus invitados',
     val_fotos_max: 'Fotos — máximo permitido: ',
     val_img_invalida: 'no es una imagen válida',
     val_conf_req: 'Selecciona el método de confirmación de asistencia',
@@ -222,6 +223,7 @@ const TRANSLATIONS = {
     val_wsp_req: 'Enter your WhatsApp number',
     val_wsp_digitos: 'The number must have exactly 10 digits',
     val_mensaje_req: 'Select a message option',
+    val_mensaje_texto_req: 'Write the message for your guests',
     val_fotos_max: 'Photos — maximum allowed: ',
     val_img_invalida: 'is not a valid image',
     val_conf_req: 'Select the attendance confirmation method',
@@ -1288,8 +1290,15 @@ function initWizard(paqueteKey) {
       else if (digits.length !== 10) { errores.push(t('val_wsp_digitos')); marcar('whatsapp'); }
     }
     if (id === 'q-mensaje') {
-      if (!document.querySelector('input[name="tipoMensaje"]:checked')) {
+      var _chkMsg = document.querySelector('input[name="tipoMensaje"]:checked');
+      if (!_chkMsg) {
         errores.push(t('val_mensaje_req'));
+      } else if (_chkMsg.value === 'propio') {
+        var msgEl = document.getElementById('mensajeEspecial');
+        if (!msgEl || !msgEl.value.trim()) {
+          errores.push(t('val_mensaje_texto_req'));
+          marcar('mensajeEspecial');
+        }
       }
     }
     if (id === 'q-fotos') {
