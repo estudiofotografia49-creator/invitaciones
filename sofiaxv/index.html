@@ -1,0 +1,2060 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Invitación Sofía</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Nunito+Sans:wght@400;500&family=Playfair+Display:wght@400&display=swap" rel="stylesheet">
+
+  <style>
+    /* ═══════════════════════════════════════════════
+       RESET
+    ═══════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: #E7DBF3;
+      font-family: sans-serif;
+      overflow-x: hidden;
+    }
+
+
+    /* ═══════════════════════════════════════════════
+       PÉTALOS — canvas fijo sobre toda la invitación
+    ═══════════════════════════════════════════════ */
+    #petalsCanvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 900;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+    }
+    #petalsCanvas.visible { opacity: 1; }
+
+
+    /* ═══════════════════════════════════════════════
+       BOTÓN DE MÚSICA — fijo, aparece al llegar al Hero
+    ═══════════════════════════════════════════════ */
+    #musicBtn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.55);
+      background: rgba(231,34,104,0.55);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 950;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease, transform 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    #musicBtn.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #musicBtn:active { transform: scale(0.9); }
+
+    #musicBtn svg { width: 22px; height: 22px; fill: #fff; }
+
+
+    /* ═══════════════════════════════════════════════
+       SCROLL REVEAL — base (oculto)
+       Añade .sr-visible para aparecer
+    ═══════════════════════════════════════════════ */
+    .sr {
+      opacity: 0;
+      transform: translateY(36px);
+      transition: opacity 0.75s ease, transform 0.75s ease;
+    }
+    .sr.sr-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .sr[data-d="1"] { transition-delay: 0.12s; }
+    .sr[data-d="2"] { transition-delay: 0.24s; }
+    .sr[data-d="3"] { transition-delay: 0.36s; }
+    .sr[data-d="4"] { transition-delay: 0.48s; }
+
+
+    /* ════════════════════════════════════════════════════════
+       ██  FASE 1 — PRESENTACIÓN  390 × 788
+    ════════════════════════════════════════════════════════ */
+
+    /* Sección contenedora: ocupa exactamente una pantalla */
+    .phase1-section {
+      width: 100%;
+      height: 100vh;
+      height: 100svh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #E72268;
+      overflow: hidden;
+    }
+
+    /* Frame Figma 390 × 788
+       transform:scale se actualiza por JS (scale1)
+       No usa zoom para que los sparkles funcionen correctamente.
+    */
+    .frame-presentacion {
+      position: relative;
+      width: 390px;
+      height: 788px;
+      background-color: #E72268;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 71px 10px;
+      gap: 9px;
+      overflow: hidden;
+      flex-shrink: 0;
+      transform: scale(var(--scale1, 1));
+      transform-origin: center center;
+    }
+
+    /* ── Sección sobre ───── gap 28px, 390 × 412 ── */
+    .section-sobre {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 390px;
+      gap: 28px;
+    }
+
+    /* Título — Playfair Display 400 · 36px · lh 90% */
+    .titulo-invitacion {
+      width: 100%;
+      padding: 10px;
+      font-family: 'Playfair Display', serif;
+      font-weight: 400;
+      font-size: 36px;
+      line-height: 90%;
+      color: #fff;
+      text-align: center;
+    }
+
+    /* Sobre — 289 × 191 con padding 10 → imagen 269 × 171 */
+    .envelope-outer {
+      width: 289px;
+      height: 191px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .envelope-wrapper {
+      position: relative;
+      width: 269px;
+      height: 171px;
+      perspective: 600px;
+      animation: flotar 3s ease-in-out infinite;
+    }
+
+    @keyframes flotar {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-8px); }
+    }
+
+    .envelope-body {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      border-radius: 4px;
+    }
+    .envelope-body img,
+    .envelope-flap img {
+      width: 269px;
+      height: 171px;
+      display: block;
+      object-fit: fill;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .envelope-flap {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      clip-path: polygon(0% 0%, 100% 0%, 50% 52%);
+      transform-origin: top center;
+      will-change: transform;
+    }
+
+    .envelope-wrapper.open { animation: none; }
+    .envelope-wrapper.open .envelope-flap {
+      animation: abrirSolapa 0.7s cubic-bezier(0.4,0,0.2,1) forwards;
+    }
+
+    @keyframes abrirSolapa {
+      0%   { transform: rotateX(0deg); }
+      40%  { transform: rotateX(-25deg); }
+      100% { transform: rotateX(-175deg); }
+    }
+
+    .envelope-wrapper.shake { animation: temblar 0.35s ease-in-out; }
+
+    @keyframes temblar {
+      0%   { transform: rotate(0deg) translateY(0); }
+      20%  { transform: rotate(-4deg) translateY(-3px); }
+      40%  { transform: rotate(4deg) translateY(-5px); }
+      60%  { transform: rotate(-3deg) translateY(-3px); }
+      80%  { transform: rotate(2deg) translateY(-1px); }
+      100% { transform: rotate(0deg) translateY(0); }
+    }
+
+    .sparkle {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: volar 0.9s ease-out forwards;
+      z-index: 10;
+    }
+
+    @keyframes volar {
+      0%   { transform: translate(0,0) scale(1); opacity: 1; }
+      100% { transform: translate(var(--tx),var(--ty)) scale(0); opacity: 0; }
+    }
+
+    /* CTA — Montserrat 500 · 24px */
+    .cta-toca {
+      padding: 10px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+      font-size: 24px;
+      line-height: 100%;
+      color: #fff;
+      text-align: center;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      transition: opacity 0.2s;
+    }
+    .cta-toca:active { opacity: 0.7; }
+
+    /* ── Sección Festali ── */
+    .section-festali {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 390px;
+    }
+
+    .logo-outer {
+      width: 152px;
+      height: 152px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+
+    .logo-img { width: 132px; height: 132px; object-fit: contain; }
+
+    .tagline { width: 100%; padding: 10px; text-align: center; }
+
+    .tagline-l1 {
+      display: block;
+      font-family: 'Montserrat', sans-serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: 20px;
+      line-height: 122.36%;
+      color: #fff;
+    }
+
+    .tagline-l2 {
+      display: block;
+      font-family: 'Montserrat', sans-serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: 36px;
+      line-height: 122.36%;
+      color: #fff;
+    }
+
+    /* Scroll hint (flecha) que aparece tras abrir el sobre */
+    .scroll-hint {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+      pointer-events: none;
+    }
+    .scroll-hint.visible { opacity: 1; }
+    .scroll-hint span {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: rgba(255,255,255,0.7);
+    }
+    .scroll-hint svg {
+      width: 20px;
+      animation: bounce-arrow 1.4s ease-in-out infinite;
+    }
+    @keyframes bounce-arrow {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(5px); }
+    }
+
+
+    /* ════════════════════════════════════════════════════════
+       ██  FASE 3 — INFO  390 × 1486
+       Fondo: #E7DBF3  ·  Texto: #321D4E
+    ════════════════════════════════════════════════════════ */
+
+    .info-section {
+      width: 100%;
+      background: #E7DBF3;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* Frame 390 × 1486, zoom compartido con Hero */
+    .info-inner {
+      width: 390px;
+      flex-shrink: 0;
+      zoom: var(--zoom2, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      /* gap entre los 3 bloques principales (Figma: 206px) */
+      gap: 206px;
+    }
+
+    /* ── Bloque 1: Mensaje de bienvenida ─────────────
+       Figma: 322 × 309.8 · gap interno 8.846px
+    ─────────────────────────────────────────────── */
+    .msg-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 322px;
+      gap: 8.846px;
+    }
+
+    /* Flores lila: contenedor 321.9 × 95.9, padding 8.846 → imagen 304.2 × 78.2 */
+    .flores-wrap {
+      width: 321.9px;
+      height: 95.9px;
+      padding: 8.846px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .flores-img { width: 304.2px; height: 78.2px; object-fit: contain; }
+
+    /* MIS XV AÑOS — horizontal, baseline-center
+       MIS/AÑOS: Montserrat SemiBold 600 · 17.69px · lh 21.57
+       XV: Great Vibes 400 · 61.01px · lh 76.38
+       Color: #321D4E
+    */
+    .mis-xv-wrap {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 8.846px;
+      width: 250.1px;
+      height: 93.7px;
+    }
+
+    .mis-text, .anos-text {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: 19.69px;
+      line-height: 23.97px;
+      color: #321D4E;
+      text-align: center;
+    }
+
+    .xv-text {
+      font-family: 'Great Vibes', cursive;
+      font-weight: 400;
+      font-size: 63.01px;
+      line-height: 78.88px;
+      color: #321D4E;
+      text-align: center;
+    }
+
+    /* Mensaje + línea decorativa:
+       Texto: Great Vibes 400 · 30.08px · lh 37.66 · #321D4E · center · 304.3px wide
+       Línea: 250.3px × 1px
+    */
+    .welcome-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 322px;
+      gap: 8.846px;
+      padding: 8.846px;
+    }
+
+    .welcome-msg {
+      width: 304.3px;
+      font-family: 'Great Vibes', cursive;
+      font-weight: 400;
+      font-size: 32.08px;
+      line-height: 40.16px;
+      color: #321D4E;
+      text-align: center;
+    }
+
+    .info-divider {
+      width: 250.3px;
+      height: 1px;
+      background: #321D4E;
+      opacity: 0.25;
+      flex-shrink: 0;
+    }
+
+    /* ── Bloques 2 y 3: Ceremonia / Recepción ────────
+       Figma: vertical, gap 10px, center-aligned
+       Título: Great Vibes 400 · 34.01px · lh 42.58
+       Textos: Montserrat Medium 500 · 17px · lh 20.72
+       Color: #321D4E
+    ─────────────────────────────────────────────── */
+    .event-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      width: 280px;
+    }
+
+    .event-title {
+      font-family: 'Great Vibes', cursive;
+      font-weight: 400;
+      font-size: 36.01px;
+      line-height: 45.08px;
+      color: #321D4E;
+      text-align: center;
+      padding: 10px;
+    }
+
+    /* Contenedor del ícono — sin fondo, centrado */
+    .icon-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .event-icon {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+
+    /* Íconos confetti y map-pin sin contenedor extra (frame directo en Figma) */
+    .icon-bare {
+      width: 29.6px;
+      height: 29.6px;
+      object-fit: contain;
+    }
+
+    .event-text {
+      width: 240.9px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+      font-size: 19px;
+      line-height: 23.16px;
+      color: #321D4E;
+      text-align: center;
+      padding: 10px;
+    }
+
+    /* Link de Maps — misma tipografía, subrayado sutil */
+    .event-maps {
+      display: block;
+      width: 240.9px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+      font-size: 19px;
+      line-height: 23.16px;
+      color: #321D4E;
+      text-align: center;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      text-decoration-color: rgba(50,29,78,0.35);
+      padding: 10px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       ██  FASE 5 — PROGRAMA  390 × 674
+       Fondo: #E7DBF3  ·  Texto: #000000
+    ════════════════════════════════════════════════════════ */
+
+    .programa-section {
+      width: 100%;
+      background: #E7DBF3;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* Frame 390 — zoom compartido, min-height 674 */
+    .programa-inner {
+      width: 390px;
+      flex-shrink: 0;
+      zoom: var(--zoom2, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 674px;
+      padding: 50px 0;
+      gap: 27px;
+    }
+
+    /* Título — Great Vibes 400 · 34.01px · lh 42.58 · #000 · center
+       Figma container: 240 × 42                                    */
+    .programa-title {
+      width: 240px;
+      font-family: 'Great Vibes', cursive;
+      font-weight: 400;
+      font-size: 36.01px;
+      line-height: 45.08px;
+      color: #000;
+      text-align: center;
+    }
+
+    /* Contenedor timeline — Figma: 278 × 606 · gap 10 · center */
+    .programa-list {
+      width: 278px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+    }
+
+    /* Línea vertical central conecta todos los ítems */
+    .programa-list::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 16px;
+      bottom: 16px;
+      width: 1px;
+      background: rgba(50,29,78,0.18);
+      transform: translateX(-50%);
+    }
+
+    /* Ítem individual — Montserrat 500 · 17px · lh 20.72 · #000 · center */
+    .prog-item {
+      width: 278px;
+      text-align: center;
+      position: relative;
+    }
+
+    /* Dot sobre la línea */
+    .prog-item::before {
+      content: '';
+      display: block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #321D4E;
+      margin: 0 auto 6px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .prog-time {
+      display: block;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 19px;
+      line-height: 23.16px;
+      color: #321D4E;
+      letter-spacing: 0.3px;
+    }
+
+    .prog-activity {
+      display: block;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+      font-size: 19px;
+      line-height: 23.16px;
+      color: #000;
+      margin-top: 2px;
+    }
+
+    /* Separador entre ítems */
+    .prog-sep {
+      width: 60px;
+      height: 1px;
+      background: rgba(50,29,78,0.15);
+      flex-shrink: 0;
+    }
+
+
+    /* ════════════════════════════════════════════════════════
+       ██  FASE 6 — MESA DE REGALOS  390 × 557
+    ════════════════════════════════════════════════════════ */
+    .mesa-section {
+      width: 100%;
+      background: #E7DBF3;
+      display: flex;
+      justify-content: center;
+    }
+    .mesa-inner {
+      width: 390px;
+      zoom: var(--zoom2, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 557px;
+      padding: 50px 0;
+      gap: 27px;
+    }
+    .mesa-title {
+      width: 240px;
+      font-family: 'Great Vibes', cursive;
+      font-weight: 400;
+      font-size: 36.01px;
+      line-height: 45.08px;
+      color: #000;
+      text-align: center;
+    }
+    .mesa-desc {
+      width: 240px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+      font-size: 19px;
+      line-height: 23.16px;
+      color: #000;
+      text-align: center;
+    }
+    .mesa-regalos {
+      width: 390px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .mesa-gift-icon {
+      width: 32px;
+      height: 32px;
+    }
+    .mesa-links {
+      width: 278px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+      font-size: 18px;
+      line-height: 21.94px;
+      color: #000;
+      text-align: center;
+    }
+    .mesa-link {
+      color: #321D4E;
+      text-decoration: underline;
+    }
+    .mesa-link:hover {
+      color: #E72268;
+    }
+
+    /* ════════════════════════════════════════════════════════
+       ██  FASE 7 — CONFIRMACIÓN  390 × 933
+       Fondo: #E7DBF3  ·  Acento: #9272BD  ·  Texto: #321D4E
+    ════════════════════════════════════════════════════════ */
+    .confirma-section {
+      width: 100%;
+      background: #E7DBF3;
+      display: flex;
+      justify-content: center;
+    }
+    .confirma-inner {
+      width: 390px;
+      zoom: var(--zoom2, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 933px;
+      padding: 50px 0;
+    }
+    /* Mensaje principal */
+    .confirma-msg {
+      width: 321px;
+      text-align: center;
+      margin-bottom: 80px;
+    }
+    .confirma-msg-text {
+      font-family: 'Great Vibes', cursive;
+      font-weight: 400;
+      font-size: 36.01px;
+      line-height: 45.08px;
+      color: #321D4E;
+    }
+    /* Fecha */
+    .confirma-fecha {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+    .confirma-cal-icon {
+      width: 29px;
+      height: 29px;
+      flex-shrink: 0;
+    }
+    .confirma-fecha-text {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 500;
+      font-size: 19px;
+      line-height: 23.16px;
+      color: #321D4E;
+    }
+    /* Formulario */
+    .confirma-form {
+      width: 295px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+    .confirma-field {
+      width: 275px;
+      display: flex;
+      flex-direction: column;
+    }
+    .confirma-label {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 400;
+      font-size: 16.76px;
+      line-height: 20.42px;
+      color: #321D4E;
+      padding: 10px 0 6px;
+    }
+    .confirma-input {
+      width: 275px;
+      height: 40px;
+      background: #fff;
+      border: none;
+      border-radius: 4px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 16px;
+      color: #321D4E;
+      padding: 0 12px;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .confirma-textarea {
+      width: 275px;
+      height: 101px;
+      background: #fff;
+      border: none;
+      border-radius: 4px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 16px;
+      color: #321D4E;
+      padding: 10px 12px;
+      outline: none;
+      resize: none;
+      box-sizing: border-box;
+    }
+    /* Botón confirmar */
+    .confirma-btn {
+      padding: 7px 18px;
+      background: #9272BD;
+      border: none;
+      border-radius: 4px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      line-height: 21.94px;
+      color: #fff;
+      cursor: pointer;
+      margin-bottom: 67px;
+      transition: background 0.2s;
+    }
+    .confirma-btn:hover { background: #7a5aa8; }
+    /* Footer Festali */
+    .confirma-footer {
+      width: 390px;
+      min-height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .confirma-festali-link {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 400;
+      font-size: 16.76px;
+      line-height: 20.42px;
+      color: #9272BD;
+      text-align: center;
+      text-decoration: none;
+    }
+    .confirma-festali-link:hover { text-decoration: underline; }
+
+    /* ════════════════════════════════════════════════════════
+       ██  FASE 4 — DRESS CODE + GALERÍA  390 × 841
+       Fondo: #E7DBF3  ·  Texto: #321D4E
+    ════════════════════════════════════════════════════════ */
+
+    .dressGal-section {
+      width: 100%;
+      background: #E7DBF3;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* Frame 390 × 841 — zoom compartido */
+    .dressGal-inner {
+      width: 390px;
+      flex-shrink: 0;
+      zoom: var(--zoom2, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 841px;
+      gap: 56px;         /* Figma: gap 56px entre dress code y galería */
+      padding: 50px 0;
+    }
+
+    /* ── Dress Code ──────────────────────────────────── */
+    .dresscode-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 390px;
+    }
+
+    /* Título — Great Vibes 400 · 34px · lh 42.6 · #321D4E
+       Contenedor Figma: 390 × 63, padding 10  */
+    .section-title-dc {
+      width: 390px;
+      height: 63px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Great Vibes', cursive;
+      font-weight: 400;
+      font-size: 36px;
+      line-height: 45.1px;
+      color: #321D4E;
+      text-align: center;
+    }
+
+    /* Imagen dress code — contenedor 229 × 229, padding 10 → imagen 209 × 209 */
+    .dresscode-img-wrap {
+      width: 229px;
+      height: 229px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dresscode-img {
+      width: 209px;
+      height: 209px;
+      object-fit: contain;
+    }
+
+    /* ── Galería ─────────────────────────────────────── */
+    .gallery-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 390px;
+    }
+
+    /* Título — Great Vibes 400 · 34px · contenedor 100 × 63, padding 10 */
+    .section-title-gal {
+      width: 100px;
+      height: 63px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Great Vibes', cursive;
+      font-weight: 400;
+      font-size: 36px;
+      line-height: 45.1px;
+      color: #321D4E;
+      text-align: center;
+    }
+
+    /* Grid mosaico — Figma: 390 × 323, gap 10
+       Fila 1: 2 fotos × 190px ancho × 160px alto
+       Fila 2: 3 fotos × 123.3px ancho × 153px alto  */
+    .gallery-grid {
+      width: 390px;
+      height: 323px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .gallery-row {
+      display: flex;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .gallery-row-1 { height: 160px; }
+    .gallery-row-2 { height: 153px; }
+
+    .gallery-item {
+      flex: 1;
+      overflow: hidden;
+      cursor: pointer;
+      border-radius: 6px;
+      position: relative;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .gallery-item:hover img,
+    .gallery-item:active img { transform: scale(1.04); }
+
+    /* ── Lightbox ────────────────────────────────────── */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.93);
+      z-index: 970;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .lightbox.lb-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .lb-img {
+      max-width: 92vw;
+      max-height: 80vh;
+      object-fit: contain;
+      border-radius: 8px;
+      user-select: none;
+      -webkit-user-drag: none;
+      transition: opacity 0.18s ease;
+    }
+
+    .lb-img.lb-fade { opacity: 0; }
+
+    /* Botón cerrar */
+    .lb-close {
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.12);
+      color: #fff;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Flechas prev / next */
+    .lb-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.35);
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      font-size: 26px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .lb-arrow:hover  { background: rgba(255,255,255,0.25); }
+    .lb-prev { left: 14px; }
+    .lb-next { right: 14px; }
+
+    /* Indicadores (dots) */
+    .lb-dots {
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+    }
+
+    .lb-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.35);
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .lb-dot.active {
+      background: #fff;
+      transform: scale(1.2);
+    }
+
+    /* ════════════════════════════════════════════════════════
+       ██  FASE 2 — HERO  390 × 844
+    ════════════════════════════════════════════════════════ */
+
+    /* Sección: una pantalla completa */
+    .hero-section {
+      width: 100%;
+      height: 100vh;
+      height: 100svh;
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* En móvil la foto de fondo cubre los márgenes laterales;
+       en desktop el body lila sirve como fondo en los lados */
+    @media (max-width: 767px) {
+      .hero-section {
+        background: url('img/hero-bg.png') top center / cover no-repeat;
+      }
+    }
+
+    /* Frame Figma 390 × 844 — zoom actualizado por JS (zoom2) */
+    .hero-inner {
+      position: relative;
+      width: 390px;
+      height: 844px;
+      flex-shrink: 0;
+      zoom: var(--zoom2, 1);
+      /* Imagen hero: 614 × 844, centrada sobre el frame de 390 px */
+      background: url('img/hero-bg.png') top center / auto 100% no-repeat;
+    }
+
+    /* Overlay de títulos
+       Figma: left=40px, top=481px desde el frame hero
+              width=306.77px, vertical flex, center-align
+    */
+    .hero-overlay {
+      position: absolute;
+      left: 40px;
+      top: 481px;
+      width: 306.77px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Nombre — contenedor 277 × 182 px · padding 10px
+       Great Vibes 400 · 129.09px · lh 161.62px · #E7DBF3
+    */
+    .hero-name-wrap {
+      width: 277px;
+      height: 182px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero-name {
+      font-family: 'Great Vibes', cursive;
+      font-weight: 400;
+      font-size: 131.09px;
+      line-height: 164.12px;
+      color: #E7DBF3;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    /* Fecha — contenedor 203 × 43 px · padding 10px
+       Nunito Sans 500 · 16.668px · lh 22.736px · ls 4.5px
+       #E7DBF3 · drop-shadow
+    */
+    .hero-date-wrap {
+      width: 203px;
+      height: 43px;
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero-date {
+      font-family: 'Nunito Sans', sans-serif;
+      font-weight: 500;
+      font-size: 18.668px;
+      line-height: 25.236px;
+      letter-spacing: 4.5px;
+      color: #E7DBF3;
+      text-align: center;
+      text-shadow: 0 4px 4px rgba(0,0,0,0.28);
+      white-space: nowrap;
+    }
+
+    /* Regresiva — 306.77 × 79.38 px · horizontal · separadores */
+    .hero-countdown {
+      width: 306.77px;
+      height: 79.38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Columna: número + label · gap 20px */
+    .cd-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    /* Número — Nunito Sans 400 · 33.337px · lh 45.471px · ls -3px */
+    .cd-num {
+      font-family: 'Nunito Sans', sans-serif;
+      font-weight: 400;
+      font-size: 35.337px;
+      line-height: 48.221px;
+      letter-spacing: -3px;
+      color: #E7DBF3;
+      text-align: center;
+      min-width: 50px;
+    }
+
+    /* Label — Nunito Sans 400 · 20.835px · lh 28.419px · ls -1.875px */
+    .cd-label {
+      font-family: 'Nunito Sans', sans-serif;
+      font-weight: 400;
+      font-size: 22.835px;
+      line-height: 31.169px;
+      letter-spacing: -1.875px;
+      color: #E7DBF3;
+      text-align: center;
+    }
+
+    /* Separador — 20 × 79.38 px · línea 1px × 59.38px */
+    .cd-sep {
+      width: 20px;
+      height: 79.38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+
+    .cd-line {
+      width: 1px;
+      height: 59.38px;
+      background: #E7DBF3;
+      opacity: 0.7;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- ── Pétalos ── -->
+  <canvas id="petalsCanvas"></canvas>
+
+  <!-- ── Botón de música ── -->
+  <button id="musicBtn" aria-label="Reproducir / Pausar música">
+    <!-- Icono "play" (se cambia a pause por JS) -->
+    <svg id="iconPlay" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    <svg id="iconPause" viewBox="0 0 24 24" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+  </button>
+
+  <!-- ════════════════════════════════════════════════════════
+       FASE 1 — PRESENTACIÓN
+  ════════════════════════════════════════════════════════ -->
+  <section class="phase1-section" id="phase1Section">
+
+    <main class="frame-presentacion" id="frameMain">
+
+      <!-- Sección sobre -->
+      <section class="section-sobre">
+        <h1 class="titulo-invitacion">Invitación para alguien muy especial</h1>
+
+        <div class="envelope-outer" id="envelopeOuter"
+             role="button" aria-label="Toca para abrir la invitación" tabindex="0">
+          <div class="envelope-wrapper" id="envelopeWrapper">
+            <div class="envelope-body">
+              <img src="img/sobre.png" alt="Sobre de invitación" draggable="false">
+            </div>
+            <div class="envelope-flap">
+              <img src="img/sobre.png" alt="" aria-hidden="true" draggable="false">
+            </div>
+          </div>
+        </div>
+
+        <p class="cta-toca" id="ctaToca">TOCA PARA ABRIR</p>
+      </section>
+
+      <!-- Sección Festali -->
+      <section class="section-festali">
+        <div class="logo-outer">
+          <img class="logo-img" src="img/logo.png" alt="Festali">
+        </div>
+        <div class="tagline">
+          <span class="tagline-l1">Conecta tus mejores</span>
+          <span class="tagline-l2">momentos...</span>
+        </div>
+      </section>
+
+      <!-- Scroll hint (aparece tras abrir el sobre) -->
+      <div class="scroll-hint" id="scrollHint">
+        <span>DESLIZA</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2.5" stroke-linecap="round">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </div>
+
+    </main>
+
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       FASE 2 — HERO
+  ════════════════════════════════════════════════════════ -->
+  <section class="hero-section" id="heroSection">
+
+    <div class="hero-inner" id="heroInner">
+
+      <!-- Overlay de títulos, posicionado en Figma a (40, 481) -->
+      <div class="hero-overlay">
+
+        <!-- Nombre -->
+        <div class="hero-name-wrap sr" data-d="0">
+          <h2 class="hero-name">Sofía</h2>
+        </div>
+
+        <!-- Fecha -->
+        <div class="hero-date-wrap sr" data-d="1">
+          <span class="hero-date">19 MARZO 2027</span>
+        </div>
+
+        <!-- Cuenta regresiva -->
+        <div class="hero-countdown sr" data-d="2">
+
+          <div class="cd-unit">
+            <span class="cd-num" id="cdDias">00</span>
+            <span class="cd-label">Días</span>
+          </div>
+
+          <div class="cd-sep"><div class="cd-line"></div></div>
+
+          <div class="cd-unit">
+            <span class="cd-num" id="cdHoras">00</span>
+            <span class="cd-label">Horas</span>
+          </div>
+
+          <div class="cd-sep"><div class="cd-line"></div></div>
+
+          <div class="cd-unit">
+            <span class="cd-num" id="cdMin">00</span>
+            <span class="cd-label">Min</span>
+          </div>
+
+          <div class="cd-sep"><div class="cd-line"></div></div>
+
+          <div class="cd-unit">
+            <span class="cd-num" id="cdSeg">00</span>
+            <span class="cd-label">Seg</span>
+          </div>
+
+        </div><!-- /countdown -->
+
+      </div><!-- /hero-overlay -->
+
+    </div><!-- /hero-inner -->
+
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       FASE 3 — INFO
+  ════════════════════════════════════════════════════════ -->
+  <section class="info-section" id="infoSection">
+    <div class="info-inner" id="infoInner">
+
+      <!-- ── Bloque 1: Mensaje de bienvenida ── -->
+      <div class="msg-block">
+
+        <!-- Flores lila (gráfico decorativo superior) -->
+        <div class="flores-wrap sr">
+          <img class="flores-img" src="img/flores-lila.svg" alt="">
+        </div>
+
+        <!-- MIS XV AÑOS -->
+        <div class="mis-xv-wrap sr" data-d="1">
+          <span class="mis-text">MIS</span>
+          <span class="xv-text">XV</span>
+          <span class="anos-text">AÑOS</span>
+        </div>
+
+        <!-- Mensaje + línea -->
+        <div class="welcome-block sr" data-d="2">
+          <p class="welcome-msg">Acompañame a celebrar una noche llena de magia, sueños y alegría.</p>
+          <div class="info-divider"></div>
+        </div>
+
+      </div><!-- /msg-block -->
+
+
+      <!-- ── Bloque 2: Ceremonia Religiosa ── -->
+      <div class="event-block sr">
+
+        <h3 class="event-title">Ceremonia Religiosa</h3>
+
+        <!-- Ícono iglesia (Figma: 44.1×42.8, padding 10) -->
+        <div class="icon-wrap sr" data-d="1">
+          <img class="event-icon" src="img/icon-iglesia.svg" alt="Iglesia">
+        </div>
+
+        <p class="event-text sr" data-d="1">Parroquia de Nuestra Señora del Rosario</p>
+
+        <!-- Ícono reloj (Figma: timer 30.2×25.7, padding t1 r4 b1 l4) -->
+        <div class="icon-wrap sr" data-d="2">
+          <img class="event-icon" src="img/icon-reloj.svg" alt="Hora">
+        </div>
+
+        <p class="event-text sr" data-d="2">6:00 p.m.</p>
+
+        <!-- Ícono mapa (Figma: 30.4×27.7, padding t2 r5 b2 l5) -->
+        <div class="icon-wrap sr" data-d="3">
+          <img class="event-icon" src="img/icon-mapa.svg" alt="Ubicación">
+        </div>
+
+        <a class="event-maps sr" data-d="3"
+           href="https://maps.app.goo.gl/Z8VQ2WgGcZvzMuFRA"
+           target="_blank" rel="noopener">Ver ubicación en Maps</a>
+
+      </div><!-- /event-block ceremonia -->
+
+
+      <!-- ── Bloque 3: Recepción ── -->
+      <div class="event-block sr">
+
+        <h3 class="event-title">Recepción</h3>
+
+        <!-- Ícono confetti (Figma: 29.6×29.6, directo) -->
+        <img class="icon-bare sr" data-d="1" src="img/icon-confetti.svg" alt="Celebración">
+
+        <p class="event-text sr" data-d="1">Jardín Quinta Montebello</p>
+
+        <!-- Ícono reloj recepción -->
+        <div class="icon-wrap sr" data-d="2">
+          <img class="event-icon" src="img/icon-reloj2.svg" alt="Hora">
+        </div>
+
+        <p class="event-text sr" data-d="2">8:00 p.m.</p>
+
+        <!-- Ícono mapa recepción (Figma: 29.6×29.6, directo) -->
+        <img class="icon-bare sr" data-d="3" src="img/icon-mapa2.svg" alt="Ubicación">
+
+        <a class="event-maps sr" data-d="3"
+           href="https://maps.app.goo.gl/PtfZC9z9hMHwUMsx5"
+           target="_blank" rel="noopener">Ver ubicación en Maps</a>
+
+      </div><!-- /event-block recepcion -->
+
+    </div><!-- /info-inner -->
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       FASE 5 — PROGRAMA
+  ════════════════════════════════════════════════════════ -->
+  <section class="programa-section" id="programaSection">
+    <div class="programa-inner" id="programaInner">
+
+      <h3 class="programa-title sr">Programa</h3>
+
+      <div class="programa-list">
+
+        <div class="prog-item sr">
+          <span class="prog-time">8:00 p.m.</span>
+          <span class="prog-activity">Llegada de invitados</span>
+        </div>
+        <div class="prog-sep"></div>
+
+        <div class="prog-item sr" data-d="1">
+          <span class="prog-time">8:40 p.m.</span>
+          <span class="prog-activity">Presentación de la XV</span>
+        </div>
+        <div class="prog-sep"></div>
+
+        <div class="prog-item sr" data-d="1">
+          <span class="prog-time">9:00 p.m.</span>
+          <span class="prog-activity">Cena</span>
+        </div>
+        <div class="prog-sep"></div>
+
+        <div class="prog-item sr" data-d="2">
+          <span class="prog-time">9:15 p.m.</span>
+          <span class="prog-activity">Video</span>
+        </div>
+        <div class="prog-sep"></div>
+
+        <div class="prog-item sr" data-d="2">
+          <span class="prog-time">10:00 p.m.</span>
+          <span class="prog-activity">Baile padre e hija</span>
+        </div>
+        <div class="prog-sep"></div>
+
+        <div class="prog-item sr" data-d="3">
+          <span class="prog-time">10:30 p.m.</span>
+          <span class="prog-activity">Mesa de postres</span>
+        </div>
+        <div class="prog-sep"></div>
+
+        <div class="prog-item sr" data-d="3">
+          <span class="prog-time">11:00 p.m.</span>
+          <span class="prog-activity">Baile sorpresa</span>
+        </div>
+        <div class="prog-sep"></div>
+
+        <div class="prog-item sr" data-d="4">
+          <span class="prog-time">11:30 p.m.</span>
+          <span class="prog-activity">Baile para todos</span>
+        </div>
+        <div class="prog-sep"></div>
+
+        <div class="prog-item sr" data-d="4">
+          <span class="prog-time">1:00 a.m.</span>
+          <span class="prog-activity">Finaliza evento</span>
+        </div>
+
+      </div><!-- /programa-list -->
+
+    </div>
+  </section>
+
+
+  <!-- ════════════════════════════════════════════════════════
+       FASE 4 — DRESS CODE + GALERÍA
+  ════════════════════════════════════════════════════════ -->
+  <section class="dressGal-section" id="dressGalSection">
+    <div class="dressGal-inner" id="dressGalInner">
+
+      <!-- Dress Code -->
+      <div class="dresscode-block">
+        <h3 class="section-title-dc sr">Dress Code Etiqueta</h3>
+        <div class="dresscode-img-wrap sr" data-d="1">
+          <img class="dresscode-img" src="img/dresscode.png" alt="Dress Code">
+        </div>
+      </div>
+
+      <!-- Galería -->
+      <div class="gallery-block">
+        <h3 class="section-title-gal sr">Galería</h3>
+
+        <div class="gallery-grid sr" data-d="1">
+          <!-- Fila 1: 2 fotos -->
+          <div class="gallery-row gallery-row-1">
+            <div class="gallery-item" data-index="0">
+              <img src="galeria/foto1.jpg" alt="Foto 1" loading="lazy">
+            </div>
+            <div class="gallery-item" data-index="1">
+              <img src="galeria/foto2.jpg" alt="Foto 2" loading="lazy">
+            </div>
+          </div>
+          <!-- Fila 2: 3 fotos -->
+          <div class="gallery-row gallery-row-2">
+            <div class="gallery-item" data-index="2">
+              <img src="galeria/foto3.jpg" alt="Foto 3" loading="lazy">
+            </div>
+            <div class="gallery-item" data-index="3">
+              <img src="galeria/foto4.jpg" alt="Foto 4" loading="lazy">
+            </div>
+            <div class="gallery-item" data-index="4">
+              <img src="galeria/foto5.jpg" alt="Foto 5" loading="lazy">
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ FASE 6 — MESA DE REGALOS ══ -->
+  <section class="mesa-section" id="mesaSection">
+    <div class="mesa-inner" id="mesaInner">
+
+      <h3 class="mesa-title sr">Mesa de Regalos</h3>
+
+      <p class="mesa-desc sr" data-d="1">
+        Más que un regalo, valoramos tu compañía. Sin embargo, si nace de ti un presente, puedes hacerlo aquí:
+      </p>
+
+      <div class="mesa-regalos sr" data-d="2">
+        <img src="img/icon-regalo.svg" class="mesa-gift-icon" alt="Regalo">
+        <p class="mesa-links">
+          <a href="https://www.amazon.com.mx/hz/wishlist/ls/1EXUUH0UWXMMV?ref_=wl_share"
+             target="_blank" rel="noopener" class="mesa-link">Lista de regalos Amazon</a>
+          <br><br>
+          BBVA 546465456465644
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══ FASE 7 — CONFIRMACIÓN ══ -->
+  <section class="confirma-section" id="confirmaSection">
+    <div class="confirma-inner" id="confirmaInner">
+
+      <!-- Mensaje -->
+      <div class="confirma-msg sr">
+        <p class="confirma-msg-text">
+          ¡No podemos esperar a verte!<br><br>
+          Por favor, confírmanos tu asistencia lo antes posible para esperarte con todo listo
+        </p>
+      </div>
+
+      <!-- Fecha -->
+      <div class="confirma-fecha sr" data-d="1">
+        <img src="img/icon-calendar.svg" class="confirma-cal-icon" alt="Fecha">
+        <span class="confirma-fecha-text">Fecha 19 de marzo de 2027</span>
+      </div>
+
+      <!-- Formulario -->
+      <form class="confirma-form sr" data-d="2" id="confirmaForm" onsubmit="return false;">
+
+        <div class="confirma-field">
+          <label class="confirma-label" for="cNombre">Nombre</label>
+          <input type="text" class="confirma-input" id="cNombre" autocomplete="given-name">
+        </div>
+
+        <div class="confirma-field">
+          <label class="confirma-label" for="cApellido">Apellido</label>
+          <input type="text" class="confirma-input" id="cApellido" autocomplete="family-name">
+        </div>
+
+        <div class="confirma-field">
+          <label class="confirma-label" for="cPersonas">Número de personas</label>
+          <input type="number" class="confirma-input" id="cPersonas" min="1" max="20">
+        </div>
+
+        <div class="confirma-field">
+          <label class="confirma-label" for="cMensaje">Mensaje lindo para Sofia</label>
+          <textarea class="confirma-textarea" id="cMensaje"></textarea>
+        </div>
+
+      </form>
+
+      <!-- Botón -->
+      <button class="confirma-btn sr" data-d="3" id="confirmaBtn">CONFIRMAR</button>
+
+      <!-- Footer Festali -->
+      <div class="confirma-footer sr" data-d="4">
+        <a href="https://www.festali.com" target="_blank" rel="noopener" class="confirma-festali-link">
+          ¿Quieres una invitación personalizada? www.festali.com
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Galería de fotos">
+    <button class="lb-close" id="lbClose" aria-label="Cerrar">&times;</button>
+    <button class="lb-arrow lb-prev" id="lbPrev" aria-label="Foto anterior">&#8249;</button>
+    <img class="lb-img" id="lbImg" src="" alt="Foto ampliada" draggable="false">
+    <button class="lb-arrow lb-next" id="lbNext" aria-label="Foto siguiente">&#8250;</button>
+    <div class="lb-dots" id="lbDots"></div>
+  </div>
+
+
+  <!-- Audio -->
+  <audio id="bgMusic" loop preload="none">
+    <source src="music/cielo.mp3" type="audio/mpeg">
+  </audio>
+
+
+  <script>
+  (function () {
+    'use strict';
+
+    /* ══════════════════════════════════════════════════════
+       SCALING
+       • Fase 1: transform:scale → frame cabe exacto en 100svh
+       • Hero:   CSS zoom        → idem para 844px de alto
+    ══════════════════════════════════════════════════════ */
+    const frame1       = document.getElementById('frameMain');
+    const heroInner    = document.getElementById('heroInner');
+    const infoInner    = document.getElementById('infoInner');
+    const dressGalInner  = document.getElementById('dressGalInner');
+    const programaInner  = document.getElementById('programaInner');
+    const mesaInner      = document.getElementById('mesaInner');
+    const confirmaInner  = document.getElementById('confirmaInner');
+
+    function updateScale() {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+
+      /* Fase 1 — escala sin zoom para mantener sparkles */
+      const s1 = Math.min(vw / 390, vh / 788);
+      frame1.style.setProperty('--scale1', s1);
+
+      /* Fase 2+ — zoom proporcional compartido */
+      const z2 = Math.min(vw / 390, vh / 844);
+      heroInner.style.setProperty('--zoom2', z2);
+      infoInner.style.setProperty('--zoom2', z2);
+      programaInner.style.setProperty('--zoom2', z2);
+      dressGalInner.style.setProperty('--zoom2', z2);
+      mesaInner.style.setProperty('--zoom2', z2);
+      confirmaInner.style.setProperty('--zoom2', z2);
+    }
+
+    updateScale();
+    window.addEventListener('resize', updateScale);
+
+
+    /* ══════════════════════════════════════════════════════
+       APERTURA DEL SOBRE (Fase 1)
+    ══════════════════════════════════════════════════════ */
+    const envelopeOuter  = document.getElementById('envelopeOuter');
+    const envelopeWrapper = document.getElementById('envelopeWrapper');
+    const ctaToca        = document.getElementById('ctaToca');
+    const scrollHint     = document.getElementById('scrollHint');
+    const heroSection    = document.getElementById('heroSection');
+
+    let opened = false;
+
+    function triggerOpen() {
+      if (opened) return;
+      opened = true;
+
+      envelopeOuter.style.pointerEvents = 'none';
+      ctaToca.style.pointerEvents = 'none';
+      ctaToca.style.opacity = '0.5';
+
+      if (navigator.vibrate) navigator.vibrate([40, 30, 80]);
+
+      /* Shake → abrir → sparkles → scroll hint → auto-scroll a Hero */
+      envelopeWrapper.classList.add('shake');
+
+      envelopeWrapper.addEventListener('animationend', function onShake(e) {
+        if (e.animationName !== 'temblar') return;
+        envelopeWrapper.removeEventListener('animationend', onShake);
+        envelopeWrapper.classList.remove('shake');
+
+        envelopeWrapper.classList.add('open');
+
+        ctaToca.style.transition = 'opacity 0.4s';
+        ctaToca.style.opacity = '0';
+
+        setTimeout(spawnSparkles, 200);
+
+        /* Mostrar "DESLIZA" */
+        setTimeout(() => scrollHint.classList.add('visible'), 700);
+
+        /* Auto-scroll suave al Hero */
+        setTimeout(() => {
+          heroSection.scrollIntoView({ behavior: 'smooth' });
+        }, 1800);
+      });
+    }
+
+    envelopeOuter.addEventListener('click',   triggerOpen);
+    envelopeOuter.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') triggerOpen(); });
+    ctaToca.addEventListener('click',         triggerOpen);
+
+    /* ── Destellos ── */
+    function spawnSparkles() {
+      const rect      = envelopeOuter.getBoundingClientRect();
+      const frameRect = frame1.getBoundingClientRect();
+      const scale     = parseFloat(getComputedStyle(frame1).getPropertyValue('--scale1')) || 1;
+
+      /* Posición relativa al frame en coordenadas locales (sin zoom) */
+      const cxV = rect.left - frameRect.left + rect.width  / 2;
+      const cyV = rect.top  - frameRect.top  + rect.height / 2;
+      const cx  = cxV / scale;
+      const cy  = cyV / scale;
+
+      const colors = ['#FFD700','#FF9FD2','#FFFFFF','#FFB347','#FF6EB4','#FFF44F'];
+
+      for (let i = 0; i < 24; i++) {
+        const el    = document.createElement('div');
+        el.classList.add('sparkle');
+        const angle = (i / 24) * Math.PI * 2 + Math.random() * 0.3;
+        const dist  = 55 + Math.random() * 90;
+        const size  = 4 + Math.random() * 7;
+
+        el.style.cssText = `
+          left:${cx - size/2}px;
+          top:${cy - size/2}px;
+          width:${size}px;
+          height:${size}px;
+          background:${colors[Math.floor(Math.random()*colors.length)]};
+          --tx:${Math.cos(angle)*dist}px;
+          --ty:${Math.sin(angle)*dist}px;
+          animation-delay:${Math.random()*0.18}s;
+          animation-duration:${0.7+Math.random()*0.4}s;
+        `;
+        frame1.appendChild(el);
+        setTimeout(() => el.remove(), 1400);
+      }
+    }
+
+
+    /* ══════════════════════════════════════════════════════
+       MÚSICA
+       Empieza al llegar al Hero; botón play/pause visible.
+    ══════════════════════════════════════════════════════ */
+    const audio     = document.getElementById('bgMusic');
+    const musicBtn  = document.getElementById('musicBtn');
+    const iconPlay  = document.getElementById('iconPlay');
+    const iconPause = document.getElementById('iconPause');
+    let musicStarted = false;
+    let isPlaying    = false;
+
+    function showMusicBtn() { musicBtn.classList.add('visible'); }
+
+    function setIcon(playing) {
+      iconPlay.style.display  = playing ? 'none' : 'block';
+      iconPause.style.display = playing ? 'block' : 'none';
+    }
+
+    function startMusic() {
+      if (musicStarted) return;
+      musicStarted = true;
+      audio.volume = 0;
+      audio.play()
+        .then(() => {
+          isPlaying = true;
+          setIcon(true);
+          fadeAudio(audio, 0, 1, 2000);
+        })
+        .catch(() => {
+          /* Autoplay bloqueado: el botón está visible, usuario puede iniciar */
+        });
+    }
+
+    musicBtn.addEventListener('click', () => {
+      if (!musicStarted) {
+        startMusic();
+        return;
+      }
+      if (isPlaying) {
+        audio.pause();
+        isPlaying = false;
+        setIcon(false);
+      } else {
+        audio.play();
+        isPlaying = true;
+        setIcon(true);
+      }
+    });
+
+    function fadeAudio(audioEl, from, to, ms) {
+      const steps = 40;
+      const dt    = ms / steps;
+      let   i     = 0;
+      audioEl.volume = from;
+      const t = setInterval(() => {
+        i++;
+        audioEl.volume = from + (to - from) * (i / steps);
+        if (i >= steps) { audioEl.volume = to; clearInterval(t); }
+      }, dt);
+    }
+
+    /* Intersection observer: Fase 1 sale de vista → mostrar pétalos
+       Fase 1 vuelve → ocultar pétalos                              */
+    const phase1Observer = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        canvas.classList.remove('visible');   /* usuario volvió a Fase 1 */
+      } else {
+        canvas.classList.add('visible');      /* pasó al Hero o más allá */
+      }
+    }, { threshold: 0.15 });
+    phase1Observer.observe(document.getElementById('phase1Section'));
+
+    /* Intersection observer: Hero entra → música + botón */
+    const heroObserver = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        showMusicBtn();
+        startMusic();
+      }
+    }, { threshold: 0.25 });
+    heroObserver.observe(heroSection);
+
+
+    /* ══════════════════════════════════════════════════════
+       SCROLL REVEAL
+    ══════════════════════════════════════════════════════ */
+    const srEls = document.querySelectorAll('.sr');
+    const srObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('sr-visible');
+          srObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    srEls.forEach(el => srObserver.observe(el));
+
+
+    /* ══════════════════════════════════════════════════════
+       CUENTA REGRESIVA — 19 marzo 2027
+    ══════════════════════════════════════════════════════ */
+    const targetDate = new Date('2027-03-19T00:00:00');
+
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function updateCountdown() {
+      const diff = targetDate - Date.now();
+      if (diff <= 0) {
+        document.getElementById('cdDias').textContent  = '00';
+        document.getElementById('cdHoras').textContent = '00';
+        document.getElementById('cdMin').textContent   = '00';
+        document.getElementById('cdSeg').textContent   = '00';
+        return;
+      }
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor((diff % 86400000) / 3600000);
+      const m = Math.floor((diff % 3600000)  / 60000);
+      const s = Math.floor((diff % 60000)    / 1000);
+
+      document.getElementById('cdDias').textContent  = pad(d);
+      document.getElementById('cdHoras').textContent = pad(h);
+      document.getElementById('cdMin').textContent   = pad(m);
+      document.getElementById('cdSeg').textContent   = pad(s);
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+
+
+    /* ══════════════════════════════════════════════════════
+       GALERÍA — Lightbox
+    ══════════════════════════════════════════════════════ */
+    const PHOTOS = [
+      'galeria/foto1.jpg',
+      'galeria/foto2.jpg',
+      'galeria/foto3.jpg',
+      'galeria/foto4.jpg',
+      'galeria/foto5.jpg'
+    ];
+
+    const lightbox  = document.getElementById('lightbox');
+    const lbImg     = document.getElementById('lbImg');
+    const lbDots    = document.getElementById('lbDots');
+    const lbClose   = document.getElementById('lbClose');
+    const lbPrev    = document.getElementById('lbPrev');
+    const lbNext    = document.getElementById('lbNext');
+    let lbIndex     = 0;
+    let lbTouchX    = 0;
+
+    /* Crear dots */
+    PHOTOS.forEach((_, i) => {
+      const d = document.createElement('button');
+      d.className = 'lb-dot' + (i === 0 ? ' active' : '');
+      d.setAttribute('aria-label', `Foto ${i + 1}`);
+      d.addEventListener('click', () => lbGoTo(i));
+      lbDots.appendChild(d);
+    });
+
+    function lbOpen(index) {
+      lbIndex = index;
+      lbImg.src = PHOTOS[lbIndex];
+      lbUpdateDots();
+      lightbox.classList.add('lb-open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function lbClose_fn() {
+      lightbox.classList.remove('lb-open');
+      document.body.style.overflow = '';
+    }
+
+    function lbGoTo(i) {
+      lbImg.classList.add('lb-fade');
+      setTimeout(() => {
+        lbIndex = (i + PHOTOS.length) % PHOTOS.length;
+        lbUpdateDots();
+        lbImg.onload = () => {
+          lbImg.classList.remove('lb-fade');
+          lbImg.onload = null;
+        };
+        lbImg.src = PHOTOS[lbIndex];
+      }, 200);
+    }
+
+    function lbUpdateDots() {
+      lbDots.querySelectorAll('.lb-dot').forEach((d, i) =>
+        d.classList.toggle('active', i === lbIndex));
+    }
+
+    /* Botones */
+    lbClose.addEventListener('click', lbClose_fn);
+    lbPrev.addEventListener('click',  () => lbGoTo(lbIndex - 1));
+    lbNext.addEventListener('click',  () => lbGoTo(lbIndex + 1));
+
+    /* Clic en fondo cierra */
+    lightbox.addEventListener('click', e => { if (e.target === lightbox) lbClose_fn(); });
+
+    /* Teclado */
+    document.addEventListener('keydown', e => {
+      if (!lightbox.classList.contains('lb-open')) return;
+      if (e.key === 'Escape')     lbClose_fn();
+      if (e.key === 'ArrowLeft')  lbGoTo(lbIndex - 1);
+      if (e.key === 'ArrowRight') lbGoTo(lbIndex + 1);
+    });
+
+    /* Touch swipe */
+    lightbox.addEventListener('touchstart', e => { lbTouchX = e.touches[0].clientX; }, { passive: true });
+    lightbox.addEventListener('touchend',   e => {
+      const dx = e.changedTouches[0].clientX - lbTouchX;
+      if (dx >  50) lbGoTo(lbIndex - 1);
+      if (dx < -50) lbGoTo(lbIndex + 1);
+    });
+
+    /* Clic en items de galería */
+    document.querySelectorAll('.gallery-item').forEach(item => {
+      item.addEventListener('click', () => lbOpen(parseInt(item.dataset.index)));
+    });
+
+    /* ══════════════════════════════════════════════════════
+       PÉTALOS CAYENDO — canvas fijo
+    ══════════════════════════════════════════════════════ */
+    const canvas = document.getElementById('petalsCanvas');
+    const ctx    = canvas.getContext('2d');
+
+    const PETAL_COLORS = ['#F9B8D0','#F5CFDE','#E7DBF3','#FFFFFF','#F8D0E0','#EFC5DA'];
+    const MAX_PETALS   = 22;
+    const petals       = [];
+
+    function resizeCanvas() {
+      canvas.width  = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    function randomPetal(fromTop) {
+      return {
+        x:     Math.random() * canvas.width,
+        y:     fromTop ? -14 : Math.random() * canvas.height,
+        vy:    0.6 + Math.random() * 0.9,        /* caída vertical */
+        vx:    (Math.random() - 0.5) * 0.6,      /* deriva lateral */
+        rot:   Math.random() * Math.PI * 2,
+        dRot:  (Math.random() - 0.5) * 0.04,     /* giro */
+        rx:    4  + Math.random() * 5,            /* radio X (ancho pétalo) */
+        ry:    7  + Math.random() * 7,            /* radio Y (largo pétalo) */
+        color: PETAL_COLORS[Math.floor(Math.random() * PETAL_COLORS.length)],
+        alpha: 0.45 + Math.random() * 0.35,
+        swing: Math.random() * Math.PI * 2,      /* fase de oscilación */
+        swingAmp: 0.3 + Math.random() * 0.5,
+      };
+    }
+
+    /* Poblar pantalla inicial */
+    for (let i = 0; i < MAX_PETALS; i++) petals.push(randomPetal(false));
+
+    function drawPetal(p) {
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot);
+      ctx.globalAlpha = p.alpha;
+      ctx.fillStyle   = p.color;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, p.rx, p.ry, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function animatePetals() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < petals.length; i++) {
+        const p = petals[i];
+        p.swing += 0.018;
+        p.x  += p.vx + Math.sin(p.swing) * p.swingAmp;
+        p.y  += p.vy;
+        p.rot += p.dRot;
+
+        if (p.y > canvas.height + 16) {
+          petals[i] = randomPetal(true);   /* reaparece por arriba */
+        }
+        drawPetal(p);
+      }
+
+      requestAnimationFrame(animatePetals);
+    }
+
+    animatePetals();
+
+    /* ══════════════════════════════════════════════════════
+       FASE 7 — BOTÓN CONFIRMAR → WhatsApp
+    ══════════════════════════════════════════════════════ */
+    document.getElementById('confirmaBtn').addEventListener('click', function () {
+      const nombre   = document.getElementById('cNombre').value.trim();
+      const apellido = document.getElementById('cApellido').value.trim();
+      const personas = document.getElementById('cPersonas').value.trim();
+      const mensaje  = document.getElementById('cMensaje').value.trim();
+
+      if (!nombre)   { document.getElementById('cNombre').focus();   return; }
+      if (!apellido) { document.getElementById('cApellido').focus(); return; }
+      if (!personas) { document.getElementById('cPersonas').focus(); return; }
+
+      let text = 'Confirmo mi asistencia a los XV de Sofía.';
+      text += '\nNombre: ' + [nombre, apellido].join(' ');
+      text += '\nNúmero de personas: ' + personas;
+      if (mensaje) text += '\nMensaje: ' + mensaje;
+
+      window.open('https://wa.me/526862362512?text=' + encodeURIComponent(text), '_blank');
+    });
+
+  }());
+  </script>
+
+</body>
+</html>
