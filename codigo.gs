@@ -111,22 +111,31 @@ function doPost(e) {
                ' | refs: ' + ((datos.referencias || []).length) +
                ' | dressCode: ' + ((datos.dressCodeImagenes || []).length));
 
-    // 1. Carpeta raíz (crear si no existe)
-    const carpetaRaiz = obtenerOCrearCarpeta(CARPETA_RAIZ, null);
+    // 1-3. Carpetas e imágenes — solo se crean si hay al menos un archivo
+    const hayArchivos = (datos.fotos             || []).length > 0 ||
+                        (datos.referencias       || []).length > 0 ||
+                        (datos.dressCodeImagenes || []).length > 0;
 
-    // 2. Subcarpeta por solicitud — FOLIO — Nombre del evento
-    const nombreSub  = folio + ' — ' + nombre;
-    const subcarpeta = obtenerOCrearCarpeta(nombreSub, carpetaRaiz);
+    let urlSubcarpeta  = '';
+    let linksFotos     = [];
+    let linksRefs      = [];
+    let linksDressCode = [];
 
-    // 3. Guardar imágenes en subcarpetas por tipo (solo se crean si hay archivos)
-    const linksFotos     = guardarFotosEnSub(datos.fotos             || [], subcarpeta, 'Fotos del evento');
-    const linksRefs      = guardarFotosEnSub(datos.referencias       || [], subcarpeta, 'Referencia Estilo');
-    const linksDressCode = guardarFotosEnSub(datos.dressCodeImagenes || [], subcarpeta, 'Ejemplos vestimenta');
+    if (hayArchivos) {
+      const carpetaRaiz = obtenerOCrearCarpeta(CARPETA_RAIZ, null);
+      const nombreSub   = folio + ' — ' + nombre;
+      const subcarpeta  = obtenerOCrearCarpeta(nombreSub, carpetaRaiz);
+      urlSubcarpeta     = subcarpeta.getUrl();
+
+      linksFotos     = guardarFotosEnSub(datos.fotos             || [], subcarpeta, 'Fotos del evento');
+      linksRefs      = guardarFotosEnSub(datos.referencias       || [], subcarpeta, 'Referencia Estilo');
+      linksDressCode = guardarFotosEnSub(datos.dressCodeImagenes || [], subcarpeta, 'Ejemplos vestimenta');
+    }
 
     // 4. Guardar fila en Sheets con estado "Pendiente de Pago"
     const ss   = SpreadsheetApp.openById(SPREADSHEET_ID);
     const hoja = prepararHoja(ss);
-    escribirFila(hoja, datos, linksFotos, subcarpeta.getUrl(), linksRefs, linksDressCode);
+    escribirFila(hoja, datos, linksFotos, urlSubcarpeta, linksRefs, linksDressCode);
 
     // 5. Crear preferencia de pago en MercadoPago
     const initPoint = crearPreferenciaMercadoPago(folio, datos.paquete);
@@ -134,7 +143,7 @@ function doPost(e) {
     // 6. Enviar email de confirmación al cliente
     enviarCorreoConfirmacion(datos, initPoint);
 
-    return respuestaOk({ folio: folio, carpeta: subcarpeta.getUrl(), initPoint: initPoint });
+    return respuestaOk({ folio: folio, carpeta: urlSubcarpeta, initPoint: initPoint });
 
   } catch (err) {
     Logger.log('Error FESTALI doPost: ' + err.message + '\n' + err.stack);

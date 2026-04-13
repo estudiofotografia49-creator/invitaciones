@@ -6,7 +6,7 @@
 
 // Dejar vacío hasta configurar Google Apps Script.
 // En modo vacío, los datos se imprimen en consola y se simula éxito.
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwI50dqprEbMyVyTS7Sn2fd5h39WzBszZKZdGRTmSbJYUthEgGxkYqdh-gqI3m55CrZ/exec';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzR4S74wi4XCT655Fsd0PHfanR-ud_BZI1j12YSC3LiHDOhLceFmiJLvs3Uo7W1CFhB/exec';
 
 // Token de acceso — debe coincidir con FESTALI_TOKEN en Script Properties de Apps Script
 const FESTALI_TOKEN = 'festali-2026-xK9mP';
@@ -73,20 +73,20 @@ const TRANSLATIONS = {
     // Tipo de evento
     ev_select: '— Selecciona —', ev_boda: 'Boda', ev_xv: 'XV Años', ev_bautizo: 'Bautizo', ev_cumple: 'Cumpleaños', ev_grad: 'Graduación', ev_otro: 'Otro',
     // Tipo diseño
-    dis_fotos_lbl: '📸 Mis fotos', dis_fotos_desc: 'Subir mis fotos para que sean parte del diseño',
-    dis_grafico_lbl: '🎨 Diseño gráfico', dis_grafico_desc: 'Ilustraciones creadas por Festali (sin fotos)',
+    dis_fotos_lbl: 'Mis fotos', dis_fotos_desc: 'Subir mis fotos para que sean parte del diseño',
+    dis_grafico_lbl: 'Diseño gráfico', dis_grafico_desc: 'Ilustraciones creadas por Festali (sin fotos)',
     // Fotos
-    fotos_si_lbl: '📸 Tengo mis fotos', fotos_si_desc: 'Las subo ahora',
-    fotos_no_lbl: '⏳ Aún no las tengo', fotos_no_desc: 'Las enviaré después por WhatsApp',
+    fotos_si_lbl: 'Tengo mis fotos', fotos_si_desc: 'Las subo ahora',
+    fotos_no_lbl: 'Aún no las tengo', fotos_no_desc: 'Las enviaré después por WhatsApp',
     fotos_click: 'Haz clic para seleccionar tus fotos', fotos_none: 'Ninguna foto seleccionada',
     // Mensaje
-    msg_propio_lbl: '✍️ Yo escribo el mensaje', msg_propio_desc: 'Redacta el mensaje para tus invitados',
-    msg_festali_lbl: '✨ Que Festali me escriba algo bonito', msg_festali_desc: 'Nuestro equipo redactará algo especial',
+    msg_propio_lbl: 'Yo escribo el mensaje', msg_propio_desc: 'Redacta el mensaje para tus invitados',
+    msg_festali_lbl: 'Que Festali me escriba algo bonito', msg_festali_desc: 'Nuestro equipo redactará algo especial',
     // Dress code
     dc_img_cb: 'Quiero subir ejemplos de vestimenta', dc_img_click: 'Haz clic para subir ejemplos', dc_img_hint: 'Imágenes de referencia', dc_img_none: 'Ninguna imagen seleccionada',
     // Confirmación
-    conf_wsp_lbl: '📱 WhatsApp', conf_wsp_desc: 'Los invitados confirman por WhatsApp',
-    conf_email_lbl: '✉️ Correo electrónico', conf_email_desc: 'Los invitados confirman por email',
+    conf_wsp_lbl: 'WhatsApp', conf_wsp_desc: 'Los invitados confirman por WhatsApp',
+    conf_email_lbl: 'Correo electrónico', conf_email_desc: 'Los invitados confirman por email',
     // Asistencia
     asist_adultos: 'Evento solo para adultos (no se permiten niños)',
     // Regalos
@@ -181,16 +181,16 @@ const TRANSLATIONS = {
     est_img_click: 'Click to upload an image', est_img_max: 'Maximum 1 image', est_img_none: 'No image selected',
     est_ph: { 'Elegant / Classic': 'E.g.: Gold and ivory tones, script typography, peonies or roses...', 'Modern / Minimalist': 'E.g.: Very clean, black and white with an accent color, minimal...', 'Floral / Romantic': 'E.g.: Pastel colors like pink or lilac, lots of flowers, delicate...', 'Themed': 'What is your theme? E.g.: Vintage, Disney, sports, enchanted garden...' },
     ev_select: '— Select —', ev_boda: 'Wedding', ev_xv: 'Quinceañera', ev_bautizo: 'Baptism', ev_cumple: 'Birthday', ev_grad: 'Graduation', ev_otro: 'Other',
-    dis_fotos_lbl: '📸 My photos', dis_fotos_desc: 'Upload my photos to be part of the design',
-    dis_grafico_lbl: '🎨 Graphic design', dis_grafico_desc: 'Illustrations created by Festali (no photos)',
-    fotos_si_lbl: '📸 I have my photos', fotos_si_desc: "I'll upload them now",
-    fotos_no_lbl: "⏳ I don't have them yet", fotos_no_desc: "I'll send them later via WhatsApp",
+    dis_fotos_lbl: 'My photos', dis_fotos_desc: 'Upload my photos to be part of the design',
+    dis_grafico_lbl: 'Graphic design', dis_grafico_desc: 'Illustrations created by Festali (no photos)',
+    fotos_si_lbl: 'I have my photos', fotos_si_desc: "I'll upload them now",
+    fotos_no_lbl: "I don't have them yet", fotos_no_desc: "I'll send them later via WhatsApp",
     fotos_click: 'Click to select your photos', fotos_none: 'No photos selected',
-    msg_propio_lbl: '✍️ I\'ll write the message', msg_propio_desc: 'Write the message for your guests',
-    msg_festali_lbl: '✨ Let Festali write something beautiful', msg_festali_desc: 'Our team will write something special',
+    msg_propio_lbl: 'I\'ll write the message', msg_propio_desc: 'Write the message for your guests',
+    msg_festali_lbl: 'Let Festali write something beautiful', msg_festali_desc: 'Our team will write something special',
     dc_img_cb: 'I want to upload outfit examples', dc_img_click: 'Click to upload examples', dc_img_hint: 'Reference images', dc_img_none: 'No image selected',
-    conf_wsp_lbl: '📱 WhatsApp', conf_wsp_desc: 'Guests confirm via WhatsApp',
-    conf_email_lbl: '✉️ Email', conf_email_desc: 'Guests confirm via email',
+    conf_wsp_lbl: 'WhatsApp', conf_wsp_desc: 'Guests confirm via WhatsApp',
+    conf_email_lbl: 'Email', conf_email_desc: 'Guests confirm via email',
     asist_adultos: 'Adults only event (no children allowed)',
     reg_ninguno: 'Do not include', reg_mesa: 'Gift registry', reg_transf: 'Bank transfer',
     confirm_titulo: 'Your request was received!', confirm_folio: 'Reference number:',
