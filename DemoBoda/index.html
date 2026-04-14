@@ -9,9 +9,12 @@
   <!-- Fuentes exactas de Figma -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Updock&family=Inria+Serif:wght@400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Updock&family=Inria+Serif:wght@400&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
 
   <style>
+    /* ══════════════════════════════════════════════
+       RESET
+    ══════════════════════════════════════════════ */
     *, *::before, *::after {
       box-sizing: border-box;
       margin: 0;
@@ -24,12 +27,11 @@
       overflow-x: hidden;
     }
 
-    /* Scroll bloqueado mientras la pantalla de presentación está activa */
-    body { overflow: hidden; }
-    body.unlocked { overflow: auto; }
+    body          { overflow: hidden; }
+    body.unlocked { overflow: auto;   }
 
     /* ══════════════════════════════════════════════
-       PANTALLA DE PRESENTACIÓN
+       FASE 1 · PANTALLA DE PRESENTACIÓN
     ══════════════════════════════════════════════ */
     #screen-presentacion {
       position: fixed;
@@ -39,8 +41,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      z-index: 100;
-
+      z-index: 200;
       transition: opacity 0.9s ease, visibility 0.9s ease;
     }
 
@@ -50,118 +51,89 @@
       pointer-events: none;
     }
 
-    /* Contenedor interno — replica layout vertical de Figma, gap 20px */
+    /* Contenedor interno — gap 20px de Figma */
     .pres-content {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 20px;
-
-      /* Mobile: ocupa el ancho del diseño (410px en Figma)
-         Desktop: crece proporcionalmente hasta un límite cómodo */
       width: min(100%, 600px);
-      padding: 0 16px; /* margen lateral en pantallas muy pequeñas */
+      padding: 0 16px;
     }
 
-    /* ──────────────────────────────────────────────
-       TEXTO SUPERIOR
-       Figma: Updock Regular 400, 48px, #000, center, line-height 44px
-    ────────────────────────────────────────────── */
+    /* "Para una persona muy especial..."
+       Figma: Updock Regular 48px, #000, center, line-height 44px */
     .pre-text {
       font-family: 'Updock', serif;
       font-weight: 400;
-      /* 48px / 390px = 12.31vw. Clamp: mín 28px · max 76px (para desktop ~600px) */
       font-size: clamp(28px, 12.3vw, 76px);
-      /* line-height en proporción Figma: 44/48 = 0.9167 */
-      line-height: 0.9167;
+      line-height: 0.9167;           /* 44/48 — proporción exacta Figma */
       color: #000000;
       text-align: center;
       letter-spacing: 0;
-
       opacity: 0;
       animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
     }
 
-    /* ──────────────────────────────────────────────
-       SOBRE ANIMADO
-       Figma: imagen 390×209 dentro de frame con padding 10px
-       La imagen sobre.png (3375×4219) se recorta desde Y=29.3% a Y=72.1%
-    ────────────────────────────────────────────── */
+    /* Sobre animado — frame "Sobre" tiene padding 10px c/lado (Figma) */
     .envelope-scene {
       width: 100%;
-      padding: 0 10px; /* replica padding 10px del frame "Sobre" de Figma */
+      padding: 0 10px;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       user-select: none;
       touch-action: manipulation;
-
       opacity: 0;
       animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
     }
 
-    /* Wrapper que recibe las animaciones de flotación / shake / vuelo */
-    .envelope-wrap {
-      animation: float 4s ease-in-out infinite;
-      will-change: transform;
-    }
+    .envelope-wrap { animation: float 4s ease-in-out infinite; }
+    .envelope-wrap.no-float { animation: none !important; }
 
-    .envelope-wrap.no-float {
-      animation: none !important;
-    }
-
-    /* Caja de recorte: mantiene la proporción 390:209 de Figma y oculta
-       el espacio en blanco superior e inferior de sobre.png */
+    /* Clip a proporción 390:209 de Figma + recorte Y=29.3% a 72.1% */
     .envelope-clip {
       width: 100%;
       aspect-ratio: 390 / 209;
       overflow: hidden;
-      position: relative;
     }
 
-    /* La imagen completa se desplaza -29.3% (su propio alto) para mostrar
-       exactamente la sección del sobre sin el relleno blanco alrededor.
-       Coincide con imageTransform Y-offset=0.293 del nodo Figma 18:1993. */
+    /* translateY(-29.3%) mueve la imagen para mostrar el sobre sin padding blanco */
     .envelope-img {
       width: 100%;
       display: block;
       transform: translateY(-29.3%);
     }
 
-    /* ──────────────────────────────────────────────
-       TEXTO INFERIOR
-       Figma: Inria Serif Regular 400, 32px, #000, center, line-height 44px
-    ────────────────────────────────────────────── */
+    /* "Toca para abrir" — Inria Serif Regular 32px, #000, center, lh 44px */
     .tap-hint {
       font-family: 'Inria Serif', serif;
       font-weight: 400;
-      /* 32px / 390px = 8.21vw. Clamp: mín 20px · max 50px */
       font-size: clamp(20px, 8.2vw, 50px);
-      /* line-height en proporción Figma: 44/32 = 1.375 */
-      line-height: 1.375;
+      line-height: 1.375;            /* 44/32 — proporción exacta Figma */
       color: #000000;
       text-align: center;
       letter-spacing: 0;
       width: 100%;
-
       opacity: 0;
       animation:
-        fadeUp  1s   cubic-bezier(0.16, 1, 0.3, 1) 0.8s both,
-        pulse   2.5s ease-in-out                    2s   infinite;
-
+        fadeUp 1s   cubic-bezier(0.16, 1, 0.3, 1) 0.8s both,
+        pulse  2.5s ease-in-out                    2s   infinite;
       transition: opacity 0.3s ease;
     }
 
     .tap-hint.hide {
       opacity: 0 !important;
-      animation: none !important;
+      transition: opacity 0.25s ease !important;
+      animation-play-state: paused !important;
     }
 
     /* ══════════════════════════════════════════════
-       HERO (Fase 2 — placeholder)
+       FASE 2 · HERO
+       Figma: frame 390×844, fondo #ffffff
     ══════════════════════════════════════════════ */
     #screen-hero {
-      min-height: 100vh;
       background: #ffffff;
+      min-height: 100vh;
       opacity: 0;
       pointer-events: none;
       transition: opacity 1.2s ease;
@@ -172,31 +144,195 @@
       pointer-events: auto;
     }
 
+    /* ── Imagen hero ─────────────────────────────
+       Figma: IMG rect 390×641px, imageTransform Y scale=0.9241 offset=0
+       hero.png es 3375×6000. Con object-fit:cover + object-position:top,
+       el navegador muestra exactamente el 92.4% superior (≈ imageTransform) ✓
+    ─────────────────────────────────────────────── */
+    .hero-img-wrap {
+      width: 100%;
+      aspect-ratio: 390 / 641;
+      overflow: hidden;
+    }
+
+    .hero-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+    }
+
+    /* ── Info section ────────────────────────────
+       Figma: "Save the date grafic" frame comienza en y=629 (dentro del área
+       del hero image que termina en y=641 → overlap de ~12px en paper torn)
+    ─────────────────────────────────────────────── */
+    .hero-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 11px 48px;   /* top gap visual que coincide con Figma */
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      gap: 0;
+    }
+
+    /* "SAVE THE DATE"
+       Figma: Inria Serif Regular 40px, #000, center, lh 47.96px */
+    .save-the-date {
+      font-family: 'Inria Serif', serif;
+      font-weight: 400;
+      font-size: clamp(26px, 10.26vw, 62px);  /* 40/390 = 10.26vw */
+      line-height: 1.199;                       /* 47.96/40 */
+      color: #000000;
+      text-align: center;
+      letter-spacing: 0;
+      width: 100%;
+
+      /* Animación scroll — JS añade .visible via IntersectionObserver */
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .save-the-date.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── Countdown wrapper (countdown + fecha debajo) ── */
+    .countdown-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      width: 100%;
+      margin-top: 4px;
+
+      /* Animación scroll */
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .countdown-wrapper.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── Fila de tiempo (Días | Horas | Min | Seg) ──
+       Figma: REGRESIVA frame — HORIZONTAL layout, counterAxisAlignment CENTER */
+    .countdown-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      width: 100%;
+    }
+
+    /* Cada unidad (número + etiqueta) — Figma: VERTICAL layout, itemSpacing 20px */
+    .cd-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;                    /* ajustado visualmente */
+      flex: 1;
+      max-width: 80px;
+    }
+
+    /* Número: Inria Serif 33.34px, letter-spacing -3px
+       Figma: "00", fill #000, lh 39.97px */
+    .cd-num {
+      font-family: 'Inria Serif', serif;
+      font-weight: 400;
+      font-size: clamp(22px, 8.55vw, 52px);   /* 33.34/390 = 8.55vw */
+      line-height: 1.199;                       /* 39.97/33.34 */
+      letter-spacing: -3px;
+      color: #000000;
+      text-align: center;
+      width: 100%;
+    }
+
+    /* Etiqueta: Inria Serif 20.84px, letter-spacing -1.88px
+       Figma: "Días/Horas/Min/Seg", fill #000, lh 24.98px */
+    .cd-label {
+      font-family: 'Inria Serif', serif;
+      font-weight: 400;
+      font-size: clamp(14px, 5.34vw, 32px);   /* 20.84/390 = 5.34vw */
+      line-height: 1.199;                       /* 24.98/20.84 */
+      letter-spacing: -1.88px;
+      color: #000000;
+      text-align: center;
+      width: 100%;
+    }
+
+    /* Separador — Figma: línea vertical 3px, stroke #000, opacity 0.5
+       El frame separador es 20px ancho con padding 10px c/lado → línea visible */
+    .cd-sep {
+      width: 20px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      align-self: stretch;
+    }
+
+    .cd-sep::after {
+      content: '';
+      display: block;
+      width: 3px;
+      height: 75%;
+      background: #000000;
+      opacity: 0.5;
+      border-radius: 1px;
+    }
+
+    /* "22 NOVIEMBRE 2027"
+       Figma: Inria Serif 32px, #000, center, lh 38.37px
+       Forma parte del bloque countdown; aparece con el wrapper */
+    .wedding-date {
+      font-family: 'Inria Serif', serif;
+      font-weight: 400;
+      font-size: clamp(20px, 8.2vw, 50px);    /* 32/390 = 8.2vw */
+      line-height: 1.199;                       /* 38.37/32 */
+      color: #000000;
+      text-align: center;
+      letter-spacing: 0;
+      width: 100%;
+      margin-top: 2px;
+
+      /* Aparece con delay respecto al wrapper vía clase del padre */
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.2s,
+                  transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
+    }
+
+    /* La fecha se activa cuando su padre .countdown-wrapper recibe .visible */
+    .countdown-wrapper.visible .wedding-date {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
     /* ══════════════════════════════════════════════
        KEYFRAMES
     ══════════════════════════════════════════════ */
 
-    /* Aparición con subida suave */
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(22px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* Pulso del texto "Toca para abrir" */
     @keyframes pulse {
       0%, 100% { opacity: 0.45; }
       50%       { opacity: 1; }
     }
 
-    /* Flotación suave del sobre */
     @keyframes float {
       0%, 100% { transform: translateY(0); }
       50%       { transform: translateY(-10px); }
     }
 
-    /* Sacudida al tocar */
     @keyframes shake {
-      0%, 100% { transform: rotate(0deg)   scale(1); }
+      0%, 100% { transform: rotate(0deg)    scale(1); }
       15%       { transform: rotate(-2.5deg) scale(1.02); }
       30%       { transform: rotate(2.5deg)  scale(1.04); }
       45%       { transform: rotate(-2deg)   scale(1.03); }
@@ -204,31 +340,817 @@
       80%       { transform: rotate(-1deg)   scale(1.01); }
     }
 
-    /* El sobre sube y desaparece */
     @keyframes flyUp {
-      0%   { transform: translateY(0)      scale(1)    rotate(0deg);  opacity: 1; }
-      25%  { transform: translateY(-18px)  scale(1.03) rotate(-1deg); opacity: 1; }
-      100% { transform: translateY(-115vh) scale(0.8)  rotate(3deg);  opacity: 0; }
+      0%   { transform: translateY(0)       scale(1)    rotate(0deg);  opacity: 1; }
+      25%  { transform: translateY(-18px)   scale(1.03) rotate(-1deg); opacity: 1; }
+      100% { transform: translateY(-115vh)  scale(0.8)  rotate(3deg);  opacity: 0; }
     }
 
     /* ══════════════════════════════════════════════
-       RESPONSIVE — DESKTOP
-       Mismo diseño, proporciones idénticas, escala mayor
+       FASE 3 · MESSAGE WELCOME
+       Figma node 12:107 — 390×800px, fondo #ffffff
     ══════════════════════════════════════════════ */
+    #screen-message-welcome {
+      background: #ffffff;
+      padding: 35px 0 34px;
+    }
 
-    /* Tablet 640px+ */
+    /* ── Imagen manos/anillo ─────────────────────
+       Figma: rect 390×293px, imageTransform Y scale=0.4053, offset=0.2368
+       object-position-Y: 0.2368 / (1 − 0.4053) ≈ 39.8%
+    ─────────────────────────────────────────────── */
+    .welcome-img-wrap {
+      width: 100%;
+      aspect-ratio: 390 / 293;
+      overflow: hidden;
+    }
+
+    .welcome-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: 50% 39.8%;
+      display: block;
+    }
+
+    /* ── Contenido: separador / nombre / texto / separador
+       Figma frame 14:53 — VERTICAL, itemSpacing 54px, counterAxisAlign CENTER
+       Margen top 19px = itemSpacing del frame padre (14:56)
+    ─────────────────────────────────────────────── */
+    .welcome-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 54px;
+      width: 100%;
+      max-width: 600px;
+      margin: 19px auto 0;
+    }
+
+    /* ── Separador SVG ──────────────────────────
+       separador.svg viewBox 810×1012
+       Banda visible: y=395–479 (84px SVG)
+       translateY: −395/1012 × 100% = −39.03%
+    ─────────────────────────────────────────────── */
+    .sep-wrap {
+      width: 100%;
+      aspect-ratio: 810 / 84;
+      overflow: hidden;
+    }
+
+    .sep-wrap img {
+      width: 100%;
+      display: block;
+      transform: translateY(-39.03%);
+    }
+
+    /* Rotación 180° = Figma rotation: −π (separador inferior) */
+    .sep-bottom {
+      transform: rotate(180deg);
+    }
+
+    /* ── "Marco y Alejandra"
+       Figma: Updock Regular 53px, #000, center, lh 66.25px (1.25)
+    ─────────────────────────────────────────────── */
+    .welcome-names {
+      font-family: 'Updock', serif;
+      font-weight: 400;
+      font-size: clamp(34px, 13.6vw, 80px);   /* 53/390 = 13.59vw */
+      line-height: 1.25;                        /* 66.25/53 — Figma */
+      color: #000000;
+      text-align: center;
+      letter-spacing: 0;
+      width: 100%;
+
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .welcome-names.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── Texto cuerpo
+       Figma: Updock Regular 36px, #000, center, lh 33.19px (0.922)
+       Ancho 251px / 390px = 64.4%
+    ─────────────────────────────────────────────── */
+    .welcome-body {
+      font-family: 'Updock', serif;
+      font-weight: 400;
+      font-size: clamp(23px, 9.23vw, 55px);    /* 36/390 = 9.23vw */
+      line-height: 0.922;                        /* 33.19/36 — Figma */
+      color: #000000;
+      text-align: center;
+      letter-spacing: 0;
+      width: 64.4%;                              /* 251/390 — Figma */
+
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .welcome-body.visible { opacity: 1; transform: translateY(0); }
+
+    /* ══════════════════════════════════════════════
+       FASE 4 · GALERÍA
+       Figma node 14:678 — 390×579px, fondo #ffffff
+    ══════════════════════════════════════════════ */
+    #screen-gallery {
+      background: #ffffff;
+      padding: 50px 0 64px;
+    }
+
+    /* "Se parte de nuestra historia..."
+       Figma: Updock Regular 40px, #000, center, lh 36.88px (0.922) */
+    .gallery-title {
+      font-family: 'Updock', serif;
+      font-weight: 400;
+      font-size: clamp(26px, 10.26vw, 62px);   /* 40/390 = 10.26vw */
+      line-height: 0.922;                        /* 36.88/40 — Figma */
+      color: #000000;
+      text-align: center;
+      letter-spacing: 0;
+      padding: 0 10px;
+      width: 100%;
+
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .gallery-title.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── Feed vertical de polaroids ──────────────── */
+    .gallery-feed {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+      margin-top: 44px;
+      padding: 0 20px 20px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ── Carta polaroid ──────────────────────────
+       Sin recorte adicional — las fotos ya tienen su propio formato.
+       Solo sombra sutil para separación visual.
+    ─────────────────────────────────────────────── */
+    .polaroid {
+      width: min(300px, 78vw);
+      box-shadow: 0 4px 22px rgba(0,0,0,0.13);
+
+      /* Estado inicial: arriba y transparente */
+      opacity: 0;
+      transform: translateY(-110px) rotate(var(--rot, 0deg));
+    }
+
+    /* Rotaciones alternadas para sensación orgánica */
+    .polaroid:nth-child(1) { --rot: -2.5deg; }
+    .polaroid:nth-child(2) { --rot:  2.0deg; }
+    .polaroid:nth-child(3) { --rot: -3.5deg; }
+    .polaroid:nth-child(4) { --rot:  1.5deg; }
+    .polaroid:nth-child(5) { --rot: -2.0deg; }
+    .polaroid:nth-child(6) { --rot:  3.0deg; }
+    .polaroid:nth-child(7) { --rot: -1.5deg; }
+
+    /* Keyframe: caída con rebote físico */
+    @keyframes polaroidFall {
+      0%   { opacity: 0; transform: translateY(-110px) rotate(var(--rot)) scale(0.94); }
+      55%  { opacity: 1; transform: translateY(7px)    rotate(var(--rot)) scale(1.01); }
+      75%  { transform: translateY(-3px) rotate(var(--rot)); }
+      90%  { transform: translateY(2px)  rotate(var(--rot)); }
+      100% { opacity: 1; transform: translateY(0)      rotate(var(--rot)); }
+    }
+
+    /* Keyframe: movimiento continuo suave después de aterrizar */
+    @keyframes polaroidSway {
+      0%, 100% { transform: translateY(0)   rotate(var(--rot)); }
+      40%       { transform: translateY(-5px) rotate(calc(var(--rot) + 0.5deg)); }
+      70%       { transform: translateY(-2px) rotate(calc(var(--rot) - 0.4deg)); }
+    }
+
+    .polaroid.landed {
+      animation: polaroidFall 0.75s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* Foto — se muestra tal como es, sin recorte */
+    .polaroid-img {
+      width: 100%;
+      display: block;
+    }
+
+    /* ══════════════════════════════════════════════
+       FASE 5 · ITINERARIO
+       Figma node 14:57 — 390×1581px, fondo #ffffff
+    ══════════════════════════════════════════════ */
+    #screen-itinerario {
+      background: #ffffff;
+      padding: 55px 0 60px;
+    }
+
+    /* "Itinerario" — Updock 48px, lh 44.3px (0.923) */
+    .itinerario-title {
+      font-family: 'Updock', serif;
+      font-weight: 400;
+      font-size: clamp(30px, 12.3vw, 74px);   /* 48/390 = 12.3vw */
+      line-height: 0.923;                       /* 44.3/48 — Figma */
+      color: #000000;
+      text-align: center;
+      letter-spacing: 0;
+      width: 100%;
+      margin-bottom: 48px;
+
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .itinerario-title.visible { opacity: 1; transform: translateY(0); }
+
+    /* Columna de 7 eventos */
+    .itinerario-events {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Fila de evento: ilustración + texto
+       padding lateral 11.5% ≈ 45px/390px — exacto de Figma */
+    .itinerario-event {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      padding: 0 11.5%;
+
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .itinerario-event.visible { opacity: 1; transform: translateY(0); }
+
+    /* Eventos pares → imagen a la derecha, texto a la izquierda */
+    .itinerario-event:nth-child(even) { flex-direction: row-reverse; }
+
+    /* ── Ilustración SVG ─────────────────────────
+       51% del ancho disponible ≈ 154/302 de Figma
+    ─────────────────────────────────────────────── */
+    .itinerario-img-wrap {
+      width: 51%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Movimiento sutil y elegante — floteo vertical suave */
+    .itinerario-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      animation: iconBob 4s ease-in-out infinite;
+    }
+
+    /* Duraciones y delays únicos por evento — evita sincronía */
+    .itinerario-event:nth-child(1) .itinerario-img { animation-duration: 4.0s; animation-delay: 0.0s; }
+    .itinerario-event:nth-child(2) .itinerario-img { animation-duration: 4.6s; animation-delay: 0.7s; }
+    .itinerario-event:nth-child(3) .itinerario-img { animation-duration: 3.8s; animation-delay: 0.3s; }
+    .itinerario-event:nth-child(4) .itinerario-img { animation-duration: 4.3s; animation-delay: 1.1s; }
+    .itinerario-event:nth-child(5) .itinerario-img { animation-duration: 3.6s; animation-delay: 0.5s; }
+    .itinerario-event:nth-child(6) .itinerario-img { animation-duration: 4.8s; animation-delay: 0.9s; }
+    .itinerario-event:nth-child(7) .itinerario-img { animation-duration: 4.1s; animation-delay: 0.2s; }
+
+    @keyframes iconBob {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-5px); }
+    }
+
+    /* ── Bloque de texto del evento ─────────────── */
+    .itinerario-text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 0;
+    }
+
+    /* Título del evento — Updock 32px, lh 29.5px (0.922) */
+    .event-title {
+      font-family: 'Updock', serif;
+      font-weight: 400;
+      font-size: clamp(20px, 8.2vw, 50px);    /* 32/390 = 8.2vw */
+      line-height: 0.922;                       /* 29.5/32 — Figma */
+      color: #000000;
+      text-align: center;
+      letter-spacing: 0;
+      width: 100%;
+    }
+
+    /* Descripción — Inria Serif 14px, lh 12.9px (0.921) */
+    .event-desc {
+      font-family: 'Inria Serif', serif;
+      font-weight: 400;
+      font-size: clamp(11px, 3.59vw, 22px);   /* 14/390 = 3.59vw */
+      line-height: 0.921;                       /* 12.9/14 — Figma */
+      color: #000000;
+      text-align: center;
+      letter-spacing: 0;
+      width: 100%;
+      margin-top: 3px;
+    }
+
+    /* ── Link Ubicación Google Maps ──────────────
+       Figma: map-pin-line.svg 26×26px + texto 12px
+       gap=8px, centrado horizontal
+    ─────────────────────────────────────────────── */
+    .maps-link {
+      display: inline-flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      color: #000000;
+      margin-top: 7px;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .maps-pin {
+      width: clamp(16px, 6.15vw, 26px);    /* 26/390 = 6.15vw */
+      height: clamp(16px, 6.15vw, 26px);
+      flex-shrink: 0;
+      display: block;
+    }
+
+    .maps-link-text {
+      font-family: 'Inria Serif', serif;
+      font-weight: 400;
+      font-size: clamp(10px, 3.08vw, 18px);   /* 12/390 = 3.08vw */
+      line-height: 0.925;                       /* 11.1/12 — Figma */
+      color: #000000;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    /* ══════════════════════════════════════════════
+       FASE 6 · DRESS CODE GALERÍA
+       Figma node 17:1953 — 390×579px, fondo #ffffff
+    ══════════════════════════════════════════════ */
+    #screen-dresscode {
+      background: #ffffff;
+      padding: 51px 0 48px;
+    }
+
+    /* "Dress Code" — Updock 48px, lh 44.26px (0.922)
+       Figma: x=276 y=4025 → centrado en 390px, offset top 51px */
+    .dresscode-title {
+      font-family: 'Updock', serif;
+      font-weight: 400;
+      font-size: clamp(30px, 12.3vw, 74px);   /* 48/390 = 12.3vw */
+      line-height: 0.922;                       /* 44.26/48 — Figma */
+      color: #000000;
+      text-align: center;
+      letter-spacing: 0;
+      width: 100%;
+      margin-bottom: 40px;
+
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .dresscode-title.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── Mosaico 2+3 ─────────────────────────────
+       Row 1: img1 (2/3 ancho) + img2 (1/3 ancho)
+       Row 2: img3 · img4 · img5 (tercios iguales)
+       Alturas calibradas a 390px de referencia Figma
+    ─────────────────────────────────────────────── */
+    .dress-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-rows: min(220px, 56.4vw) min(220px, 56.4vw);
+      gap: 3px;
+      width: 100%;
+      padding: 0;
+    }
+
+    /* img1 ocupa las 2 primeras columnas */
+    .dress-item:nth-child(1) { grid-column: 1 / 3; }
+
+    /* Celda de imagen */
+    .dress-item {
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+
+      /* Scroll reveal */
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .dress-item.visible { opacity: 1; transform: translateY(0); }
+
+    /* Zoom suave al hacer hover */
+    .dress-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .dress-item:hover .dress-img,
+    .dress-item:focus .dress-img { transform: scale(1.05); }
+
+    /* ── LIGHTBOX ─────────────────────────────────
+       Overlay oscuro, slider sin solapamiento
+    ─────────────────────────────────────────────── */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.93);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .lightbox.open {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    /* Ventana visible — oculta las imágenes fuera de foco */
+    .lb-viewport {
+      width: 94vw;
+      max-width: 560px;
+      overflow: hidden;      /* clave: evita que se empalmen */
+      flex-shrink: 0;
+    }
+
+    /* Track horizontal que contiene todas las diapositivas */
+    .lb-track {
+      display: flex;
+      flex-direction: row;
+      will-change: transform;
+      transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Cada diapositiva ocupa exactamente el 100% del viewport */
+    .lb-slide {
+      flex: 0 0 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 80vh;
+    }
+
+    .lb-slide img {
+      max-width: 100%;
+      max-height: 80vh;
+      object-fit: contain;
+      display: block;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    /* Botón cerrar */
+    .lb-close {
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      background: none;
+      border: none;
+      color: #ffffff;
+      font-size: 30px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 8px;
+      z-index: 1001;
+      opacity: 0.85;
+      transition: opacity 0.2s ease;
+    }
+    .lb-close:hover { opacity: 1; }
+
+    /* Flechas de navegación */
+    .lb-prev, .lb-next {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255,255,255,0.12);
+      border: none;
+      color: #ffffff;
+      font-size: 36px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 14px 18px;
+      z-index: 1001;
+      transition: background 0.2s ease;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .lb-prev { left: 0; border-radius: 0 4px 4px 0; }
+    .lb-next { right: 0; border-radius: 4px 0 0 4px; }
+    .lb-prev:hover, .lb-next:hover { background: rgba(255,255,255,0.28); }
+
+    /* Contador  1 / 5 */
+    .lb-counter {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Inria Serif', serif;
+      font-size: clamp(12px, 3.08vw, 16px);
+      color: rgba(255,255,255,0.65);
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    /* ══════════════════════════════════════════════
+       FASE 8 · CONFIRMACIÓN
+       Figma node 18:1971 — 390×702px, fondo blanco
+       Color acento: #321D4E | Inputs: #E6E6E6 | Botón: #989898
+    ══════════════════════════════════════════════ */
+    #screen-confirmacion {
+      background: #ffffff;
+      padding: 52px 0 47px;
+      text-align: center;
+    }
+
+    /* Cabecera — centrada, full ancho */
+    .confirm-header {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    /* "¡No podemos esperar a verte!..." — Updock 34px, lh 1.25 */
+    .confirm-body-text {
+      font-family: 'Updock', serif;
+      font-weight: 400;
+      font-size: clamp(22px, 8.72vw, 52px);
+      line-height: 1.25;
+      color: #321D4E;
+      text-align: center;
+    }
+
+    /* "EVENTO SOLO PARA ADULTOS" — Montserrat 14.76px, mismo morado */
+    .confirm-notice {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 400;
+      font-size: clamp(8px, 2.56vw, 14px);
+      color: #321D4E;
+      text-align: center;
+      margin: 18px 0 18px;
+    }
+
+    /* Formulario — 295px de ancho (Figma), alineado izq. para labels */
+    .confirm-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: min(295px, 75.6vw);
+      margin: 20px auto 0;
+      text-align: left;
+    }
+
+    /* Campo individual */
+    .confirm-field {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Label — Montserrat 14.76px, morado, padding Figma: 10px */
+    .confirm-label {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 400;
+      font-size: clamp(10px, 3.78vw, 22px);
+      color: #321D4E;
+      padding: 10px 10px 5px;
+    }
+
+    /* Input de texto / número — fondo #E6E6E6, sin borde */
+    .confirm-input {
+      width: 100%;
+      height: min(38px, 9.74vw);
+      background: #E6E6E6;
+      border: none;
+      outline: none;
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(11px, 3.59vw, 16px);
+      color: #321D4E;
+      padding: 0 10px;
+      -webkit-appearance: none;
+      border-radius: 0;
+    }
+
+    /* Textarea para el mensaje — rectángulo Figma: 275×101px + 10px padding */
+    .confirm-textarea {
+      width: 100%;
+      height: min(101px, 25.9vw);
+      background: #E6E6E6;
+      border: none;
+      outline: none;
+      font-family: 'Montserrat', sans-serif;
+      font-size: clamp(11px, 3.59vw, 16px);
+      color: #321D4E;
+      padding: 10px;
+      resize: none;
+      border-radius: 0;
+    }
+
+    /* Botón CONFIRMAR — 161×54px, fondo #989898, Montserrat Bold 16px blanco */
+    .confirm-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: min(161px, 41.3vw);
+      height: min(54px, 13.8vw);
+      background: #989898;
+      border: none;
+      cursor: pointer;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 700;
+      font-size: clamp(11px, 4.1vw, 16px);
+      color: #ffffff;
+      letter-spacing: 0;
+      align-self: center;
+      margin-top: 10px;
+      -webkit-tap-highlight-color: transparent;
+      border-radius: 0;
+    }
+
+    /* Outline de error en campos requeridos vacíos */
+    .confirm-input.error,
+    .confirm-textarea.error {
+      outline: 2px solid #321D4E;
+    }
+
+    /* ══════════════════════════════════════════════
+       FASE 7 · MESA DE REGALOS
+       Figma node 18:1958 — 390×578px, fondo blanco
+       Padding: 62px top/bottom | Contenido: 321px
+       Gap externo: 20px | Gap título-desc: 25px
+    ══════════════════════════════════════════════ */
+    #screen-gifttable {
+      background: #ffffff;
+      padding: 62px 0;
+      text-align: center;
+    }
+
+    /* Wrapper centrado — 321px en frame de 390px = 82.3% */
+    .gifttable-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      width: min(321px, 82.3vw);
+      margin: 0 auto;
+    }
+
+    /* Bloque título + descripción con gap=25px (Figma frame 11) */
+    .gifttable-header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 25px;
+      width: 100%;
+    }
+
+    /* "Mesa de Regalos" — Updock 48px, lh 0.922 */
+    .gifttable-title {
+      font-family: 'Updock', serif;
+      font-weight: 400;
+      font-size: clamp(30px, 12.3vw, 74px);
+      line-height: 0.922;
+      color: #000000;
+      letter-spacing: 0;
+    }
+
+    /* Descripción — Inria Serif 24px, lh 1.199 (28.78/24) */
+    .gifttable-desc {
+      font-family: 'Inria Serif', serif;
+      font-weight: 400;
+      font-size: clamp(15px, 6.15vw, 38px);
+      line-height: 1.199;
+      color: #000000;
+    }
+
+    /* Botones Amazon / Liverpool — 241×67px en frame de 390px
+       background: grafic/boton.png (misma imagen para ambos) */
+    .gift-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: min(241px, 61.8vw);
+      height: min(67px, 17.18vw);
+      background-image: url('grafic/boton.png');
+      background-size: cover;
+      background-position: center 50%;
+      text-decoration: none;
+      color: #000000;
+      font-family: 'Inria Serif', serif;
+      font-weight: 400;
+      font-size: clamp(9px, 4.1vw, 28px);
+      letter-spacing: 0.1em;
+      padding: 0 22%;
+    }
+
+    /* BBVA — Inria Serif 24px, misma escala que descripción */
+    .gifttable-bbva {
+      font-family: 'Inria Serif', serif;
+      font-weight: 400;
+      font-size: clamp(15px, 6.15vw, 38px);
+      line-height: 1.199;
+      color: #000000;
+    }
+
+    /* ══════════════════════════════════════════════
+       RESPONSIVE · DESKTOP
+       Mismas proporciones, escala mayor
+    ══════════════════════════════════════════════ */
     @media (min-width: 640px) {
-      .pres-content {
-        gap: clamp(20px, 3.5vw, 32px); /* gap escala con pantalla */
+      .hero-info {
+        padding: 28px 20px 60px;
+        max-width: 580px;
       }
     }
 
-    /* Desktop 1024px+ */
     @media (min-width: 1024px) {
-      .pres-content {
-        padding: 0; /* sin padding extra, el container gestiona el ancho */
+      /* Imagen centrada con max-width proporcional */
+      .hero-img-wrap {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      .hero-info {
+        max-width: 600px;
+        padding: 32px 24px 80px;
+      }
+
+      #screen-hero {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .welcome-img-wrap {
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      #screen-message-welcome {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      #screen-gallery {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .polaroid {
+        width: min(360px, 78vw);
+      }
+
+      #screen-itinerario {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      #screen-dresscode {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .dress-grid {
+        max-width: 600px;
+      }
+
+      #screen-gifttable {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
     }
+
   </style>
 </head>
 <body>
@@ -242,7 +1164,7 @@
       <!-- "Para una persona muy especial..." — Updock 48px (Figma) -->
       <p class="pre-text">Para una persona<br>muy especial...</p>
 
-      <!-- Sobre animado — sobre.png recortado a 390:209 (Figma) -->
+      <!-- Sobre animado -->
       <div
         class="envelope-scene"
         id="envelopeScene"
@@ -255,7 +1177,7 @@
             <img
               src="grafic/sobre.png"
               class="envelope-img"
-              alt="Sobre de invitación de boda"
+              alt="Sobre de invitación"
               draggable="false"
             >
           </div>
@@ -270,11 +1192,434 @@
 
 
   <!-- ══════════════════════════════════════════════
-       FASE 2 · HERO (se construirá en siguiente fase)
+       FASE 2 · HERO
+       Figma node 11:2 — frame 390×844, fondo blanco
   ══════════════════════════════════════════════ -->
   <section id="screen-hero" aria-hidden="true">
-    <!-- Hero content — Fase 2 -->
-  </section>
+
+    <!-- IMG: hero.png 390×641 en Figma.
+         object-fit:cover + object-position:top replica imageTransform Y=0.9241 ✓ -->
+    <div class="hero-img-wrap">
+      <img
+        src="grafic/hero.png"
+        class="hero-img"
+        alt="Carlos y Alejandra"
+        loading="eager"
+      >
+    </div>
+
+    <!-- SAVE THE DATE + Countdown + Fecha -->
+    <div class="hero-info">
+
+      <!-- "SAVE THE DATE" — Inria Serif 40px (Figma node 11:6) -->
+      <h2 class="save-the-date" data-animate>SAVE THE DATE</h2>
+
+      <!-- Countdown + fecha — Figma: "REGRESIVA" horizontal + "22 NOVIEMBRE 2027" debajo -->
+      <div class="countdown-wrapper" data-animate data-delay="0.15">
+
+        <!-- Fila de tiempo -->
+        <div class="countdown-row" id="countdown">
+
+          <!-- Días -->
+          <div class="cd-unit">
+            <span class="cd-num" id="cd-dias">00</span>
+            <span class="cd-label">Días</span>
+          </div>
+
+          <!-- Separador — Figma: línea vertical 3px, opacity 0.5 -->
+          <div class="cd-sep" aria-hidden="true"></div>
+
+          <!-- Horas -->
+          <div class="cd-unit">
+            <span class="cd-num" id="cd-horas">00</span>
+            <span class="cd-label">Horas</span>
+          </div>
+
+          <!-- Separador -->
+          <div class="cd-sep" aria-hidden="true"></div>
+
+          <!-- Minutos -->
+          <div class="cd-unit">
+            <span class="cd-num" id="cd-min">00</span>
+            <span class="cd-label">Min</span>
+          </div>
+
+          <!-- Separador -->
+          <div class="cd-sep" aria-hidden="true"></div>
+
+          <!-- Segundos -->
+          <div class="cd-unit">
+            <span class="cd-num" id="cd-seg">00</span>
+            <span class="cd-label">Seg</span>
+          </div>
+
+        </div><!-- .countdown-row -->
+
+        <!-- "22 NOVIEMBRE 2027" — Figma node 18:2000, Inria Serif 32px -->
+        <p class="wedding-date">22 NOVIEMBRE 2027</p>
+
+      </div><!-- .countdown-wrapper -->
+
+    </div><!-- .hero-info -->
+
+  </section><!-- #screen-hero -->
+
+
+  <!-- ══════════════════════════════════════════════
+       FASE 3 · MESSAGE WELCOME
+       Figma node 12:107 — 390×800px, fondo blanco
+  ══════════════════════════════════════════════ -->
+  <section id="screen-message-welcome">
+
+    <!-- IMG: manos con anillo — "message welcome.png"
+         Figma: 390×293px, imageTransform Y scale=0.4053, offset=0.2368
+         object-position: 50% 39.8% → muestra franja correcta ✓ -->
+    <div class="welcome-img-wrap">
+      <img
+        src="grafic/message welcome.png"
+        class="welcome-img"
+        alt="Marco y Alejandra"
+        loading="lazy"
+      >
+    </div>
+
+    <!-- Contenido: separador / nombre / texto / separador
+         Figma frame 14:53 — VERTICAL, gap=54px, align=CENTER -->
+    <div class="welcome-content">
+
+      <!-- Separador superior — separador.svg, banda y=395–479 del viewBox 810×1012 -->
+      <div class="sep-wrap" aria-hidden="true">
+        <img src="grafic/separador.svg" alt="">
+      </div>
+
+      <!-- "Marco y Alejandra" — Updock 53px (Figma node 12:108) -->
+      <h2 class="welcome-names" data-animate>Marco y Alejandra</h2>
+
+      <!-- ¡Nos casamos... — Updock 36px, width 64.4% (Figma node 13:116) -->
+      <p class="welcome-body" data-animate data-delay="0.15">¡Nos casamos y queremos celebrarlo con ustedes! Prepárense para una noche inolvidable.</p>
+
+      <!-- Separador inferior — mismo SVG, rotado 180° (Figma rotation: −π) -->
+      <div class="sep-wrap sep-bottom" aria-hidden="true">
+        <img src="grafic/separador.svg" alt="">
+      </div>
+
+    </div><!-- .welcome-content -->
+
+  </section><!-- #screen-message-welcome -->
+
+
+  <!-- ══════════════════════════════════════════════
+       FASE 4 · GALERÍA
+       Figma node 14:678 — 390×579px, fondo blanco
+  ══════════════════════════════════════════════ -->
+  <section id="screen-gallery">
+
+    <!-- "Se parte de nuestra historia..." — Updock 40px (Figma node 14:679) -->
+    <h2 class="gallery-title" data-animate>Se parte de nuestra historia...</h2>
+
+    <!-- Feed: 7 polaroids caen uno a uno (animación initGallery) -->
+    <div class="gallery-feed" id="galleryFeed">
+
+      <div class="polaroid">
+        <img class="polaroid-img" src="galeria/polaroid1.jpg" alt="Foto 1" loading="lazy">
+      </div>
+
+      <div class="polaroid">
+        <img class="polaroid-img" src="galeria/polaroid2.jpg" alt="Foto 2" loading="lazy">
+      </div>
+
+      <div class="polaroid">
+        <img class="polaroid-img" src="galeria/polaroid3.jpg" alt="Foto 3" loading="lazy">
+      </div>
+
+      <div class="polaroid">
+        <img class="polaroid-img" src="galeria/polaroid4.jpg" alt="Foto 4" loading="lazy">
+      </div>
+
+      <div class="polaroid">
+        <img class="polaroid-img" src="galeria/polaroid5.jpg" alt="Foto 5" loading="lazy">
+      </div>
+
+      <div class="polaroid">
+        <img class="polaroid-img" src="galeria/polaroid6.jpg" alt="Foto 6" loading="lazy">
+      </div>
+
+      <div class="polaroid">
+        <img class="polaroid-img" src="galeria/polaroid7.jpg" alt="Foto 7" loading="lazy">
+      </div>
+
+    </div><!-- .gallery-feed -->
+
+  </section><!-- #screen-gallery -->
+
+
+  <!-- ══════════════════════════════════════════════
+       FASE 5 · ITINERARIO
+       Figma node 14:57 — 390×1581px, fondo blanco
+       7 eventos alternando img-izq/texto-der
+  ══════════════════════════════════════════════ -->
+  <section id="screen-itinerario">
+
+    <!-- "Itinerario" — Updock 48px (Figma) -->
+    <h2 class="itinerario-title" data-animate>Itinerario</h2>
+
+    <div class="itinerario-events">
+
+      <!-- 1. Ceremonia Religiosa — img izq · texto der (impar) -->
+      <div class="itinerario-event" data-animate>
+        <div class="itinerario-img-wrap">
+          <img src="grafic/church.svg" class="itinerario-img" alt="" loading="lazy">
+        </div>
+        <div class="itinerario-text">
+          <h3 class="event-title">Ceremonia<br>Religiosa</h3>
+          <p class="event-desc">6:00 p.m.<br><br>Catedral de Nuestra<br>Señora de Guadalupe</p>
+          <a href="https://maps.app.goo.gl/oRg7FHtvqmwzXHVr9"
+             target="_blank" rel="noopener"
+             class="maps-link">
+            <img src="grafic/map-pin-line.svg" class="maps-pin" alt="">
+            <span class="maps-link-text">Ubicación Google Maps</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- 2. Recepción — img der · texto izq (par → row-reverse) -->
+      <div class="itinerario-event" data-animate data-delay="0.1">
+        <div class="itinerario-img-wrap">
+          <img src="grafic/reception.svg" class="itinerario-img" alt="" loading="lazy">
+        </div>
+        <div class="itinerario-text">
+          <h3 class="event-title">Recepción</h3>
+          <p class="event-desc">8:00 p.m.<br><br>Recibimiento de invitados<br>en "Salón Ozara".</p>
+          <a href="https://maps.app.goo.gl/HgUaNKvNo5D24YfZ8"
+             target="_blank" rel="noopener"
+             class="maps-link">
+            <img src="grafic/map-pin-line.svg" class="maps-pin" alt="">
+            <span class="maps-link-text">Ubicación Google Maps</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- 3. Primer Baile — img izq · texto der (impar) -->
+      <div class="itinerario-event" data-animate>
+        <div class="itinerario-img-wrap">
+          <img src="grafic/novios.svg" class="itinerario-img" alt="" loading="lazy">
+        </div>
+        <div class="itinerario-text">
+          <h3 class="event-title">Primer Baile</h3>
+          <p class="event-desc">8:40 p.m.<br><br>Presentación de esposos<br>y primer baile de casados</p>
+        </div>
+      </div>
+
+      <!-- 4. Brindis — img der · texto izq (par → row-reverse) -->
+      <div class="itinerario-event" data-animate data-delay="0.1">
+        <div class="itinerario-img-wrap">
+          <img src="grafic/brindis.svg" class="itinerario-img" alt="" loading="lazy">
+        </div>
+        <div class="itinerario-text">
+          <h3 class="event-title">Brindis</h3>
+          <p class="event-desc">9:10 p.m.<br><br>Palabras por padrinos<br>de los novios:<br>Jose Antonio Morales<br>Reyna Villavicencio</p>
+        </div>
+      </div>
+
+      <!-- 5. Cena — img izq · texto der (impar) -->
+      <div class="itinerario-event" data-animate>
+        <div class="itinerario-img-wrap">
+          <img src="grafic/dinner.svg" class="itinerario-img" alt="" loading="lazy">
+        </div>
+        <div class="itinerario-text">
+          <h3 class="event-title">Cena</h3>
+          <p class="event-desc">9:40 p.m.<br><br>Se sirve cena y se abre<br>mesa de postres</p>
+        </div>
+      </div>
+
+      <!-- 6. Baile — img der · texto izq (par → row-reverse) -->
+      <div class="itinerario-event" data-animate data-delay="0.1">
+        <div class="itinerario-img-wrap">
+          <img src="grafic/baile.svg" class="itinerario-img" alt="" loading="lazy">
+        </div>
+        <div class="itinerario-text">
+          <h3 class="event-title">Baile</h3>
+          <p class="event-desc">10:40 p.m.<br><br>Se abre la pista de<br>baile para todos</p>
+        </div>
+      </div>
+
+      <!-- 7. Fin — img izq · texto der (impar) -->
+      <div class="itinerario-event" data-animate>
+        <div class="itinerario-img-wrap">
+          <img src="grafic/fin.svg" class="itinerario-img" alt="" loading="lazy">
+        </div>
+        <div class="itinerario-text">
+          <h3 class="event-title">Fin</h3>
+          <p class="event-desc">1:00 a.m.<br><br>Finaliza el evento</p>
+        </div>
+      </div>
+
+    </div><!-- .itinerario-events -->
+
+  </section><!-- #screen-itinerario -->
+
+
+  <!-- ══════════════════════════════════════════════
+       FASE 6 · DRESS CODE GALERÍA
+       Figma node 17:1953 — 390×579px, fondo blanco
+  ══════════════════════════════════════════════ -->
+  <section id="screen-dresscode">
+
+    <!-- "Dress Code" — Updock 48px (Figma node 17:1954) -->
+    <h2 class="dresscode-title" data-animate>Dress Code</h2>
+
+    <!-- Mosaico 2+3: img1 ocupa 2 columnas (row 1), img2-5 una cada una -->
+    <div class="dress-grid">
+
+      <div class="dress-item" data-animate data-delay="0.05" data-index="0" tabindex="0" role="button" aria-label="Abrir imagen 1">
+        <img src="dress%20code%20galeria/dress1.png" class="dress-img" alt="Dress code 1" loading="lazy">
+      </div>
+
+      <div class="dress-item" data-animate data-delay="0.1" data-index="1" tabindex="0" role="button" aria-label="Abrir imagen 2">
+        <img src="dress%20code%20galeria/dress2.png" class="dress-img" alt="Dress code 2" loading="lazy">
+      </div>
+
+      <div class="dress-item" data-animate data-delay="0.15" data-index="2" tabindex="0" role="button" aria-label="Abrir imagen 3">
+        <img src="dress%20code%20galeria/dress3.png" class="dress-img" alt="Dress code 3" loading="lazy">
+      </div>
+
+      <div class="dress-item" data-animate data-delay="0.2" data-index="3" tabindex="0" role="button" aria-label="Abrir imagen 4">
+        <img src="dress%20code%20galeria/dress4.png" class="dress-img" alt="Dress code 4" loading="lazy">
+      </div>
+
+      <div class="dress-item" data-animate data-delay="0.25" data-index="4" tabindex="0" role="button" aria-label="Abrir imagen 5">
+        <img src="dress%20code%20galeria/dress5.png" class="dress-img" alt="Dress code 5" loading="lazy">
+      </div>
+
+    </div><!-- .dress-grid -->
+
+  </section><!-- #screen-dresscode -->
+
+
+  <!-- ── LIGHTBOX (compartido para dress code) ──────────────
+       .lb-track desliza horizontalmente; overflow:hidden en
+       .lb-viewport evita que las imágenes se empalmen.
+  ─────────────────────────────────────────────────────────── -->
+  <div id="dressLightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Galería Dress Code">
+
+    <!-- Cerrar -->
+    <button class="lb-close" id="lbClose" aria-label="Cerrar">&times;</button>
+
+    <!-- Track del slider -->
+    <div class="lb-viewport" id="lbViewport">
+      <div class="lb-track" id="lbTrack">
+        <div class="lb-slide"><img alt="Dress code 1"></div>
+        <div class="lb-slide"><img alt="Dress code 2"></div>
+        <div class="lb-slide"><img alt="Dress code 3"></div>
+        <div class="lb-slide"><img alt="Dress code 4"></div>
+        <div class="lb-slide"><img alt="Dress code 5"></div>
+      </div>
+    </div>
+
+    <!-- Flechas -->
+    <button class="lb-prev" id="lbPrev" aria-label="Imagen anterior">&#8249;</button>
+    <button class="lb-next" id="lbNext" aria-label="Imagen siguiente">&#8250;</button>
+
+    <!-- Contador -->
+    <span class="lb-counter" id="lbCounter">1 / 5</span>
+
+  </div><!-- #dressLightbox -->
+
+
+  <!-- ══════════════════════════════════════════════
+       FASE 7 · MESA DE REGALOS
+       Figma node 18:1958 — 390×578px, fondo blanco
+  ══════════════════════════════════════════════ -->
+  <section id="screen-gifttable">
+
+    <div class="gifttable-content">
+
+      <!-- Frame 11: título + descripción (gap=25px entre ellos) -->
+      <div class="gifttable-header">
+
+        <!-- "Mesa de Regalos" — Updock 48px -->
+        <h2 class="gifttable-title" data-animate>Mesa de Regalos</h2>
+
+        <!-- Descripción — Inria Serif 24px -->
+        <p class="gifttable-desc" data-animate data-delay="0.1">
+          Más que un regalo, valoramos tu compañía. Sin embargo,
+          si nace de ti un presente, puedes hacerlo aquí:
+        </p>
+
+      </div>
+
+      <!-- Botón Amazon → amazon.com.mx (demo) -->
+      <a href="https://www.amazon.com.mx"
+         target="_blank" rel="noopener"
+         class="gift-btn" data-animate data-delay="0.15"
+         aria-label="Tienda Amazon México">
+        AMAZON
+      </a>
+
+      <!-- Botón Liverpool → liverpool.com.mx (demo) -->
+      <a href="https://www.liverpool.com.mx"
+         target="_blank" rel="noopener"
+         class="gift-btn" data-animate data-delay="0.2"
+         aria-label="Tienda Liverpool México">
+        LIVERPOOL
+      </a>
+
+      <!-- Cuenta BBVA — Inria Serif 24px -->
+      <p class="gifttable-bbva" data-animate data-delay="0.25">
+        BBVA 43843984835
+      </p>
+
+    </div>
+
+  </section><!-- #screen-gifttable -->
+
+
+  <!-- ══════════════════════════════════════════════
+       FASE 8 · CONFIRMACIÓN
+       Figma node 18:1971 — 390×702px, fondo blanco
+       Envía a WhatsApp 526862362512
+  ══════════════════════════════════════════════ -->
+  <section id="screen-confirmacion">
+
+    <!-- Cabecera: Updock + aviso -->
+    <div class="confirm-header">
+      <p class="confirm-body-text" data-animate>
+        ¡No podemos esperar a verte!<br>
+        Por favor, confírmanos tu<br>
+        asistencia lo antes posible para<br>
+        esperarte con todo listo
+      </p>
+      <p class="confirm-notice" data-animate>EVENTO SOLO PARA ADULTOS</p>
+    </div>
+
+    <!-- Formulario de confirmación -->
+    <form class="confirm-form" id="confirmForm" novalidate>
+
+      <div class="confirm-field">
+        <label class="confirm-label" for="cfNombre">Nombre</label>
+        <input type="text" id="cfNombre" class="confirm-input" autocomplete="given-name">
+      </div>
+
+      <div class="confirm-field">
+        <label class="confirm-label" for="cfApellido">Apellido</label>
+        <input type="text" id="cfApellido" class="confirm-input" autocomplete="family-name">
+      </div>
+
+      <div class="confirm-field">
+        <label class="confirm-label" for="cfPersonas">Número de personas</label>
+        <input type="number" id="cfPersonas" class="confirm-input" min="1" max="50">
+      </div>
+
+      <div class="confirm-field">
+        <label class="confirm-label" for="cfMensaje">Mensaje lindo para novios</label>
+        <textarea id="cfMensaje" class="confirm-textarea"></textarea>
+      </div>
+
+      <button type="submit" class="confirm-btn">CONFIRMAR</button>
+
+    </form>
+
+  </section><!-- #screen-confirmacion -->
 
 
   <!-- Canción de fondo -->
@@ -282,6 +1627,9 @@
 
 
   <script>
+    /* ══════════════════════════════════════════════
+       SOBRE — APERTURA
+    ══════════════════════════════════════════════ */
     (function () {
       'use strict';
 
@@ -293,67 +1641,327 @@
       const music  = document.getElementById('weddingMusic');
       let   opened = false;
 
-      /* Soporta click, teclado y touch */
-      scene.addEventListener('click',      handleOpen);
-      scene.addEventListener('keydown',    e => { if (e.key === 'Enter' || e.key === ' ') handleOpen(); });
-      scene.addEventListener('touchstart', e => { e.preventDefault(); handleOpen(); }, { passive: false });
+      scene.addEventListener('click',      open);
+      scene.addEventListener('keydown',    e => { if (e.key === 'Enter' || e.key === ' ') open(); });
+      scene.addEventListener('touchstart', e => { e.preventDefault(); open(); }, { passive: false });
 
-      function handleOpen() {
+      function open() {
         if (opened) return;
         opened = true;
 
-        /* 1 · Ocultar "Toca para abrir" */
         hint.classList.add('hide');
 
-        /* 2 · Detener flotación + sacudir el sobre */
         wrap.classList.add('no-float');
-        wrap.style.animation = 'shake 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+        wrap.style.animation = 'flyUp 0.7s cubic-bezier(0.55, 0, 1, 0.45) forwards';
 
-        /* 3 · Música con fade-in suave (comienza tras la sacudida) */
-        setTimeout(() => fadeInMusic(music, 0.8, 1600), 250);
+        setTimeout(() => fadeInMusic(music, 0.8, 1200), 0);
 
-        /* 4 · Sobre vuela hacia arriba y desaparece */
-        setTimeout(() => {
-          wrap.style.animation = 'flyUp 0.9s cubic-bezier(0.55, 0, 1, 0.45) forwards';
-        }, 1000);
-
-        /* 5 · Mostrar hero y cerrar pantalla de presentación */
         setTimeout(() => {
           pres.classList.add('closing');
           hero.classList.add('visible');
           hero.removeAttribute('aria-hidden');
           document.body.classList.add('unlocked');
-        }, 1700);
+          initScrollAnimations();
+          initCountdown();
+          initGallery();
+          initDressCode();
+          initConfirmForm();
+        }, 500);
 
-        /* 6 · Remover del DOM para liberar memoria */
         setTimeout(() => {
           pres.style.display = 'none';
-        }, 2700);
+        }, 1500);
       }
 
       function fadeInMusic(el, targetVol, durationMs) {
         el.volume = 0;
-
         el.play().catch(() => {
-          /* Autoplay bloqueado — reintentar en próximo gesto del usuario */
           const retry = () => el.play().catch(() => {});
           document.addEventListener('click',      retry, { once: true });
           document.addEventListener('touchstart', retry, { once: true });
         });
-
-        const steps    = 40;
-        const interval = durationMs / steps;
-        const step     = targetVol / steps;
-        let   current  = 0;
-
-        const timer = setInterval(() => {
-          current = Math.min(current + step, targetVol);
-          el.volume = current;
-          if (current >= targetVol) clearInterval(timer);
+        const steps = 40, interval = durationMs / steps, step = targetVol / steps;
+        let vol = 0;
+        const t = setInterval(() => {
+          vol = Math.min(vol + step, targetVol);
+          el.volume = vol;
+          if (vol >= targetVol) clearInterval(t);
         }, interval);
       }
-
     })();
+
+
+    /* ══════════════════════════════════════════════
+       ANIMACIONES DE SCROLL (Intersection Observer)
+       Textos aparecen conforme se hace scroll
+    ══════════════════════════════════════════════ */
+    function initScrollAnimations() {
+      const elements = document.querySelectorAll('[data-animate]');
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const el = entry.target;
+            const delay = parseFloat(el.dataset.delay || 0);
+            setTimeout(() => el.classList.add('visible'), delay * 1000);
+            observer.unobserve(el);
+          }
+        });
+      }, {
+        threshold: 0.2,
+        rootMargin: '0px 0px -40px 0px'
+      });
+
+      elements.forEach(el => observer.observe(el));
+
+      /* Si el elemento ya está en viewport al cargar, actívalo también */
+      setTimeout(() => {
+        elements.forEach(el => {
+          const rect = el.getBoundingClientRect();
+          if (rect.top < window.innerHeight * 0.85) {
+            const delay = parseFloat(el.dataset.delay || 0);
+            setTimeout(() => el.classList.add('visible'), delay * 1000);
+          }
+        });
+      }, 100);
+    }
+
+
+    /* ══════════════════════════════════════════════
+       CUENTA REGRESIVA
+       Target: 22 de noviembre de 2027
+    ══════════════════════════════════════════════ */
+    function initCountdown() {
+      const target = new Date('2027-11-22T00:00:00');
+
+      const elDias  = document.getElementById('cd-dias');
+      const elHoras = document.getElementById('cd-horas');
+      const elMin   = document.getElementById('cd-min');
+      const elSeg   = document.getElementById('cd-seg');
+
+      function pad(n) { return String(Math.max(0, n)).padStart(2, '0'); }
+
+      function update() {
+        const diff = target - new Date();
+        if (diff <= 0) {
+          elDias.textContent = elHoras.textContent = elMin.textContent = elSeg.textContent = '00';
+          return;
+        }
+        const d = Math.floor(diff / 86400000);
+        const h = Math.floor((diff % 86400000) / 3600000);
+        const m = Math.floor((diff % 3600000)  / 60000);
+        const s = Math.floor((diff % 60000)    / 1000);
+
+        elDias.textContent  = pad(d);
+        elHoras.textContent = pad(h);
+        elMin.textContent   = pad(m);
+        elSeg.textContent   = pad(s);
+      }
+
+      update();
+      setInterval(update, 1000);
+    }
+
+
+    /* ══════════════════════════════════════════════
+       GALERÍA — POLAROIDS QUE CAEN
+       Cada foto cae desde arriba en cascada de 350 ms
+       Se activa cuando el primer polaroid entra al viewport
+    ══════════════════════════════════════════════ */
+    function initGallery() {
+      const feed  = document.getElementById('galleryFeed');
+      if (!feed) return;
+
+      const cards = Array.from(feed.querySelectorAll('.polaroid'));
+
+      /* Duraciones de sway únicas por carta (sensación orgánica) */
+      const swayDurations = [3.8, 4.4, 3.2, 4.8, 3.6, 4.2, 3.5];
+      const swayDelays    = [0,   0.6, 1.1, 0.3, 0.9, 0.4, 1.3];
+
+      /* Al terminar polaroidFall → inicia polaroidSway continuo */
+      function attachSway(card, index) {
+        card.addEventListener('animationend', function onFall(e) {
+          if (e.animationName !== 'polaroidFall') return;
+          card.removeEventListener('animationend', onFall);
+          var dur   = swayDurations[index] || 4.0;
+          var delay = swayDelays[index]    || 0;
+          card.style.opacity   = '1';
+          card.style.animation = 'polaroidSway ' + dur + 's ease-in-out ' + delay + 's infinite';
+        });
+      }
+
+      /* Dispara la caída de todas las cartas con stagger de 350 ms */
+      function dropAll() {
+        cards.forEach(function (card, i) {
+          attachSway(card, i);
+          setTimeout(function () {
+            card.classList.add('landed');
+          }, i * 350);
+        });
+      }
+
+      /* Cada carta se observa individualmente —
+         al entrar al viewport cae. La primera activa la cascada. */
+      var dropped = false;
+      const observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting && !dropped) {
+            dropped = true;
+            dropAll();
+            observer.disconnect();
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '0px 0px -20px 0px' });
+
+      if (cards.length) {
+        observer.observe(cards[0]);
+      }
+    }
+
+
+    /* ══════════════════════════════════════════════
+       DRESS CODE — LIGHTBOX
+       Slider horizontal sin solapamiento.
+       overflow:hidden en .lb-viewport garantiza que
+       solo se vea una imagen a la vez durante el slide.
+    ══════════════════════════════════════════════ */
+    function initDressCode() {
+      var SRCS = [
+        'dress%20code%20galeria/dress1.png',
+        'dress%20code%20galeria/dress2.png',
+        'dress%20code%20galeria/dress3.png',
+        'dress%20code%20galeria/dress4.png',
+        'dress%20code%20galeria/dress5.png'
+      ];
+      var TOTAL = SRCS.length;
+
+      var lb       = document.getElementById('dressLightbox');
+      var track    = document.getElementById('lbTrack');
+      var viewport = document.getElementById('lbViewport');
+      var counter  = document.getElementById('lbCounter');
+      var slides   = track.querySelectorAll('.lb-slide img');
+
+      var current  = 0;
+      var txStart  = 0;       /* touch start X */
+      var ready    = false;   /* imágenes ya cargadas */
+
+      /* ── Abrir ── */
+      function open(startIndex) {
+        /* Carga las src la primera vez */
+        if (!ready) {
+          slides.forEach(function(img, i) { img.src = SRCS[i]; });
+          ready = true;
+        }
+        current = startIndex;
+        track.style.transition = 'none';
+        track.style.transform  = 'translateX(' + (-current * 100) + '%)';
+        updateCounter();
+        lb.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+
+      /* ── Cerrar ── */
+      function close() {
+        lb.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+
+      /* ── Ir a diapositiva ── */
+      function goTo(index) {
+        current = ((index % TOTAL) + TOTAL) % TOTAL;
+        track.style.transition = 'transform 0.38s cubic-bezier(0.4, 0, 0.2, 1)';
+        track.style.transform  = 'translateX(' + (-current * 100) + '%)';
+        updateCounter();
+      }
+
+      function updateCounter() {
+        counter.textContent = (current + 1) + ' / ' + TOTAL;
+      }
+
+      /* ── Eventos de la galería ── */
+      document.querySelectorAll('.dress-item').forEach(function(item) {
+        item.addEventListener('click', function() {
+          open(parseInt(this.dataset.index, 10));
+        });
+        item.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            open(parseInt(this.dataset.index, 10));
+          }
+        });
+      });
+
+      /* ── Controles del lightbox ── */
+      document.getElementById('lbClose').addEventListener('click', close);
+      document.getElementById('lbPrev').addEventListener('click', function() { goTo(current - 1); });
+      document.getElementById('lbNext').addEventListener('click', function() { goTo(current + 1); });
+
+      /* Cerrar al hacer clic en el fondo */
+      lb.addEventListener('click', function(e) {
+        if (e.target === lb) close();
+      });
+
+      /* Teclado: Esc / flechas */
+      document.addEventListener('keydown', function(e) {
+        if (!lb.classList.contains('open')) return;
+        if (e.key === 'Escape')     close();
+        if (e.key === 'ArrowLeft')  goTo(current - 1);
+        if (e.key === 'ArrowRight') goTo(current + 1);
+      });
+
+      /* ── Swipe táctil (sin solapamiento garantizado por overflow:hidden) ── */
+      viewport.addEventListener('touchstart', function(e) {
+        txStart = e.touches[0].clientX;
+      }, { passive: true });
+
+      viewport.addEventListener('touchend', function(e) {
+        var dx = e.changedTouches[0].clientX - txStart;
+        if (Math.abs(dx) > 50) goTo(current + (dx > 0 ? -1 : 1));
+      }, { passive: true });
+    }
+
+
+    /* ══════════════════════════════════════════════
+       CONFIRMACIÓN — envío a WhatsApp
+       Número: 526862362512
+       Mensaje: nombre, apellido, personas, mensaje opcional
+    ══════════════════════════════════════════════ */
+    function initConfirmForm() {
+      var form = document.getElementById('confirmForm');
+      if (!form) return;
+
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        var nombre   = document.getElementById('cfNombre').value.trim();
+        var apellido = document.getElementById('cfApellido').value.trim();
+        var personas = document.getElementById('cfPersonas').value.trim();
+        var mensaje  = document.getElementById('cfMensaje').value.trim();
+
+        /* Validación visual de campos requeridos */
+        var valido = true;
+        [['cfNombre', nombre], ['cfApellido', apellido], ['cfPersonas', personas]].forEach(function(par) {
+          var el = document.getElementById(par[0]);
+          if (!par[1]) {
+            el.classList.add('error');
+            el.addEventListener('input', function() { el.classList.remove('error'); }, { once: true });
+            valido = false;
+          }
+        });
+        if (!valido) return;
+
+        /* Composición del mensaje */
+        var texto = 'Confirmo mi asistencia a la boda de Marco y Alejandra';
+        texto += '\n\nNombre: '            + nombre;
+        texto += '\nApellido: '           + apellido;
+        texto += '\nNúmero de personas: ' + personas;
+        if (mensaje) {
+          texto += '\nMensaje: ' + mensaje;
+        }
+
+        window.open('https://wa.me/526862362512?text=' + encodeURIComponent(texto), '_blank');
+      });
+    }
   </script>
 
 </body>

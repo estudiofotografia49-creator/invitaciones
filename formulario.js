@@ -1485,7 +1485,7 @@ function initSubmit(paqueteKey) {
         'Error al enviar tu solicitud:\n' + err.message + '\n\n' +
         'Revisa la consola (F12) para más detalles o contáctanos:\n' +
         '📱 WhatsApp: +52 686 230 1280\n' +
-        '✉ festaliconecta@gmail.com'
+        '✉ conecta@festali.com'
       );
     }
   });

@@ -839,15 +839,17 @@ function enviarCorreoConfirmacion(datos, initPoint) {
       '<p style="color:#555;font-size:.86rem;text-align:center;margin:0 0 14px;">' + lbl.doubt + '</p>' +
       '<div style="text-align:center;">' +
       '<a href="https://wa.me/526862301280" style="display:inline-block;background:#25d366;color:#fff;text-decoration:none;padding:10px 20px;border-radius:50px;font-weight:700;font-size:.84rem;margin:4px;">💬 WhatsApp</a>' +
-      '<a href="mailto:festaliconecta@gmail.com" style="display:inline-block;background:#4b4495;color:#fff;text-decoration:none;padding:10px 20px;border-radius:50px;font-weight:700;font-size:.84rem;margin:4px;">✉ festaliconecta@gmail.com</a>' +
+      '<a href="mailto:conecta@festali.com" style="display:inline-block;background:#4b4495;color:#fff;text-decoration:none;padding:10px 20px;border-radius:50px;font-weight:700;font-size:.84rem;margin:4px;">✉ conecta@festali.com</a>' +
       '</div></div>' +
       '<div style="background:#f8f6ff;padding:18px;text-align:center;border-top:1px solid #eee;">' +
-      '<p style="color:#aaa;font-size:.72rem;margin:0;">© 2026 FESTALI · festaliconecta@gmail.com</p>' +
+      '<p style="color:#aaa;font-size:.72rem;margin:0;">© 2026 FESTALI · conecta@festali.com</p>' +
       '<p style="color:#ccc;font-size:.68rem;margin:4px 0 0;">Folio: ' + folio + '</p>' +
       '</div></div></body></html>';
 
     MailApp.sendEmail({
       to:       datos.correo,
+      replyTo:  'conecta@festali.com',
+      name:     'FESTALI',
       subject:  asunto,
       htmlBody: htmlBody
     });
@@ -914,15 +916,17 @@ function enviarCorreoPagoConfirmado(folio, nombre, correo, paquete, lang) {
       '<p style="color:#555;font-size:.86rem;margin:0 0 14px;">' + lbl.doubt + '</p>' +
       '<div>' +
       '<a href="https://wa.me/526862301280" style="display:inline-block;background:#25d366;color:#fff;text-decoration:none;padding:10px 20px;border-radius:50px;font-weight:700;font-size:.84rem;margin:4px;">💬 WhatsApp</a>' +
-      '<a href="mailto:festaliconecta@gmail.com" style="display:inline-block;background:#4b4495;color:#fff;text-decoration:none;padding:10px 20px;border-radius:50px;font-weight:700;font-size:.84rem;margin:4px;">✉ festaliconecta@gmail.com</a>' +
+      '<a href="mailto:conecta@festali.com" style="display:inline-block;background:#4b4495;color:#fff;text-decoration:none;padding:10px 20px;border-radius:50px;font-weight:700;font-size:.84rem;margin:4px;">✉ conecta@festali.com</a>' +
       '</div></div>' +
       '<div style="background:#f8f6ff;padding:18px;text-align:center;border-top:1px solid #eee;">' +
-      '<p style="color:#aaa;font-size:.72rem;margin:0;">© 2026 FESTALI · festaliconecta@gmail.com</p>' +
+      '<p style="color:#aaa;font-size:.72rem;margin:0;">© 2026 FESTALI · conecta@festali.com</p>' +
       '<p style="color:#ccc;font-size:.68rem;margin:4px 0 0;">Folio: ' + folio + '</p>' +
       '</div></div></body></html>';
 
     MailApp.sendEmail({
       to:       correo,
+      replyTo:  'conecta@festali.com',
+      name:     'FESTALI',
       subject:  asunto,
       htmlBody: htmlBody
     });
