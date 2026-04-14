@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#ffffff">
+  <title>Invitación de Boda</title>
+
+  <!-- Fuentes exactas de Figma -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Updock&family=Inria+Serif:wght@400&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      background: #ffffff;
+      overflow-x: hidden;
+    }
+
+    /* Scroll bloqueado mientras la pantalla de presentación está activa */
+    body { overflow: hidden; }
+    body.unlocked { overflow: auto; }
+
+    /* ══════════════════════════════════════════════
+       PANTALLA DE PRESENTACIÓN
+    ══════════════════════════════════════════════ */
+    #screen-presentacion {
+      position: fixed;
+      inset: 0;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+
+      transition: opacity 0.9s ease, visibility 0.9s ease;
+    }
+
+    #screen-presentacion.closing {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    /* Contenedor interno — replica layout vertical de Figma, gap 20px */
+    .pres-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+
+      /* Mobile: ocupa el ancho del diseño (410px en Figma)
+         Desktop: crece proporcionalmente hasta un límite cómodo */
+      width: min(100%, 600px);
+      padding: 0 16px; /* margen lateral en pantallas muy pequeñas */
+    }
+
+    /* ──────────────────────────────────────────────
+       TEXTO SUPERIOR
+       Figma: Updock Regular 400, 48px, #000, center, line-height 44px
+    ────────────────────────────────────────────── */
+    .pre-text {
+      font-family: 'Updock', serif;
+      font-weight: 400;
+      /* 48px / 390px = 12.31vw. Clamp: mín 28px · max 76px (para desktop ~600px) */
+      font-size: clamp(28px, 12.3vw, 76px);
+      /* line-height en proporción Figma: 44/48 = 0.9167 */
+      line-height: 0.9167;
+      color: #000000;
+      text-align: center;
+      letter-spacing: 0;
+
+      opacity: 0;
+      animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+    }
+
+    /* ──────────────────────────────────────────────
+       SOBRE ANIMADO
+       Figma: imagen 390×209 dentro de frame con padding 10px
+       La imagen sobre.png (3375×4219) se recorta desde Y=29.3% a Y=72.1%
+    ────────────────────────────────────────────── */
+    .envelope-scene {
+      width: 100%;
+      padding: 0 10px; /* replica padding 10px del frame "Sobre" de Figma */
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      touch-action: manipulation;
+
+      opacity: 0;
+      animation: fadeUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.5s both;
+    }
+
+    /* Wrapper que recibe las animaciones de flotación / shake / vuelo */
+    .envelope-wrap {
+      animation: float 4s ease-in-out infinite;
+      will-change: transform;
+    }
+
+    .envelope-wrap.no-float {
+      animation: none !important;
+    }
+
+    /* Caja de recorte: mantiene la proporción 390:209 de Figma y oculta
+       el espacio en blanco superior e inferior de sobre.png */
+    .envelope-clip {
+      width: 100%;
+      aspect-ratio: 390 / 209;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* La imagen completa se desplaza -29.3% (su propio alto) para mostrar
+       exactamente la sección del sobre sin el relleno blanco alrededor.
+       Coincide con imageTransform Y-offset=0.293 del nodo Figma 18:1993. */
+    .envelope-img {
+      width: 100%;
+      display: block;
+      transform: translateY(-29.3%);
+    }
+
+    /* ──────────────────────────────────────────────
+       TEXTO INFERIOR
+       Figma: Inria Serif Regular 400, 32px, #000, center, line-height 44px
+    ────────────────────────────────────────────── */
+    .tap-hint {
+      font-family: 'Inria Serif', serif;
+      font-weight: 400;
+      /* 32px / 390px = 8.21vw. Clamp: mín 20px · max 50px */
+      font-size: clamp(20px, 8.2vw, 50px);
+      /* line-height en proporción Figma: 44/32 = 1.375 */
+      line-height: 1.375;
+      color: #000000;
+      text-align: center;
+      letter-spacing: 0;
+      width: 100%;
+
+      opacity: 0;
+      animation:
+        fadeUp  1s   cubic-bezier(0.16, 1, 0.3, 1) 0.8s both,
+        pulse   2.5s ease-in-out                    2s   infinite;
+
+      transition: opacity 0.3s ease;
+    }
+
+    .tap-hint.hide {
+      opacity: 0 !important;
+      animation: none !important;
+    }
+
+    /* ══════════════════════════════════════════════
+       HERO (Fase 2 — placeholder)
+    ══════════════════════════════════════════════ */
+    #screen-hero {
+      min-height: 100vh;
+      background: #ffffff;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1.2s ease;
+    }
+
+    #screen-hero.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* ══════════════════════════════════════════════
+       KEYFRAMES
+    ══════════════════════════════════════════════ */
+
+    /* Aparición con subida suave */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Pulso del texto "Toca para abrir" */
+    @keyframes pulse {
+      0%, 100% { opacity: 0.45; }
+      50%       { opacity: 1; }
+    }
+
+    /* Flotación suave del sobre */
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-10px); }
+    }
+
+    /* Sacudida al tocar */
+    @keyframes shake {
+      0%, 100% { transform: rotate(0deg)   scale(1); }
+      15%       { transform: rotate(-2.5deg) scale(1.02); }
+      30%       { transform: rotate(2.5deg)  scale(1.04); }
+      45%       { transform: rotate(-2deg)   scale(1.03); }
+      60%       { transform: rotate(2deg)    scale(1.02); }
+      80%       { transform: rotate(-1deg)   scale(1.01); }
+    }
+
+    /* El sobre sube y desaparece */
+    @keyframes flyUp {
+      0%   { transform: translateY(0)      scale(1)    rotate(0deg);  opacity: 1; }
+      25%  { transform: translateY(-18px)  scale(1.03) rotate(-1deg); opacity: 1; }
+      100% { transform: translateY(-115vh) scale(0.8)  rotate(3deg);  opacity: 0; }
+    }
+
+    /* ══════════════════════════════════════════════
+       RESPONSIVE — DESKTOP
+       Mismo diseño, proporciones idénticas, escala mayor
+    ══════════════════════════════════════════════ */
+
+    /* Tablet 640px+ */
+    @media (min-width: 640px) {
+      .pres-content {
+        gap: clamp(20px, 3.5vw, 32px); /* gap escala con pantalla */
+      }
+    }
+
+    /* Desktop 1024px+ */
+    @media (min-width: 1024px) {
+      .pres-content {
+        padding: 0; /* sin padding extra, el container gestiona el ancho */
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════
+       FASE 1 · PRESENTACIÓN
+  ══════════════════════════════════════════════ -->
+  <section id="screen-presentacion">
+    <div class="pres-content">
+
+      <!-- "Para una persona muy especial..." — Updock 48px (Figma) -->
+      <p class="pre-text">Para una persona<br>muy especial...</p>
+
+      <!-- Sobre animado — sobre.png recortado a 390:209 (Figma) -->
+      <div
+        class="envelope-scene"
+        id="envelopeScene"
+        role="button"
+        tabindex="0"
+        aria-label="Toca para abrir tu invitación"
+      >
+        <div class="envelope-wrap" id="envelopeWrap">
+          <div class="envelope-clip">
+            <img
+              src="grafic/sobre.png"
+              class="envelope-img"
+              alt="Sobre de invitación de boda"
+              draggable="false"
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- "Toca para abrir" — Inria Serif 32px (Figma) -->
+      <p class="tap-hint" id="tapHint">Toca para abrir</p>
+
+    </div>
+  </section>
+
+
+  <!-- ══════════════════════════════════════════════
+       FASE 2 · HERO (se construirá en siguiente fase)
+  ══════════════════════════════════════════════ -->
+  <section id="screen-hero" aria-hidden="true">
+    <!-- Hero content — Fase 2 -->
+  </section>
+
+
+  <!-- Canción de fondo -->
+  <audio id="weddingMusic" src="music/song.mp3" preload="auto" loop></audio>
+
+
+  <script>
+    (function () {
+      'use strict';
+
+      const scene  = document.getElementById('envelopeScene');
+      const wrap   = document.getElementById('envelopeWrap');
+      const hint   = document.getElementById('tapHint');
+      const pres   = document.getElementById('screen-presentacion');
+      const hero   = document.getElementById('screen-hero');
+      const music  = document.getElementById('weddingMusic');
+      let   opened = false;
+
+      /* Soporta click, teclado y touch */
+      scene.addEventListener('click',      handleOpen);
+      scene.addEventListener('keydown',    e => { if (e.key === 'Enter' || e.key === ' ') handleOpen(); });
+      scene.addEventListener('touchstart', e => { e.preventDefault(); handleOpen(); }, { passive: false });
+
+      function handleOpen() {
+        if (opened) return;
+        opened = true;
+
+        /* 1 · Ocultar "Toca para abrir" */
+        hint.classList.add('hide');
+
+        /* 2 · Detener flotación + sacudir el sobre */
+        wrap.classList.add('no-float');
+        wrap.style.animation = 'shake 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+
+        /* 3 · Música con fade-in suave (comienza tras la sacudida) */
+        setTimeout(() => fadeInMusic(music, 0.8, 1600), 250);
+
+        /* 4 · Sobre vuela hacia arriba y desaparece */
+        setTimeout(() => {
+          wrap.style.animation = 'flyUp 0.9s cubic-bezier(0.55, 0, 1, 0.45) forwards';
+        }, 1000);
+
+        /* 5 · Mostrar hero y cerrar pantalla de presentación */
+        setTimeout(() => {
+          pres.classList.add('closing');
+          hero.classList.add('visible');
+          hero.removeAttribute('aria-hidden');
+          document.body.classList.add('unlocked');
+        }, 1700);
+
+        /* 6 · Remover del DOM para liberar memoria */
+        setTimeout(() => {
+          pres.style.display = 'none';
+        }, 2700);
+      }
+
+      function fadeInMusic(el, targetVol, durationMs) {
+        el.volume = 0;
+
+        el.play().catch(() => {
+          /* Autoplay bloqueado — reintentar en próximo gesto del usuario */
+          const retry = () => el.play().catch(() => {});
+          document.addEventListener('click',      retry, { once: true });
+          document.addEventListener('touchstart', retry, { once: true });
+        });
+
+        const steps    = 40;
+        const interval = durationMs / steps;
+        const step     = targetVol / steps;
+        let   current  = 0;
+
+        const timer = setInterval(() => {
+          current = Math.min(current + step, targetVol);
+          el.volume = current;
+          if (current >= targetVol) clearInterval(timer);
+        }, interval);
+      }
+
+    })();
+  </script>
+
+</body>
+</html>
